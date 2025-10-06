@@ -13,6 +13,8 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.Servo;
 //import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 //import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 
@@ -32,6 +34,9 @@ public class DriveTest extends LinearOpMode {
   DcMotor fRDrive;
   GoBildaPinpointDriver odo;
   IMU imu;
+  CRServo Intake_Transfer_Servo_1;//, Intake_Transfer_Servo_2,Spindexer_Servo;
+  DcMotor Intake;
+
   public void runOpMode()
   {
     bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
@@ -40,9 +45,13 @@ public class DriveTest extends LinearOpMode {
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     imu = hardwareMap.get(IMU.class, "imu");
     odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+    Intake_Transfer_Servo_1 = hardwareMap.get(CRServo.class, "ITServo_1");
+    Intake = hardwareMap.get(DcMotor.class, "Intake");
+   // Intake_Transfer_Servo_2 = hardwareMap.get(CRServo.class,"ITServo_2");
+   // Spindexer_Servo = hardwareMap.get(CRServo.class,"Spindexer_Servo");
 
-    fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
-    bRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+    fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+    bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -89,6 +98,23 @@ public class DriveTest extends LinearOpMode {
         Turn /= 2;
       }
 
+      if (gamepad1.a)
+      {
+        Intake.setPower(1);
+      }
+      else
+      {
+        Intake.setPower(0);
+      }
+
+     /* if (gamepad2.y)
+      {
+        Spindexer_Servo.setPower(0.5);
+      }
+      else
+      {
+        Spindexer_Servo.setPower(0);
+      } */
       if (gamepad2.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
