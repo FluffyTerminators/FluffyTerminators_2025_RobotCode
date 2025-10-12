@@ -34,9 +34,10 @@ public class DriveTest extends LinearOpMode {
   DcMotor fRDrive;
   GoBildaPinpointDriver odo;
   IMU imu;
-  CRServo Intake_Transfer_Servo_1;//, Intake_Transfer_Servo_2,Spindexer_Servo;
+  CRServo Intake_Transfer_Servo_1, Intake_Transfer_Servo_2,Spindexer_Servo;
+  Servo Spindexer_flap;
   DcMotor Intake;
-
+  DcMotor Shooter;
   public void runOpMode()
   {
     bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
@@ -45,10 +46,12 @@ public class DriveTest extends LinearOpMode {
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     imu = hardwareMap.get(IMU.class, "imu");
     odo = hardwareMap.get(GoBildaPinpointDriver.class, "odo");
+    Spindexer_flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     Intake_Transfer_Servo_1 = hardwareMap.get(CRServo.class, "ITServo_1");
     Intake = hardwareMap.get(DcMotor.class, "Intake");
+    Shooter = hardwareMap.get(DcMotor.class, "Shooter");
    // Intake_Transfer_Servo_2 = hardwareMap.get(CRServo.class,"ITServo_2");
-   // Spindexer_Servo = hardwareMap.get(CRServo.class,"Spindexer_Servo");
+    Spindexer_Servo = hardwareMap.get(CRServo.class,"Spindexer_Servo");
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -87,6 +90,15 @@ public class DriveTest extends LinearOpMode {
       Strafe = ((Math.sin(Heading) * gamepad2.left_stick_y) - (Math.cos(Heading) * gamepad2.left_stick_x));
       Turn = -gamepad2.right_stick_x;
 
+      if (gamepad1.x)
+      {
+        Spindexer_flap.setPosition(0);
+      }
+      else
+      {
+        Spindexer_flap.setPosition(1);
+      }
+
       if (gamepad2.b) {
         odo.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
@@ -107,14 +119,14 @@ public class DriveTest extends LinearOpMode {
         Intake.setPower(0);
       }
 
-     /* if (gamepad2.y)
+      if (gamepad1.y)
       {
         Spindexer_Servo.setPower(0.5);
       }
       else
       {
         Spindexer_Servo.setPower(0);
-      } */
+      }
       if (gamepad2.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
@@ -126,6 +138,14 @@ public class DriveTest extends LinearOpMode {
       //odo.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
       telemetry.addData("PinPoint Status", odo.getDeviceStatus());
 
+//      if (gamepad1.y)
+//      {
+//        Shooter.setPower(1);
+//      }
+//      else
+//      {
+//        Shooter.setPower(0);
+//      }
       double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
       MotorPower = (Forward + Strafe - Turn) / denominator;
       fRDrive.setPower(MotorPower);
