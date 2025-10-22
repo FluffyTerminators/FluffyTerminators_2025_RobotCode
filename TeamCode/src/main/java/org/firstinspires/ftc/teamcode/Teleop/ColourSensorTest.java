@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-//import org.firstinspires.ftc.robotcore.external.Telemetry;
-
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -14,15 +13,14 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-//import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-//import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
-
-//import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
+import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 
 //Download Missing Files
@@ -31,19 +29,6 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 @TeleOp(name = "Drive Test")
 public class ColourSensorTest extends LinearOpMode {
 
-  Blinker control_Hub;
-  Blinker expansion_Hub_2;
-  DcMotor bLDrive;
-  DcMotor bRDrive;
-  DcMotor fLDrive;
-  DcMotor fRDrive;
-  GoBildaPinpointDriver pinpoint;
-  IMU imu;
-  CRServo Intake_Transfer_Servo_1;//, Intake_Transfer_Servo_2,Spindexer_Servo;
-  DcMotor Intake;
-  Servo Flap;
-  NormalizedColorSensor Spindexer_sensor_1;
-  NormalizedColorSensor Spindexer_sensor_2;
   public enum DetectedColour{
     GREEN,
     PURPLE,
@@ -52,8 +37,8 @@ public class ColourSensorTest extends LinearOpMode {
 
   public DetectedColour getDetectedColor(Telemetry telemetry)
   {
-    NormalizedRGBA colors1 = Spindexer_sensor_1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
-    NormalizedRGBA colors2 = Spindexer_sensor_2.getNormalizedColors();
+    NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
+    NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
 
     float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
     normRed1 = colors1.red / colors1.alpha;
@@ -70,19 +55,6 @@ public class ColourSensorTest extends LinearOpMode {
     return DetectedColour.UNKNOWN;
   }
   public void runOpMode() {
-    bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
-    bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
-    fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
-    fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
-    imu = hardwareMap.get(IMU.class, "imu");
-    pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-    Intake_Transfer_Servo_1 = hardwareMap.get(CRServo.class, "ITServo_1");
-    Intake = hardwareMap.get(DcMotor.class, "Intake");
-    // Intake_Transfer_Servo_2 = hardwareMap.get(CRServo.class,"ITServo_2");
-    // Spindexer_Servo = hardwareMap.get(CRServo.class,"Spindexer_Servo");
-    Spindexer_sensor_1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
-    Spindexer_sensor_2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
-
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -160,11 +132,11 @@ public class ColourSensorTest extends LinearOpMode {
 
      /* if (gamepad2.y)
       {
-        Spindexer_Servo.setPower(0.5);
+        SpindxerServo.setPower(0.5);
       }
       else
       {
-        Spindexer_Servo.setPower(0);
+        SpindxerServo.setPower(0);
       } */
       if (gamepad2.a);
       {
