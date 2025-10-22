@@ -86,7 +86,7 @@ public class ColourSensorTest extends LinearOpMode {
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
       Forward = ((Math.cos(Heading) * gamepad2.left_stick_y) + (Math.sin(Heading) * gamepad2.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad2.left_stick_y) - (Math.cos(Heading) * gamepad2.left_stick_x));
+      Strafe = -((Math.sin(Heading) * gamepad2.left_stick_y) + (Math.cos(Heading) * gamepad2.left_stick_x));
       Turn = -gamepad2.right_stick_x;
 
       if (gamepad2.right_bumper) {
@@ -94,28 +94,27 @@ public class ColourSensorTest extends LinearOpMode {
         Strafe /= 2;
         Turn /= 2;
       }
-        if (gamepad2.left_bumper) {
-          imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-          imu.resetYaw();
-          pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-          pinpoint.setHeading(0, AngleUnit.DEGREES);
-          pinpoint.update();
-        }
+      if (gamepad2.left_bumper) {
+        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+        imu.resetYaw();
+        pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
+        pinpoint.setHeading(0, AngleUnit.DEGREES);
+        pinpoint.update();
+      }
 
-        //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-        telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+      //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
+      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
 
-        double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-        MotorPower = (Forward + Strafe - Turn) / denominator;
-        fRDrive.setPower(MotorPower);
-        MotorPower = (Forward - Strafe + Turn) / denominator;
-        fLDrive.setPower(MotorPower);
-        MotorPower = (Forward - Strafe - Turn) / denominator;
-        bRDrive.setPower(MotorPower);
-        MotorPower = (Forward + Strafe + Turn) / denominator;
-        bLDrive.setPower(MotorPower);
+      double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
+      MotorPower = (Forward + Strafe - Turn) / denominator;
+      fRDrive.setPower(MotorPower);
+      MotorPower = (Forward - Strafe + Turn) / denominator;
+      fLDrive.setPower(MotorPower);
+      MotorPower = (Forward - Strafe - Turn) / denominator;
+      bRDrive.setPower(MotorPower);
+      MotorPower = (Forward + Strafe + Turn) / denominator;
+      bLDrive.setPower(MotorPower);
 
-      
 
       DetectedColour Colour = getDetectedColor(telemetry);
 
@@ -130,17 +129,37 @@ public class ColourSensorTest extends LinearOpMode {
         Intake.setPower(0);
       }
 
-     /* if (gamepad2.y)
+      boolean calledGreen;
+      boolean shoot;
+      double  startTime;
+      if (gamepad2.a)
       {
-        SpindxerServo.setPower(0.5);
+        calledGreen = true;
       }
       else
       {
-        SpindxerServo.setPower(0);
-      } */
-      if (gamepad2.a);
-      {
+        calledGreen = false;
+      }
 
+      // Rapid fire
+      if (calledGreen) {
+        if (!getDetectedColor(telemetry).equals(DetectedColour.GREEN))
+        {
+          SpindxerServo.setPower(1);
+        }
+        else
+        {
+          SpindxerServo.setPower(0);
+          Flap.setPosition(0);
+          Shooter.setPower(1);
+          startTime = getRuntime();
+          SpindxerServo.setPower(1);
+          if (startTime+3000 < getRuntime())
+          {
+            Flap.setPosition(1);
+          }
+
+        }
       }
       telemetry.update();
     }
