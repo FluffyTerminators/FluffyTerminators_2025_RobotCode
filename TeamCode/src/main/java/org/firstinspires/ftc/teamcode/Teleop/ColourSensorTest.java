@@ -101,7 +101,6 @@ public class ColourSensorTest extends LinearOpMode {
         pinpoint.setHeading(0, AngleUnit.DEGREES);
         pinpoint.update();
       }
-
       //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
 
