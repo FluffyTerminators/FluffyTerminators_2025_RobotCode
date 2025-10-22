@@ -40,7 +40,7 @@ public class ColourSensorTest extends LinearOpMode {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
 
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
+    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
     normRed1 = colors1.red / colors1.alpha;
     normGreen1 = colors1.blue / colors1.alpha;
     normBlue1 = colors1.green / colors1.alpha;
@@ -48,9 +48,25 @@ public class ColourSensorTest extends LinearOpMode {
     normBlue2 = colors2.blue / colors1.alpha;
     normGreen2 = colors2.green / colors1.alpha;
 
+    AverageSpinRed = (normRed1 + normRed2) / 2;
+    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
+    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
+
     telemetry.addData("AverageSpinRed", (normRed1+normRed2)/2);
     telemetry.addData("AverageSpinBlue", (normBlue1+normBlue2)/2);
     telemetry.addData("AverageSpinGreen", (normGreen1+normGreen2)/2);
+
+    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
+      telemetry.addData("Colour","green");
+      return DetectedColour.GREEN;
+    }
+
+    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+      telemetry.addData("Colour","purple");
+      return DetectedColour.PURPLE;
+    }
+
+    telemetry.addData("Colour","unknown");
 
     return DetectedColour.UNKNOWN;
   }
@@ -140,7 +156,7 @@ public class ColourSensorTest extends LinearOpMode {
         calledGreen = false;
       }
 
-      // Rapid fire
+
       if (calledGreen) {
         if (!getDetectedColor(telemetry).equals(DetectedColour.GREEN))
         {
