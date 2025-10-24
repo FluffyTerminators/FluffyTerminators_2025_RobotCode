@@ -16,19 +16,50 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
 import org.firstinspires.ftc.teamcode.Util.Constants;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
+//import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 
 //Download Missing Files
 
 
-@TeleOp(name = "CompTeleop")
+@TeleOp(name = "CompTeleOp")
 public class CompTeloep extends LinearOpMode {
+
+  // Hubs
+  //public Blinker control_Hub;
+  //public Blinker expansion_Hub_2;
+
+  // Drive Motors
+  public DcMotor bLDrive;
+  public DcMotor bRDrive;
+  public DcMotor fLDrive;
+  public DcMotor fRDrive;
+
+  // Mechanism Motors
+  public DcMotor Intake;
+  public DcMotor Shooter;
+
+  // Internal Motion Units
+  public IMU imu;
+  public GoBildaPinpointDriver pinpoint;
+
+  // Servos
+  //public CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
+  //public CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
+  public CRServo SpindxerServo;
+  public Servo Flap;
+
+  // Colour Sensors
+  public NormalizedColorSensor SpindexerSensor1;
+  public NormalizedColorSensor SpindexerSensor2;
 
   public enum DetectedColour {
     GREEN,
@@ -56,6 +87,20 @@ public class CompTeloep extends LinearOpMode {
   }
 
   public void runOpMode() throws InterruptedException {
+    //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
+    //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
+    bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
+    bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
+    fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
+    fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
+    Intake  = hardwareMap.get(DcMotor.class, "Intake");
+    Shooter = hardwareMap.get(DcMotor.class, "Shooter");
+    imu = hardwareMap.get(IMU.class,  "imu");
+    pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+    SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
+    Flap                   = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
+    SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
+    SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
     fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -92,9 +137,9 @@ public class CompTeloep extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      Forward = ((Math.cos(Heading) * gamepad2.left_stick_y) + (Math.sin(Heading) * gamepad2.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad2.left_stick_y) - (Math.cos(Heading) * gamepad2.left_stick_x));
-      Turn = -gamepad2.right_stick_x;
+      Forward = ((Math.cos(Heading) * gamepad1.left_stick_y) + (Math.sin(Heading) * gamepad1.left_stick_x));
+      Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
+      Turn = -gamepad1.right_stick_x;
 
       if (gamepad2.right_bumper) {
         Forward /= Constants.brake;
@@ -130,8 +175,28 @@ public class CompTeloep extends LinearOpMode {
       }
 
       if (gamepad2.left_bumper) {
-        shootSequence = true;
-        shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
+        if (shootSequence)
+        {
+          shootSequence = false;
+        }
+        else {
+          shootSequence = true;
+          shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
+        }
+      }
+
+      if (!shootSequence && gamepad2.a)
+      {
+        SpindxerServo.setPower(1);
+      }
+      else
+      {
+        SpindxerServo.setPower(0);
+      }
+
+      if (gamepad2.x)
+      {
+        spindexerToggle = !spindexerToggle;
       }
 
 
@@ -179,6 +244,11 @@ public class CompTeloep extends LinearOpMode {
           shooterToggle = false;
         }
         shootSequence = false;
+      }
+      else
+      {
+        shooterToggle = false;
+        Flap.setPosition(0);
       }
 
       if (spindexerToggle) {

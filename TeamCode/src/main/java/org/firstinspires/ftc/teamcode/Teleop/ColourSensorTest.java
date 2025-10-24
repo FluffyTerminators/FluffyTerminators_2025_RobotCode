@@ -26,7 +26,7 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 //Download Missing Files
 
 
-@TeleOp(name = "Drive Test")
+@TeleOp(name = "Colour Test")
 public class ColourSensorTest extends LinearOpMode {
 
   public enum DetectedColour{
