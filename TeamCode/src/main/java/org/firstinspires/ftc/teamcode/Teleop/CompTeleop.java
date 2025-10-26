@@ -4,7 +4,6 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -13,15 +12,12 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 
 import org.firstinspires.ftc.teamcode.Util.Constants;
 //import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
@@ -31,7 +27,7 @@ import org.firstinspires.ftc.teamcode.Util.Constants;
 
 
 @TeleOp(name = "CompTeleOp")
-public class CompTeloep extends LinearOpMode {
+public class CompTeleop extends LinearOpMode {
 
   // Hubs
   //public Blinker control_Hub;
@@ -98,7 +94,7 @@ public class CompTeloep extends LinearOpMode {
     imu = hardwareMap.get(IMU.class,  "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap                   = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
+    Flap = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
@@ -142,12 +138,12 @@ public class CompTeloep extends LinearOpMode {
       Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
       Turn = -gamepad1.right_stick_x;
 
-      if (gamepad2.right_bumper) {
+      if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
       }
-      if (gamepad2.left_bumper) {
+      if (gamepad1.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
