@@ -119,10 +119,11 @@ public class CompTeloep extends LinearOpMode {
     boolean intakeToggle = false;
     boolean shooterToggle = false;
     boolean spindexerToggle = true;
+    boolean spinToggleLast = false;
+    boolean inToggleLast = false;
+    boolean outToggleLast = false;
     boolean shootSequence = false;
     int shooterStage = 0;
-    boolean shooterReady = false;
-    boolean shooterFired = false;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -196,29 +197,35 @@ public class CompTeloep extends LinearOpMode {
 
       if (gamepad2.x)
       {
-        spindexerToggle = !spindexerToggle;
+        if (!spinToggleLast)
+        {
+          spindexerToggle = !spindexerToggle;
+          spinToggleLast= true;
+        }
+      } else
+      {
+        spinToggleLast = false;
       }
 
 
       if (gamepad2.right_bumper)
       {
-        if (intakeToggle)
+        if (!inToggleLast)
         {
-          intakeToggle = false;
-        } else
-        {
-          intakeToggle = true;
+          intakeToggle = !intakeToggle;
+          inToggleLast= true;
         }
-
-        telemetry.addData("Intake Toggle", intakeToggle);
+      } else
+      {
+        inToggleLast = false;
       }
+
 
       if (shootSequence)
       {
         if (shooterStage == 1)
         {
           Flap.setPosition(0);
-          spindexerToggle = false;
           shooterToggle = true;
 
         if (Shooter.getPower() == 1) {
@@ -228,7 +235,6 @@ public class CompTeloep extends LinearOpMode {
         if (shooterStage == 2)
         {
           Flap.setPosition(1);
-          spindexerToggle = true;
           if (Shooter.getPower() < 1)
           {
             shooterStage = 3;
