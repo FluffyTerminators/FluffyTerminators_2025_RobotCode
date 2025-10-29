@@ -138,12 +138,15 @@ public class CompTeleop extends LinearOpMode {
       Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
       Turn = -gamepad1.right_stick_x;
 
-      if (gamepad1.right_bumper) {
+      if (gamepad1.right_bumper)
+      {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
       }
-      if (gamepad1.left_bumper) {
+
+      if (gamepad1.left_bumper)
+      {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
@@ -153,16 +156,44 @@ public class CompTeleop extends LinearOpMode {
 
       //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+      telemetry.addData("forward",Forward);
+      telemetry.addData("strafe",Strafe);
+      telemetry.addData("Turn", Turn);
 
       double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-      MotorPower = (Forward + Strafe - Turn) / denominator;
+      MotorPower = (Forward - Strafe - Turn) / denominator;
       fRDrive.setPower(MotorPower);
+      telemetry.addData("FRDrive",MotorPower);
       MotorPower = (Forward - Strafe + Turn) / denominator;
       fLDrive.setPower(MotorPower);
-      MotorPower = (Forward - Strafe - Turn) / denominator;
+      telemetry.addData("FLDrive",MotorPower);
+      MotorPower = (Forward + Strafe - Turn) / denominator;
       bRDrive.setPower(MotorPower);
+      telemetry.addData("BRDrive",MotorPower);
       MotorPower = (Forward + Strafe + Turn) / denominator;
       bLDrive.setPower(MotorPower);
+      telemetry.addData("BLDrive",MotorPower);
+
+      /*
+      double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
+      MotorPower = (Forward - Strafe - Turn) / denominator;
+      telemetry.addData("FRPower", MotorPower);
+      fRDrive.setPower(MotorPower);
+      MotorPower = (Forward - Strafe + Turn) / denominator;
+      telemetry.addData("FLPower", MotorPower);
+      fLDrive.setPower(MotorPower);
+      MotorPower = (Forward + Strafe - Turn) / denominator;
+      telemetry.addData("BRPower", MotorPower);
+      bRDrive.setPower(MotorPower);
+      MotorPower = (Forward + Strafe + Turn) / denominator;
+      telemetry.addData("BLPower", MotorPower);
+      bLDrive.setPower(MotorPower);
+      * */
+
+      telemetry.addData("FRDrive_Actual", fRDrive.getPower());
+      telemetry.addData("FLDrive_Actual", fLDrive.getPower());
+      telemetry.addData("BRDrive_Actual", bRDrive.getPower());
+      telemetry.addData("BLDrive_Actual", bLDrive.getPower());
 
 
       DetectedColour Colour = getDetectedColor(telemetry);
