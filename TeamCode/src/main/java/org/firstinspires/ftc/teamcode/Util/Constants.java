@@ -4,6 +4,8 @@ import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.har
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
+import com.pedropathing.ftc.drivetrains.MecanumConstants;
+import com.pedropathing.ftc.localization.constants.PinpointConstants;
 import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -22,14 +24,37 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 import org.firstinspires.ftc.teamcode.Util.Constants;
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.*;
+
 
 public class Constants
 {
+
+    public static MecanumConstants driveConstants = new MecanumConstants()
+            .maxPower(1)
+            .rightFrontMotorName("fRDrive")
+            .rightRearMotorName("bRDrive")
+            .leftRearMotorName("bLDrive")
+            .leftFrontMotorName("fLDrive")
+            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+
+    public static PinpointConstants localizerConstants = new PinpointConstants()
+            .forwardPodY(-5)
+            .strafePodX(0.5)
+            .distanceUnit(DistanceUnit.CM)
+            .hardwareMapName("pinpoint")
+            .encoderResolution(GoBildaOdometryPods.goBILDA_4_BAR_POD)
+            .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD);
+
     public static class PEDROConstants
     {
         public static FollowerConstants followerConstants = new FollowerConstants();
@@ -40,7 +65,9 @@ public class Constants
         {
             return new FollowerBuilder(followerConstants, hardwareMap)
                     .pathConstraints(pathConstraints)
+                    .mecanumDrivetrain(driveConstants)
                     .build();
+
         }
     }
 
@@ -78,5 +105,10 @@ public class Constants
         // Colour Sensors
         public static NormalizedColorSensor SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
         public static NormalizedColorSensor SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
+
+
+        public static FollowerConstants followerConstants = new FollowerConstants()
+                .mass(9.35);
+
     }
 }
