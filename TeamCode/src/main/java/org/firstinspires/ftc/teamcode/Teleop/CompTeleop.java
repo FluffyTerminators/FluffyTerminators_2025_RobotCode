@@ -98,7 +98,7 @@ public class CompTeleop extends LinearOpMode {
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
-    fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+    fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
