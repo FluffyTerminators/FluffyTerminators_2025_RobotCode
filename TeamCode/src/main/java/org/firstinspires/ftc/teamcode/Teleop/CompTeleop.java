@@ -62,10 +62,6 @@ public class CompTeleop extends LinearOpMode {
     UNKNOWN,
   }
 
-  {
-    pinpoint.setPosition(RobotPosition);
-  }
-
   public DetectedColour getDetectedColor(Telemetry telemetry) {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
@@ -86,11 +82,6 @@ public class CompTeleop extends LinearOpMode {
   }
 
   public void runOpMode() throws InterruptedException {
-
-    {
-      Pose2D robotPose = pinpoint.getPosition();
-      telemetry.addData("position of robot", robotPose);
-    }
 
     //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
     //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
