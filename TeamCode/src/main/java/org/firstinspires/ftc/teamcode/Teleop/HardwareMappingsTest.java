@@ -1,34 +1,39 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.Flap;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.Intake;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.SpindexerSensor1;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.SpindexerSensor2;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.bLDrive;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.bRDrive;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.fLDrive;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.fRDrive;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.imu;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.pinpoint;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Blinker;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
-import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
+import org.firstinspires.ftc.teamcode.Util.HardwareMapping;
+import org.firstinspires.ftc.teamcode.Util.HardwareMapping.*;
 
 
 //Download Missing Files
 
 
-@TeleOp(name = "Colour Test")
-public class ColourSensorTest extends LinearOpMode {
+@TeleOp(name = "Refactor Test")
+public class HardwareMappingsTest extends LinearOpMode {
+  HardwareMapping hardware = new HardwareMapping();
 
   public enum DetectedColour{
     GREEN,
@@ -41,7 +46,7 @@ public class ColourSensorTest extends LinearOpMode {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
 
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
+    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
     normRed1 = colors1.red / colors1.alpha;
     normGreen1 = colors1.blue / colors1.alpha;
     normBlue1 = colors1.green / colors1.alpha;
@@ -49,25 +54,9 @@ public class ColourSensorTest extends LinearOpMode {
     normBlue2 = colors2.blue / colors1.alpha;
     normGreen2 = colors2.green / colors1.alpha;
 
-    AverageSpinRed = (normRed1 + normRed2) / 2;
-    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
-    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
-
     telemetry.addData("AverageSpinRed", (normRed1+normRed2)/2);
     telemetry.addData("AverageSpinBlue", (normBlue1+normBlue2)/2);
     telemetry.addData("AverageSpinGreen", (normGreen1+normGreen2)/2);
-
-    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
-      telemetry.addData("Colour","green");
-      return DetectedColour.GREEN;
-    }
-
-    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
-      telemetry.addData("Colour","purple");
-      return DetectedColour.PURPLE;
-    }
-
-    telemetry.addData("Colour","unknown");
 
     return DetectedColour.UNKNOWN;
   }
@@ -103,7 +92,7 @@ public class ColourSensorTest extends LinearOpMode {
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
       Forward = ((Math.cos(Heading) * gamepad2.left_stick_y) + (Math.sin(Heading) * gamepad2.left_stick_x));
-      Strafe = -((Math.sin(Heading) * gamepad2.left_stick_y) + (Math.cos(Heading) * gamepad2.left_stick_x));
+      Strafe = ((Math.sin(Heading) * gamepad2.left_stick_y) - (Math.cos(Heading) * gamepad2.left_stick_x));
       Turn = -gamepad2.right_stick_x;
 
       if (gamepad2.right_bumper) {
@@ -111,26 +100,28 @@ public class ColourSensorTest extends LinearOpMode {
         Strafe /= 2;
         Turn /= 2;
       }
-      if (gamepad2.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-        imu.resetYaw();
-        pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-        pinpoint.setHeading(0, AngleUnit.DEGREES);
-        pinpoint.update();
-      }
-      //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+        if (gamepad2.left_bumper) {
+          imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+          imu.resetYaw();
+          pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
+          pinpoint.setHeading(0, AngleUnit.DEGREES);
+          pinpoint.update();
+        }
 
-      double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-      MotorPower = (Forward + Strafe - Turn) / denominator;
-      fRDrive.setPower(MotorPower);
-      MotorPower = (Forward - Strafe + Turn) / denominator;
-      fLDrive.setPower(MotorPower);
-      MotorPower = (Forward - Strafe - Turn) / denominator;
-      bRDrive.setPower(MotorPower);
-      MotorPower = (Forward + Strafe + Turn) / denominator;
-      bLDrive.setPower(MotorPower);
+        //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
+        telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
 
+        double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
+        MotorPower = (Forward + Strafe - Turn) / denominator;
+        fRDrive.setPower(MotorPower);
+        MotorPower = (Forward - Strafe + Turn) / denominator;
+        fLDrive.setPower(MotorPower);
+        MotorPower = (Forward - Strafe - Turn) / denominator;
+        bRDrive.setPower(MotorPower);
+        MotorPower = (Forward + Strafe + Turn) / denominator;
+        bLDrive.setPower(MotorPower);
+
+      
 
       DetectedColour Colour = getDetectedColor(telemetry);
 
@@ -145,38 +136,14 @@ public class ColourSensorTest extends LinearOpMode {
         Intake.setPower(0);
       }
 
-      boolean calledGreen;
-      boolean shoot;
-      double  startTime;
-      if (gamepad2.a)
+     /* if (gamepad2.y)
       {
-        calledGreen = true;
+        SpindxerServo.setPower(0.5);
       }
       else
       {
-        calledGreen = false;
-      }
-
-
-      if (calledGreen) {
-        if (!getDetectedColor(telemetry).equals(DetectedColour.GREEN))
-        {
-          SpindxerServo.setPower(1);
-        }
-        else
-        {
-          SpindxerServo.setPower(0);
-          Flap.setPosition(0);
-          Shooter.setPower(1);
-          startTime = getRuntime();
-          SpindxerServo.setPower(1);
-          if (startTime+3000 < getRuntime())
-          {
-            Flap.setPosition(1);
-          }
-
-        }
-      }
+        SpindxerServo.setPower(0);
+      } */
       telemetry.update();
     }
   }
