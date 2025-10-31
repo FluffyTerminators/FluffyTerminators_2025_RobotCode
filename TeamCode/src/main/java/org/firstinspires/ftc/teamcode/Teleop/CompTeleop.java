@@ -143,9 +143,17 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      Forward = ((Math.cos(Heading) * gamepad1.left_stick_y) + (Math.sin(Heading) * gamepad1.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
+
+      double rawForward = -gamepad1.left_stick_y; // FTC joystick forward is negative
+      double rawStrafe = gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
+
+      double sinHeading = Math.sin(Heading);
+      double cosHeading = Math.cos(Heading);
+
+      // Rotate the driver input vector so it is field-centric
+      Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
+      Forward = rawStrafe * sinHeading + rawForward * cosHeading;
 
       if (gamepad1.right_bumper)
       {
@@ -170,18 +178,20 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Turn", Turn);
 
       double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-      MotorPower = (Forward - Strafe - Turn) / denominator;
-      fRDrive.setPower(MotorPower);
-      telemetry.addData("FRDrive",MotorPower);
-      MotorPower = (Forward - Strafe + Turn) / denominator;
-      fLDrive.setPower(MotorPower);
-      telemetry.addData("FLDrive",MotorPower);
-      MotorPower = (Forward + Strafe - Turn) / denominator;
-      bRDrive.setPower(MotorPower);
-      telemetry.addData("BRDrive",MotorPower);
-      MotorPower = (Forward + Strafe + Turn) / denominator;
-      bLDrive.setPower(MotorPower);
-      telemetry.addData("BLDrive",MotorPower);
+
+      double frontLeftPower = (Forward + Strafe + Turn) / denominator;
+      double backLeftPower = (Forward - Strafe + Turn) / denominator;
+      double frontRightPower = (Forward - Strafe - Turn) / denominator;
+      double backRightPower = (Forward + Strafe - Turn) / denominator;
+
+      fLDrive.setPower(frontLeftPower);
+      telemetry.addData("FLDrive",frontLeftPower);
+      bLDrive.setPower(backLeftPower);
+      telemetry.addData("BLDrive",backLeftPower);
+      fRDrive.setPower(frontRightPower);
+      telemetry.addData("FRDrive",frontRightPower);
+      bRDrive.setPower(backRightPower);
+      telemetry.addData("BRDrive",backRightPower);
 
       telemetry.addData("FRDrive_Actual", fRDrive.getPower());
       telemetry.addData("FLDrive_Actual", fLDrive.getPower());
