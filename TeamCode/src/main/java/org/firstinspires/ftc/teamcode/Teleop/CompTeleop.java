@@ -303,3 +303,4 @@ public class CompTeleop extends LinearOpMode {
 }
 
 // stupid code wont commit without an adition
+// THE CURRENT VERSION OF CODE DOES NOT WORK! MAKE SURE TO REMOVE THIS COMMENT AFTER
