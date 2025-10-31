@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -13,21 +12,19 @@ import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-
-import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-
 import org.firstinspires.ftc.teamcode.Util.Constants;
+import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 //import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 
 //Download Missing Files
 
 
-@TeleOp(name = "CompTeleOp")
-public class CompTeleop extends LinearOpMode {
+@TeleOp(name = "MechanismTest")
+public class MechanismTest extends LinearOpMode {
 
   // Hubs
   //public Blinker control_Hub;
@@ -120,6 +117,9 @@ public class CompTeleop extends LinearOpMode {
     boolean outToggleLast = false;
     boolean shootSequence = false;
     int shooterStage = 0;
+    int ShooterCurrent,ShooterLast = 0;
+    long TimeCurrent,TimeLast = 0;
+    double Shooterspeed = 0;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -134,159 +134,62 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      Forward = ((Math.cos(Heading) * gamepad1.left_stick_y) + (Math.sin(Heading) * gamepad1.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
-      Turn = -gamepad1.right_stick_x;
-
-      if (gamepad1.right_bumper)
+      if (gamepad1.y)
       {
-        Forward /= Constants.brake;
-        Strafe /= Constants.brake;
-        Turn /= Constants.brake;
+        fRDrive.setPower(gamepad1.left_stick_y);
+        telemetry.addData("Active Motor: ","Front Right");
       }
-
+      else
+      {
+        fRDrive.setPower(0);
+      }
+      if (gamepad1.x)
+      {
+        fLDrive.setPower(gamepad1.left_stick_y);
+        telemetry.addData("Active Motor: ","Front Left");
+      }
+      else
+      {
+        fLDrive.setPower(0);
+      }
+      if (gamepad1.a)
+      {
+        bRDrive.setPower(gamepad1.left_stick_y);
+        telemetry.addData("Active Motor: ","Back Right");
+      }
+      else
+      {
+        bRDrive.setPower(0);
+      }
+      if (gamepad1.b)
+      {
+        bLDrive.setPower(gamepad1.left_stick_y);
+        telemetry.addData("Active Motor: ","Back Left");
+      }
+      else
+      {
+        bLDrive.setPower(0);
+      }
       if (gamepad1.left_bumper)
       {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-        imu.resetYaw();
-        pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-        pinpoint.setHeading(0, AngleUnit.DEGREES);
-        pinpoint.update();
-      }
-
-      //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
-      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
-      telemetry.addData("forward",Forward);
-      telemetry.addData("strafe",Strafe);
-      telemetry.addData("Turn", Turn);
-
-      double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-      MotorPower = (Forward - Strafe - Turn) / denominator;
-      fRDrive.setPower(MotorPower);
-      telemetry.addData("FRDrive",MotorPower);
-      MotorPower = (Forward - Strafe + Turn) / denominator;
-      fLDrive.setPower(MotorPower);
-      telemetry.addData("FLDrive",MotorPower);
-      MotorPower = (Forward + Strafe - Turn) / denominator;
-      bRDrive.setPower(MotorPower);
-      telemetry.addData("BRDrive",MotorPower);
-      MotorPower = (Forward + Strafe + Turn) / denominator;
-      bLDrive.setPower(MotorPower);
-      telemetry.addData("BLDrive",MotorPower);
-
-      telemetry.addData("FRDrive_Actual", fRDrive.getPower());
-      telemetry.addData("FLDrive_Actual", fLDrive.getPower());
-      telemetry.addData("BRDrive_Actual", bRDrive.getPower());
-      telemetry.addData("BLDrive_Actual", bLDrive.getPower());
-
-
-      DetectedColour Colour = getDetectedColor(telemetry);
-
-      if (gamepad1.b) {
-        pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
-      }
-
-      if (gamepad2.left_bumper) {
-        if (shootSequence)
-        {
-          shootSequence = false;
-        }
-        else {
-          shootSequence = true;
-          shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
-        }
-      }
-
-      if (!shootSequence && gamepad2.a)
-      {
-        SpindxerServo.setPower(1);
+        Shooter.setPower(gamepad1.left_stick_y);
+        telemetry.addData("Active Motor: ","Shooter");
       }
       else
       {
-        SpindxerServo.setPower(0);
-      }
-
-      if (gamepad2.x)
-      {
-        if (!spinToggleLast)
-        {
-          spindexerToggle = !spindexerToggle;
-          spinToggleLast= true;
-        }
-      } else
-      {
-        spinToggleLast = false;
-      }
-
-
-      if (gamepad2.right_bumper)
-      {
-        if (!inToggleLast)
-        {
-          intakeToggle = !intakeToggle;
-          inToggleLast= true;
-        }
-      } else
-      {
-        inToggleLast = false;
-      }
-
-
-      if (shootSequence)
-      {
-        if (shooterStage == 1)
-        {
-          Flap.setPosition(0);
-          shooterToggle = true;
-
-        if (Shooter.getPower() == 1) {
-        shooterStage = 2;
-        }
-        }
-        if (shooterStage == 2)
-        {
-          Flap.setPosition(1);
-          if (Shooter.getPower() < 1)
-          {
-            shooterStage = 3;
-          }
-        }
-        if (shooterStage == 3)
-        {
-          Flap.setPosition(0);
-          shooterStage = 4;
-        }
-        if (shooterStage == 4)
-        {
-          shooterToggle = false;
-        }
-        shootSequence = false;
-      }
-      else
-      {
-        shooterToggle = false;
-        Flap.setPosition(0);
-      }
-
-      if (spindexerToggle) {
-        SpindxerServo.setPower(Constants.spindexerPower);
-      } else {
-        SpindxerServo.setPower(0);
-      }
-
-      if (shooterToggle) {
-        Shooter.setPower(Constants.shooterPower);
-      } else {
         Shooter.setPower(0);
       }
-
-
-      if (intakeToggle) {
-        Intake.setPower(1);
-      } else {
-        Intake.setPower(0);
-      }
-
+      telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
+      telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
+      telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());
+      telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
+      ShooterCurrent = Shooter.getCurrentPosition();
+      TimeCurrent = System.currentTimeMillis();
+      Shooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
+      ShooterLast = ShooterCurrent;
+      TimeLast = TimeCurrent;
+      telemetry.addData("Shooter Encoder: ",ShooterCurrent);
+      telemetry.addData("Shooter Speed (ticks/milli): ",Shooterspeed);
       telemetry.update();
     }
   }
