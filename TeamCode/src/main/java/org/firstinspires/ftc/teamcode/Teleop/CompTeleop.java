@@ -12,8 +12,11 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.robot.Robot;
+
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 import org.firstinspires.ftc.teamcode.Util.Constants;
@@ -52,11 +55,15 @@ public class CompTeleop extends LinearOpMode {
   // Colour Sensors
   public NormalizedColorSensor SpindexerSensor1;
   public NormalizedColorSensor SpindexerSensor2;
-
+  public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0,AngleUnit.DEGREES,0 );
   public enum DetectedColour {
     GREEN,
     PURPLE,
     UNKNOWN,
+  }
+
+  {
+    pinpoint.setPosition(RobotPosition);
   }
 
   public DetectedColour getDetectedColor(Telemetry telemetry) {
@@ -79,6 +86,12 @@ public class CompTeleop extends LinearOpMode {
   }
 
   public void runOpMode() throws InterruptedException {
+
+    {
+      Pose2D robotPose = pinpoint.getPosition();
+      telemetry.addData("position of robot", robotPose);
+    }
+
     //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
     //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
     bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
@@ -281,6 +294,7 @@ public class CompTeleop extends LinearOpMode {
         Intake.setPower(1);
       } else {
         Intake.setPower(0);
+
       }
 
       telemetry.update();
