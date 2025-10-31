@@ -48,11 +48,11 @@ public class HardwareMappingsTest extends LinearOpMode {
 
     float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
     normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors1.alpha;
-    normBlue2 = colors2.blue / colors1.alpha;
-    normGreen2 = colors2.green / colors1.alpha;
+    normGreen1 = colors1.green / colors1.alpha;
+    normBlue1 = colors1.blue / colors1.alpha;
+    normRed2 = colors2.red / colors2.alpha;
+    normBlue2 = colors2.blue / colors2.alpha;
+    normGreen2 = colors2.green / colors2.alpha;
 
     telemetry.addData("AverageSpinRed", (normRed1+normRed2)/2);
     telemetry.addData("AverageSpinBlue", (normBlue1+normBlue2)/2);
