@@ -65,6 +65,7 @@ public class Constants
         {
             return new FollowerBuilder(followerConstants, hardwareMap)
                     .pathConstraints(pathConstraints)
+                    .pinpointLocalizer(localizerConstants)
                     .mecanumDrivetrain(driveConstants)
                     .build();
 
