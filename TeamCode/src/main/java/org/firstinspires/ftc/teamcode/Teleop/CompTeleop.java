@@ -122,6 +122,7 @@ public class CompTeleop extends LinearOpMode {
     boolean outToggleLast = false;
     boolean shootSequence = false;
     int shooterStage = 0;
+    double lastRuntime = getRuntime();
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -240,6 +241,7 @@ public class CompTeleop extends LinearOpMode {
         {
           Flap.setPosition(flapDeploy);
           shooterToggle = true;
+          lastRuntime = getRuntime();
 
         if (Shooter.getPower() == 1) {
         shooterStage = 2;
@@ -294,6 +296,3 @@ public class CompTeleop extends LinearOpMode {
     }
   }
 }
-
-// stupid code wont commit without an adition
-// THE CURRENT VERSION OF CODE DOES NOT WORK! MAKE SURE TO REMOVE THIS COMMENT AFTER
