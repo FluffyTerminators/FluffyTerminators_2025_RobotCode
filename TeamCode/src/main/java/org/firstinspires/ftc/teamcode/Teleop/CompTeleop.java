@@ -157,25 +157,25 @@ public class CompTeleop extends LinearOpMode {
         pinpoint.update();
       }
 
-      //pinpoint.update(GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING);
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
       telemetry.addData("forward",Forward);
       telemetry.addData("strafe",Strafe);
       telemetry.addData("Turn", Turn);
 
       double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
-      MotorPower = (Forward - Strafe - Turn) / denominator;
-      fRDrive.setPower(MotorPower);
-      telemetry.addData("FRDrive",MotorPower);
-      MotorPower = (Forward - Strafe + Turn) / denominator;
-      fLDrive.setPower(MotorPower);
-      telemetry.addData("FLDrive",MotorPower);
-      MotorPower = (Forward + Strafe - Turn) / denominator;
-      bRDrive.setPower(MotorPower);
-      telemetry.addData("BRDrive",MotorPower);
-      MotorPower = (Forward + Strafe + Turn) / denominator;
-      bLDrive.setPower(MotorPower);
-      telemetry.addData("BLDrive",MotorPower);
+      double frontLeftPower = (Forward + Strafe + Turn) / denominator;
+      double backLeftPower = (Forward - Strafe + Turn) / denominator;
+      double frontRightPower = (Forward - Strafe - Turn) / denominator;
+      double backRightPower = (Forward + Strafe - Turn) / denominator;
+
+      fLDrive.setPower(frontLeftPower);
+      telemetry.addData("FLDrive",frontLeftPower);
+      bLDrive.setPower(backLeftPower);
+      telemetry.addData("BLDrive",backLeftPower);
+      fRDrive.setPower(frontRightPower);
+      telemetry.addData("FRDrive",frontRightPower);
+      bRDrive.setPower(backRightPower);
+      telemetry.addData("BRDrive",backRightPower);
 
       telemetry.addData("FRDrive_Actual", fRDrive.getPower());
       telemetry.addData("FLDrive_Actual", fLDrive.getPower());
