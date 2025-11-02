@@ -4,6 +4,7 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
 import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
 import static org.firstinspires.ftc.teamcode.Util.Tuning.follower;
 
+import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -15,7 +16,7 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.pedropathing.follower.Follower;
+import com.pedropathing.ftc.localization.localizers.PinpointLocalizer;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -27,7 +28,6 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
-import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 
 
 
@@ -102,11 +102,19 @@ public class PinpointTest extends LinearOpMode {
     Intake  = hardwareMap.get(DcMotor.class, "Intake");
     Shooter = hardwareMap.get(DcMotor.class, "Shooter");
     imu = hardwareMap.get(IMU.class,  "imu");
-    pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     Flap = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
+
+    follower = Constants.PEDROConstants.createFollower(hardwareMap);
+    if (!(follower.getPoseTracker().getLocalizer() instanceof PinpointLocalizer)) {
+      telemetry.addLine("Pedro follower is not configured with a Pinpoint localizer.");
+      telemetry.update();
+      return;
+    }
+    PinpointLocalizer pedroPinpoint = (PinpointLocalizer) follower.getPoseTracker().getLocalizer();
+    pinpoint = pedroPinpoint.getPinpoint();
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -141,7 +149,7 @@ public class PinpointTest extends LinearOpMode {
     waitForStart();
     while (opModeIsActive()) {
       telemetry.addData("Status", "Running");
-      pinpoint.update();
+      follower.update();
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
@@ -305,4 +313,3 @@ public class PinpointTest extends LinearOpMode {
     }
   }
 }
-
