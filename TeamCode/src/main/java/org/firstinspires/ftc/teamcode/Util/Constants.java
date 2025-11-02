@@ -37,10 +37,10 @@ public class Constants
 
     public static MecanumConstants driveConstants = new MecanumConstants()
             .maxPower(1)
-            .rightFrontMotorName("fRDrive")
-            .rightRearMotorName("bRDrive")
-            .leftRearMotorName("bLDrive")
-            .leftFrontMotorName("fLDrive")
+            .rightFrontMotorName("FRDrive")
+            .rightRearMotorName("BRDrive")
+            .leftRearMotorName("BLDrive")
+            .leftFrontMotorName("FLDrive")
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
@@ -65,6 +65,7 @@ public class Constants
         {
             return new FollowerBuilder(followerConstants, hardwareMap)
                     .pathConstraints(pathConstraints)
+                    .pinpointLocalizer(localizerConstants)
                     .mecanumDrivetrain(driveConstants)
                     .build();
 
