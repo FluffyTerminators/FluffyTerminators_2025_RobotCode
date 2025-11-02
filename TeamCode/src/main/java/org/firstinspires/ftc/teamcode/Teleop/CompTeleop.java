@@ -137,9 +137,17 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      Forward = ((Math.cos(Heading) * gamepad1.left_stick_y) + (Math.sin(Heading) * gamepad1.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad1.left_stick_y) - (Math.cos(Heading) * gamepad1.left_stick_x));
+
+      double rawForward = -gamepad1.left_stick_y; // FTC joystick forward is negative
+      double rawStrafe = gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
+
+      double sinHeading = Math.sin(Heading);
+      double cosHeading = Math.cos(Heading);
+
+      // Rotate the driver input vector so it is field-centric
+      Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
+      Forward = rawStrafe * sinHeading + rawForward * cosHeading;
 
       if (gamepad1.right_bumper)
       {
