@@ -139,7 +139,7 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Heading", Math.toDegrees(Heading));
 
       double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
-      double rawStrafe = gamepad1.left_stick_x;
+      double rawStrafe = -gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
 
       double sinHeading = Math.sin(Heading);
