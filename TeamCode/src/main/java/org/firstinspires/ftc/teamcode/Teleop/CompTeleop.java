@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+import org.firstinspires.ftc.robotcore.external.JavaUtil;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -117,12 +118,24 @@ public class CompTeleop extends LinearOpMode {
     boolean intakeToggle = false;
     boolean shooterToggle = false;
     boolean spindexerToggle = true;
+    double spindexerPower = spindexerFWD;
     boolean spinToggleLast = false;
     boolean inToggleLast = false;
     boolean outToggleLast = false;
     boolean shootSequence = false;
     int shooterStage = 0;
     double lastRuntime = getRuntime();
+    int S_lastencoder = 0;
+    int S_encoder = 0;
+    double S_lastime = 0;
+    double S_time = 0;
+    double S_Targetspeed = 0;
+    double S_lastMotorpower = 0;
+    double S_lastSpeed = 0;
+    boolean Last2DU = false;
+    boolean Last2DL = false;
+    boolean Last2DD = false;
+
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -176,6 +189,7 @@ public class CompTeleop extends LinearOpMode {
       double frontRightPower = (Forward - Strafe - Turn) / denominator;
       double backRightPower = (Forward + Strafe - Turn) / denominator;
 
+
       fLDrive.setPower(frontLeftPower);
       telemetry.addData("FLDrive",frontLeftPower);
       bLDrive.setPower(backLeftPower);
@@ -208,13 +222,12 @@ public class CompTeleop extends LinearOpMode {
         }
       }
 
-      if (!shootSequence && gamepad2.a)
+      if (gamepad2.b)
       {
-        SpindxerServo.setPower(1);
-      }
-      else
+        spindexerPower = spindexerBWD;
+      } else
       {
-        SpindxerServo.setPower(0);
+        spindexerPower = spindexerFWD;
       }
 
       if (gamepad2.x)
@@ -242,8 +255,16 @@ public class CompTeleop extends LinearOpMode {
         inToggleLast = false;
       }
 
+      if (gamepad2.left_bumper)
+      {
+        Flap.setPosition(flapDeploy);
+      } else
+      {
+        Flap.setPosition(flapUp);
+      }
 
-      if (shootSequence)
+
+     /* if (shootSequence)
       {
         lastRuntime = getRuntime();
         if (shooterStage == 1)
@@ -287,18 +308,91 @@ public class CompTeleop extends LinearOpMode {
       {
         shooterToggle = false;
         Flap.setPosition(flapUp);
-      }
+      }b */
 
       if (spindexerToggle) {
-        SpindxerServo.setPower(Constants.spindexerPower);
+        SpindxerServo.setPower(spindexerPower);
       } else {
         SpindxerServo.setPower(0);
       }
 
-      if (shooterToggle) {
+      /*if (shooterToggle) {
         Shooter.setPower(Constants.shooterPower);
       } else {
         Shooter.setPower(0);
+      }*/
+      S_time = getRuntime();
+      S_encoder = Shooter.getCurrentPosition();
+      double S_Speed = (S_encoder - S_lastencoder) / (S_time - S_lastime);
+      S_lastencoder = S_encoder;
+      S_lastime = S_time;
+      telemetry.addData("Shooter Target Speed",S_Targetspeed);
+      telemetry.addData("Shooter Speed (tick/sec)",S_Speed);
+      telemetry.addData("Shooter speed (RPM)",(S_Speed / 60) / 21);
+      double S_motorpower = 0;
+      if (shooterToggle) {
+        S_motorpower = gamepad2.left_trigger;
+        Shooter.setPower(S_motorpower);
+        telemetry.addData("Shooter Mode","Manual");
+        telemetry.addData("Shooter Power", S_motorpower);
+      }
+      else
+      {
+        S_motorpower = Shooter.getPower();
+        if ((S_Speed < S_Targetspeed - 10) && (S_Speed - S_lastSpeed < 10) && (S_motorpower - S_lastMotorpower < 0.01))
+        {
+          S_lastMotorpower = S_motorpower;
+          S_motorpower += 0.01;
+        }
+        else if ((S_Speed > S_Targetspeed +10) && (S_Speed - S_lastSpeed > -10) && (S_motorpower - S_lastMotorpower > -0.01))
+        {
+          S_lastMotorpower = S_motorpower;
+          S_motorpower -= 0.01;
+        }
+        else
+        {
+          S_lastMotorpower = S_motorpower;
+        }
+        if (S_motorpower < -1) {S_motorpower = -1;}
+        if (S_motorpower > 1) {S_motorpower = 1;}
+        Shooter.setPower(S_motorpower);
+        telemetry.addData("Shooter Mode","Speed Control");
+        telemetry.addData("Shooter Power", S_motorpower);
+      }
+      if (gamepad2.dpad_left)
+      {
+        if (!(Last2DL)) {
+          shooterToggle = !shooterToggle;
+        }
+        Last2DL = true;
+      }
+      else
+      {
+        Last2DL = false;
+      }
+      if (gamepad2.dpad_up)
+      {
+        if (!(Last2DU)) {
+          S_Targetspeed += 100;
+          if (S_Targetspeed > 2000) {
+            S_Targetspeed = 2000;
+          }
+        }
+        Last2DU = true;
+      }
+      else
+      {
+        Last2DU = false;
+      }
+      if (gamepad2.dpad_down)
+      {
+        if (!(Last2DD)) {
+          S_Targetspeed -= 100;
+          if (S_Targetspeed < 0) {
+            S_Targetspeed = 0;
+          }
+        }
+        Last2DD = true;
       }
 
 

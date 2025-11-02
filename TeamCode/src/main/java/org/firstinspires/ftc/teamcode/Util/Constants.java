@@ -73,7 +73,8 @@ public class Constants
     }
 
     public static final double HeadingOffset = 0;
-    public static final double spindexerPower = 1;
+    public static final double spindexerFWD = 1;
+    public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double brake = 2;
     public static final double flapUp = 0.55;

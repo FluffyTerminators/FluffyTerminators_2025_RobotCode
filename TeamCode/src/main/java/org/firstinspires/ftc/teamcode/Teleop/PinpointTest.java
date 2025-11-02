@@ -296,11 +296,11 @@ public class PinpointTest extends LinearOpMode {
         Flap.setPosition(flapUp);
       }
 
-      if (spindexerToggle) {
+     /* if (spindexerToggle) {
         SpindxerServo.setPower(Constants.spindexerPower);
       } else {
         SpindxerServo.setPower(0);
-      }
+      } */
 
       if (shooterToggle) {
         Shooter.setPower(Constants.shooterPower);
