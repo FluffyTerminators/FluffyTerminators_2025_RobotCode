@@ -120,6 +120,7 @@ public class MechanismTest extends LinearOpMode {
     int ShooterCurrent,ShooterLast = 0;
     long TimeCurrent,TimeLast = 0;
     double Shooterspeed = 0;
+    double flapPos = 0.50;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -179,10 +180,27 @@ public class MechanismTest extends LinearOpMode {
       {
         Shooter.setPower(0);
       }
+      if (gamepad1.right_bumper)
+      {
+        flapPos = gamepad1.left_stick_y;
+      }
+      if (gamepad1.dpad_up)
+      {
+        flapPos = 0.55;
+      }
+      if (gamepad1.dpad_down)
+      {
+        flapPos = 0.45;
+      }
+      if (gamepad1.dpad_left)
+        flapPos = 0.50;
+      Flap.setPosition(flapPos);
       telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
       telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());
       telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
+      telemetry.addData("Flap Servo Set Position: ",flapPos);
+      telemetry.addData("Flap Servo reported position: ", Flap.getPosition());
       ShooterCurrent = Shooter.getCurrentPosition();
       TimeCurrent = System.currentTimeMillis();
       Shooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
@@ -190,6 +208,7 @@ public class MechanismTest extends LinearOpMode {
       TimeLast = TimeCurrent;
       telemetry.addData("Shooter Encoder: ",ShooterCurrent);
       telemetry.addData("Shooter Speed (ticks/milli): ",Shooterspeed);
+      telemetry.addData("Shooter Speed (RPM): ",((Shooterspeed/21)/60)*1000);
       telemetry.update();
     }
   }

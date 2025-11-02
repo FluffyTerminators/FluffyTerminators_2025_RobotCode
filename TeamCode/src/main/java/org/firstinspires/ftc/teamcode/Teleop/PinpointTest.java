@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
+import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
+
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,23 +14,20 @@ import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.robot.Robot;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-import static org.firstinspires.ftc.teamcode.Util.Constants.*;
-
 import org.firstinspires.ftc.teamcode.Util.Constants;
+import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 
 
 //Download Missing Files
 
 
-@TeleOp(name = "CompTeleOp")
-public class CompTeleop extends LinearOpMode {
+@TeleOp(name = "Pinpoint Test")
+public class PinpointTest extends LinearOpMode {
 
   // Hubs
   //public Blinker control_Hub;
@@ -64,6 +63,10 @@ public class CompTeleop extends LinearOpMode {
     UNKNOWN,
   }
 
+ /* {
+    pinpoint.setPosition(RobotPosition);
+  } */
+
   public DetectedColour getDetectedColor(Telemetry telemetry) {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
@@ -84,6 +87,11 @@ public class CompTeleop extends LinearOpMode {
   }
 
   public void runOpMode() throws InterruptedException {
+
+    {
+     // Pose2D robotPose = pinpoint.getPosition();
+     // telemetry.addData("position of robot", robotPose);
+    }
 
     //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
     //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
