@@ -67,6 +67,7 @@ public class Constants
                     .pathConstraints(pathConstraints)
                     .pinpointLocalizer(localizerConstants)
                     .mecanumDrivetrain(driveConstants)
+                    /* other builder steps */
                     .build();
 
         }
@@ -113,6 +114,15 @@ public class Constants
 
         public static FollowerConstants followerConstants = new FollowerConstants()
                 .mass(9.35);
+
+        public static PinpointConstants localizerConstants = new PinpointConstants()
+                .forwardPodY(-25)
+                .strafePodX(100)
+                .distanceUnit(DistanceUnit.MM)
+                .hardwareMapName("pinpoint")
+                .encoderResolution(GoBildaOdometryPods.goBILDA_4_BAR_POD)
+                .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD)
+                .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     }
 }
