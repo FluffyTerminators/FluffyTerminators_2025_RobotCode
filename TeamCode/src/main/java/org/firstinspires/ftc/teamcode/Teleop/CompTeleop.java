@@ -245,19 +245,28 @@ public class CompTeleop extends LinearOpMode {
 
       if (shootSequence)
       {
+        lastRuntime = getRuntime();
         if (shooterStage == 1)
         {
           Flap.setPosition(flapDeploy);
-          shooterToggle = true;
-          lastRuntime = getRuntime();
-
+          if (getRuntime() == (lastRuntime + 400)) {
+            shooterToggle = true;
+          }
         if (Shooter.getPower() == 1) {
+          lastRuntime = getRuntime();
+          if (getRuntime() == (lastRuntime + 400)) {
+            shooterToggle = true;
+          }
         shooterStage = 2;
         }
         }
         if (shooterStage == 2)
         {
           Flap.setPosition(flapUp);
+          lastRuntime = getRuntime();
+          if (getRuntime() == (lastRuntime + 400)) {
+            shooterToggle = true;
+          }
           if (Shooter.getPower() < 1)
           {
             shooterStage = 3;
