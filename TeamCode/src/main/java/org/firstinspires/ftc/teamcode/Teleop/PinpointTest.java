@@ -135,6 +135,7 @@ public class PinpointTest extends LinearOpMode {
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
     Flap.setPosition(flapUp);
+    follower = Constants.PEDROConstants.createFollower(hardwareMap);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -298,7 +299,6 @@ public class PinpointTest extends LinearOpMode {
 
       }
 
-      follower = Constants.PEDROConstants.createFollower(hardwareMap);
       telemetry.addData("position", follower.getPose());
       telemetry.addData("velocity", follower.getVelocity());
       telemetry.update();
