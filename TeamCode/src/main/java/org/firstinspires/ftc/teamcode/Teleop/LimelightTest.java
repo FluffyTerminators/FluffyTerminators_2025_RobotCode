@@ -79,13 +79,16 @@ public class LimelightTest extends LinearOpMode {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
 
+    float alpha1 = Math.max(colors1.alpha, 1e-6f);
+    float alpha2 = Math.max(colors2.alpha, 1e-6f);
+
     float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
-    normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors1.alpha;
-    normBlue2 = colors2.blue / colors1.alpha;
-    normGreen2 = colors2.green / colors1.alpha;
+    normRed1 = colors1.red / alpha1;
+    normGreen1 = colors1.green / alpha1;
+    normBlue1 = colors1.blue / alpha1;
+    normRed2 = colors2.red / alpha2;
+    normBlue2 = colors2.blue / alpha2;
+    normGreen2 = colors2.green / alpha2;
 
     telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
     telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
@@ -118,7 +121,11 @@ public class LimelightTest extends LinearOpMode {
 
     LLResult result = limelight.getLatestResult();
 
-    telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+    if (result != null) {
+      telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+    } else {
+      telemetry.addData("Current Pipeline", "No result yet");
+    }
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -142,6 +149,7 @@ public class LimelightTest extends LinearOpMode {
     boolean inToggleLast = false;
     boolean outToggleLast = false;
     boolean shootSequence = false;
+    boolean lastShootSequenceButton = false;
     int shooterStage = 0;
     double lastRuntime = getRuntime();
     int S_lastencoder = 0;
@@ -234,14 +242,14 @@ public class LimelightTest extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      if (gamepad2.left_bumper) {
+      boolean shootButtonPressed = gamepad2.left_bumper;
+      if (shootButtonPressed && !lastShootSequenceButton) {
+        shootSequence = !shootSequence;
         if (shootSequence) {
-          shootSequence = false;
-        } else {
-          shootSequence = true;
           shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
         }
       }
+      lastShootSequenceButton = shootButtonPressed;
 
       if (gamepad2.b) {
         spindexerPower = spindexerBWD;
@@ -408,10 +416,9 @@ public class LimelightTest extends LinearOpMode {
           telemetry.addData("Target", ShooterTarget);
         }
 
-        if (gamepad1.left_bumper) {
+        if (gamepad2.y) {
           Shooter.setVelocity(ShooterTarget);
-        } else
-        {
+        } else {
           Shooter.setVelocity(0);
         }
 
@@ -421,9 +428,8 @@ public class LimelightTest extends LinearOpMode {
           telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
         }
       }*/
-
-        telemetry.update();
       }
+      telemetry.update();
     }
   }
 }
