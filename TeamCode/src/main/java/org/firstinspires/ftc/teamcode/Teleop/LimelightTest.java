@@ -327,11 +327,11 @@ public class LimelightTest extends LinearOpMode {
         SpindxerServo.setPower(0);
       }
 
-      /*if (shooterToggle) {
+     /* if (shooterToggle) {
         Shooter.setPower(Constants.shooterPower);
       } else {
         Shooter.setPower(0);
-      }
+      } */
       if (gamepad1.dpad_up) {
         ShooterTarget += 20;
       }
@@ -339,11 +339,11 @@ public class LimelightTest extends LinearOpMode {
       if (gamepad1.dpad_down) {
         ShooterTarget -= 20;
       }
-      telemetry.addData("ShooterTarget", ShooterTarget); */
+      telemetry.addData("ShooterTarget", ShooterTarget);
 
       telemetry.addData("Shooter Vel", Shooter.getVelocity());
 
-      if (gamepad2.dpad_left) {
+    /*  if (gamepad2.dpad_left) {
         if (!(Last2DL)) {
           shooterToggle = !shooterToggle;
         }
@@ -370,7 +370,7 @@ public class LimelightTest extends LinearOpMode {
           }
         }
         Last2DD = true;
-      }
+      } */
 
 
       if (intakeToggle) {
@@ -404,7 +404,7 @@ public class LimelightTest extends LinearOpMode {
           double distance = Math.sqrt((x * x) + (y * y));
           telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-          ShooterTarget = 1480 - ((1/(distance+0.25)) * 140);
+         // ShooterTarget = 1480 - ((1/(distance+0.25)) * 140);
           telemetry.addData("Target", ShooterTarget);
         }
 
