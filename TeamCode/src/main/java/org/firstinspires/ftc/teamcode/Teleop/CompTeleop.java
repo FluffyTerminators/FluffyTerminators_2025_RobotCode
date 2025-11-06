@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
@@ -43,7 +44,7 @@ public class CompTeleop extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotor Shooter;
+  public DcMotorEx Shooter;
 
   // Internal Motion Units
   public IMU imu;
@@ -323,7 +324,7 @@ public class CompTeleop extends LinearOpMode {
       }*/
       S_time = getRuntime();
       S_encoder = Shooter.getCurrentPosition();
-      double S_Speed = (S_encoder - S_lastencoder) / (S_time - S_lastime);
+      double S_Speed = (double)(S_encoder - S_lastencoder) / (S_time - S_lastime);
       S_lastencoder = S_encoder;
       S_lastime = S_time;
       telemetry.addData("Shooter Target Speed",S_Targetspeed);
