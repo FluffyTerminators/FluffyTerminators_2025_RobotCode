@@ -44,7 +44,10 @@ public class Constants
             .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
             .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD);
+            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .xVelocity(-53.67945393239419)
+            .yVelocity(-45.12708961306595);
+
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
             .forwardPodY(-5)
@@ -57,7 +60,9 @@ public class Constants
 
     public static class PEDROConstants
     {
-        public static FollowerConstants followerConstants = new FollowerConstants();
+        public static FollowerConstants followerConstants = new FollowerConstants()
+                .forwardZeroPowerAcceleration(59.654383190903296)
+                .lateralZeroPowerAcceleration(92.44744654233428);
 
         public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
