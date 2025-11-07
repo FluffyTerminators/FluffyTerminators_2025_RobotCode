@@ -32,32 +32,32 @@ public class HardwareMapping
 {
 
   // Hubs
-  private Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
-  private  Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
+  public Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
+  public  Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
 
   // Drive Motors
-  private  DcMotor bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
-  private  DcMotor bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
-  private  DcMotor fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
-  private  DcMotor fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
+  public  DcMotor bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
+  public  DcMotor bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
+  public  DcMotor fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
+  public  DcMotor fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
 
   // Mechanism Motors
-  private  DcMotor Intake  = hardwareMap.get(DcMotor.class, "Intake");
-  private  DcMotor Shooter = hardwareMap.get(DcMotor.class, "Shooter");
+  public  DcMotor Intake  = hardwareMap.get(DcMotor.class, "Intake");
+  public  DcMotor Shooter = hardwareMap.get(DcMotor.class, "Shooter");
 
   // Internal Motion Units
-  private  IMU imu                        = hardwareMap.get(IMU.class,                   "imu");
-  private  GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
+  public  IMU imu                        = hardwareMap.get(IMU.class,                   "imu");
+  public  GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
   // Servos
-  private  CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
-  private  CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
-  private  CRServo SpindxerServo        = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-  private  Servo Flap                   = hardwareMap.get(Servo.class,   "Flap");
+  public  CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
+  public  CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
+  public  CRServo SpindxerServo        = hardwareMap.get(CRServo.class, "Spindexer_Servo");
+  public  Servo Flap                   = hardwareMap.get(Servo.class,   "Flap");
 
   // Colour Sensors
-  private NormalizedColorSensor SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
-  private NormalizedColorSensor SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
+  public NormalizedColorSensor SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
+  public NormalizedColorSensor SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
   //Getter-Setters
   public NormalizedColorSensor getSpindexerSensor2() {

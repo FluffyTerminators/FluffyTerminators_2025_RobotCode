@@ -1,15 +1,6 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.Flap;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.Intake;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.SpindexerSensor1;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.SpindexerSensor2;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.bLDrive;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.bRDrive;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.fLDrive;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.fRDrive;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.imu;
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.pinpoint;
+import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -23,6 +14,7 @@ import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.HardwareMapping;
 import org.firstinspires.ftc.teamcode.Util.HardwareMapping.*;
@@ -50,9 +42,9 @@ public class HardwareMappingsTest extends LinearOpMode {
     normRed1 = colors1.red / colors1.alpha;
     normGreen1 = colors1.blue / colors1.alpha;
     normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors1.alpha;
-    normBlue2 = colors2.blue / colors1.alpha;
-    normGreen2 = colors2.green / colors1.alpha;
+    normRed2 = colors2.red / colors2.alpha;
+    normBlue2 = colors2.blue / colors2.alpha;
+    normGreen2 = colors2.green / colors2.alpha;
 
     telemetry.addData("AverageSpinRed", (normRed1+normRed2)/2);
     telemetry.addData("AverageSpinBlue", (normBlue1+normBlue2)/2);
@@ -61,7 +53,6 @@ public class HardwareMappingsTest extends LinearOpMode {
     return DetectedColour.UNKNOWN;
   }
   public void runOpMode() {
-
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);

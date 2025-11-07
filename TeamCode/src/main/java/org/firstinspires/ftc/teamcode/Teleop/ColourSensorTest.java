@@ -45,9 +45,9 @@ public class ColourSensorTest extends LinearOpMode {
     normRed1 = colors1.red / colors1.alpha;
     normGreen1 = colors1.blue / colors1.alpha;
     normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors1.alpha;
-    normBlue2 = colors2.blue / colors1.alpha;
-    normGreen2 = colors2.green / colors1.alpha;
+    normRed2 = colors2.red / colors2.alpha;
+    normBlue2 = colors2.blue / colors2.alpha;
+    normGreen2 = colors2.green / colors2.alpha;
 
     AverageSpinRed = (normRed1 + normRed2) / 2;
     AverageSpinBlue = (normBlue1 + normBlue2) / 2;
