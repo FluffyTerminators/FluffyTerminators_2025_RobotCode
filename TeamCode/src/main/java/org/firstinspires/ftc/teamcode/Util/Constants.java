@@ -126,4 +126,37 @@ public class Constants
                 .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     }
+
+    public static class ShooterCal
+    {
+        private static final double[] distance     = {0.0, 0.05, 0.1,  0.15, 0.2,  0.25, 0.3,  0.35, 0.41, 0.45, 0.49, 0.51, 0.54, 0.55, 0.58, 0.6,  0.61, 1.2};
+        private static final double[] shooterTicks = {0.0, 1200, 1400, 1400, 1340, 1340, 1320, 1320, 1300, 1180, 1320, 1320, 1400, 1460, 1380, 1380, 1320, 1460};
+
+
+
+        /**
+         * interpolate(x) uses the distance from the target to automatically return the required shooter speed in motor velocity
+         * @param x = distance in METERS
+         * */
+        public static double interpolate(double x)
+        {
+            //Find the bracketing points
+           int i = 0;
+           while (i < distance.length - 1 && distance[i + 1] < x)
+           {
+               i++;
+           }
+
+           //edge case handling
+            if (x < distance[0]) {return shooterTicks[0];}
+            if (x > distance[distance.length - 1]) {return shooterTicks[distance.length - 1];}
+
+            double x1 = distance[i];
+            double y1 = shooterTicks[i];
+            double x2 = distance[i + 1];
+            double y2 = shooterTicks[i + 1];
+
+            return y1 + (x - x1) * (y2 - y1) / (x2 - x1);
+        }
+    }
 }
