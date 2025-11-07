@@ -1,35 +1,43 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import org.firstinspires.ftc.robotcore.external.JavaUtil;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
+import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
+import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
+import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
+import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.robot.Robot;
-
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-import static org.firstinspires.ftc.teamcode.Util.Constants.*;
-
+import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
+import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes.*;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import static org.firstinspires.ftc.teamcode.Util.Constants.ShooterCal.*;
+
+import java.util.Collections;
+import java.util.List;
 
 
 //Download Missing Files
 
 
-@TeleOp(name = "CompTeleOp")
-public class CompTeleop extends LinearOpMode {
+@TeleOp(name = "LimelightTest")
+public class LimelightTest extends LinearOpMode {
 
   // Hubs
   //public Blinker control_Hub;
@@ -43,7 +51,7 @@ public class CompTeleop extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotor Shooter;
+  public DcMotorEx Shooter;
 
   // Internal Motion Units
   public IMU imu;
@@ -58,7 +66,10 @@ public class CompTeleop extends LinearOpMode {
   // Colour Sensors
   public NormalizedColorSensor SpindexerSensor1;
   public NormalizedColorSensor SpindexerSensor2;
-  public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0,AngleUnit.DEGREES,0 );
+  public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0);
+
+  public Limelight3A limelight;
+
   public enum DetectedColour {
     GREEN,
     PURPLE,
@@ -71,11 +82,11 @@ public class CompTeleop extends LinearOpMode {
 
     float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
     normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.green / colors1.alpha;
-    normBlue1 = colors1.blue / colors1.alpha;
-    normRed2 = colors2.red / colors2.alpha;
-    normBlue2 = colors2.blue / colors2.alpha;
-    normGreen2 = colors2.green / colors2.alpha;
+    normGreen1 = colors1.blue / colors1.alpha;
+    normBlue1 = colors1.green / colors1.alpha;
+    normRed2 = colors2.red / colors1.alpha;
+    normBlue2 = colors2.blue / colors1.alpha;
+    normGreen2 = colors2.green / colors1.alpha;
 
     telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
     telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
@@ -92,14 +103,23 @@ public class CompTeleop extends LinearOpMode {
     bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
-    Intake  = hardwareMap.get(DcMotor.class, "Intake");
-    Shooter = hardwareMap.get(DcMotor.class, "Shooter");
-    imu = hardwareMap.get(IMU.class,  "imu");
+    Intake = hardwareMap.get(DcMotor.class, "Intake");
+    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
+    Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
+    limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+
+    limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+    limelight.start(); // This tells Limelight to start looking!
+    limelight.pipelineSwitch(0); // Switch to pipeline number 0
+
+    LLResult result = limelight.getLatestResult();
+
+    telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -135,6 +155,9 @@ public class CompTeleop extends LinearOpMode {
     boolean Last2DU = false;
     boolean Last2DL = false;
     boolean Last2DD = false;
+    double ShooterTarget = 0;
+
+    double Shooterspeed = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -146,6 +169,7 @@ public class CompTeleop extends LinearOpMode {
     waitForStart();
     while (opModeIsActive()) {
       telemetry.addData("Status", "Running");
+      result = limelight.getLatestResult();
       pinpoint.update();
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
@@ -162,15 +186,15 @@ public class CompTeleop extends LinearOpMode {
       Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
       Forward = rawStrafe * sinHeading + rawForward * cosHeading;
 
-      if (gamepad1.right_bumper)
-      {
+      Shooterspeed = Shooter.getVelocity();
+
+      if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
       }
 
-      if (gamepad1.left_bumper)
-      {
+      if (gamepad1.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
@@ -179,8 +203,8 @@ public class CompTeleop extends LinearOpMode {
       }
 
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
-      telemetry.addData("forward",Forward);
-      telemetry.addData("strafe",Strafe);
+      telemetry.addData("forward", Forward);
+      telemetry.addData("strafe", Strafe);
       telemetry.addData("Turn", Turn);
 
       double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
@@ -191,13 +215,13 @@ public class CompTeleop extends LinearOpMode {
 
 
       fLDrive.setPower(frontLeftPower);
-      telemetry.addData("FLDrive",frontLeftPower);
+      telemetry.addData("FLDrive", frontLeftPower);
       bLDrive.setPower(backLeftPower);
-      telemetry.addData("BLDrive",backLeftPower);
+      telemetry.addData("BLDrive", backLeftPower);
       fRDrive.setPower(frontRightPower);
-      telemetry.addData("FRDrive",frontRightPower);
+      telemetry.addData("FRDrive", frontRightPower);
       bRDrive.setPower(backRightPower);
-      telemetry.addData("BRDrive",backRightPower);
+      telemetry.addData("BRDrive", backRightPower);
 
       telemetry.addData("FRDrive_Actual", fRDrive.getPower());
       telemetry.addData("FLDrive_Actual", fLDrive.getPower());
@@ -212,54 +236,42 @@ public class CompTeleop extends LinearOpMode {
       }
 
       if (gamepad2.left_bumper) {
-        if (shootSequence)
-        {
+        if (shootSequence) {
           shootSequence = false;
-        }
-        else {
+        } else {
           shootSequence = true;
           shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
         }
       }
 
-      if (gamepad2.b)
-      {
+      if (gamepad2.b) {
         spindexerPower = spindexerBWD;
-      } else
-      {
+      } else {
         spindexerPower = spindexerFWD;
       }
 
-      if (gamepad2.x)
-      {
-        if (!spinToggleLast)
-        {
+      if (gamepad2.x) {
+        if (!spinToggleLast) {
           spindexerToggle = !spindexerToggle;
-          spinToggleLast= true;
+          spinToggleLast = true;
         }
-      } else
-      {
+      } else {
         spinToggleLast = false;
       }
 
 
-      if (gamepad2.right_bumper)
-      {
-        if (!inToggleLast)
-        {
+      if (gamepad2.right_bumper) {
+        if (!inToggleLast) {
           intakeToggle = !intakeToggle;
-          inToggleLast= true;
+          inToggleLast = true;
         }
-      } else
-      {
+      } else {
         inToggleLast = false;
       }
 
-      if (gamepad2.left_bumper)
-      {
+      if (gamepad2.left_bumper) {
         Flap.setPosition(flapDeploy);
-      } else
-      {
+      } else {
         Flap.setPosition(flapUp);
       }
 
@@ -316,62 +328,31 @@ public class CompTeleop extends LinearOpMode {
         SpindxerServo.setPower(0);
       }
 
-      /*if (shooterToggle) {
+     /* if (shooterToggle) {
         Shooter.setPower(Constants.shooterPower);
       } else {
         Shooter.setPower(0);
-      }*/
-      S_time = getRuntime();
-      S_encoder = Shooter.getCurrentPosition();
-      double S_Speed = (S_encoder - S_lastencoder) / (S_time - S_lastime);
-      S_lastencoder = S_encoder;
-      S_lastime = S_time;
-      telemetry.addData("Shooter Target Speed",S_Targetspeed);
-      telemetry.addData("Shooter Speed (tick/sec)",S_Speed);
-      telemetry.addData("Shooter speed (RPM)",(S_Speed / 60) / 21);
-      double S_motorpower = 0;
-      if (shooterToggle) {
-        S_motorpower = gamepad2.left_trigger;
-        Shooter.setPower(S_motorpower);
-        telemetry.addData("Shooter Mode","Manual");
-        telemetry.addData("Shooter Power", S_motorpower);
+      } */
+     /* if (gamepad1.dpad_up) {
+        ShooterTarget += 20;
       }
-      else
-      {
-        S_motorpower = Shooter.getPower();
-        if ((S_Speed < S_Targetspeed - 10) && (S_Speed - S_lastSpeed < 10) && (S_motorpower - S_lastMotorpower < 0.01))
-        {
-          S_lastMotorpower = S_motorpower;
-          S_motorpower += 0.01;
-        }
-        else if ((S_Speed > S_Targetspeed +10) && (S_Speed - S_lastSpeed > -10) && (S_motorpower - S_lastMotorpower > -0.01))
-        {
-          S_lastMotorpower = S_motorpower;
-          S_motorpower -= 0.01;
-        }
-        else
-        {
-          S_lastMotorpower = S_motorpower;
-        }
-        if (S_motorpower < -1) {S_motorpower = -1;}
-        if (S_motorpower > 1) {S_motorpower = 1;}
-        Shooter.setPower(S_motorpower);
-        telemetry.addData("Shooter Mode","Speed Control");
-        telemetry.addData("Shooter Power", S_motorpower);
+
+      if (gamepad1.dpad_down) {
+        ShooterTarget -= 20;
       }
-      if (gamepad2.dpad_left)
-      {
+      telemetry.addData("ShooterTarget", ShooterTarget);
+
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());*/
+
+    /*  if (gamepad2.dpad_left) {
         if (!(Last2DL)) {
           shooterToggle = !shooterToggle;
         }
         Last2DL = true;
-      }
-      else
-      {
+      } else {
         Last2DL = false;
       }
-      if (gamepad2.dpad_up)
-      {
+      if (gamepad2.dpad_up) {
         if (!(Last2DU)) {
           S_Targetspeed += 100;
           if (S_Targetspeed > 2000) {
@@ -379,13 +360,10 @@ public class CompTeleop extends LinearOpMode {
           }
         }
         Last2DU = true;
-      }
-      else
-      {
+      } else {
         Last2DU = false;
       }
-      if (gamepad2.dpad_down)
-      {
+      if (gamepad2.dpad_down) {
         if (!(Last2DD)) {
           S_Targetspeed -= 100;
           if (S_Targetspeed < 0) {
@@ -393,7 +371,7 @@ public class CompTeleop extends LinearOpMode {
           }
         }
         Last2DD = true;
-      }
+      } */
 
 
       if (intakeToggle) {
@@ -403,6 +381,58 @@ public class CompTeleop extends LinearOpMode {
 
       }
 
+
+
+      if (result != null && result.isValid()) {
+        Pose3D botpose = result.getBotpose();
+        if (botpose != null) {
+          double x = botpose.getPosition().x;
+          double y = botpose.getPosition().y;
+          telemetry.addData("MT1 Location", "(" + x + ", " + y + ")");
+        }
+      }
+
+      // First, tell Limelight which way your robot is facing
+      double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
+      limelight.updateRobotOrientation(robotYaw);
+      if (result != null && result.isValid()) {
+        Pose3D botPose_mt2 = result.getBotpose_MT2();
+
+        List<FiducialResult> fiducials = result.getFiducialResults();
+        for (FiducialResult fiducial : fiducials) {
+          int id = fiducial.getFiducialId(); // The ID number of the fiducial
+          double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
+          double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
+          double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
+          double distance = Math.sqrt((x * x) + (y * y));
+          telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
+
+          ShooterTarget = Constants.ShooterCal.interpolate(distance);
+        }
+
+
+      /*  if (botPose_mt2 != null) {
+          double x = botPose_mt2.getPosition().x;
+          double y = botPose_mt2.getPosition().y;
+          telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
+        }
+      }*/
+
+
+      } else
+      {
+        ShooterTarget = Constants.ShooterCal.interpolate(0.2);
+      }
+
+      if (gamepad1.right_bumper) {
+        Shooter.setVelocity(ShooterTarget);
+      } else
+      {
+        Shooter.setVelocity(0);
+      }
+
+      telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());
       telemetry.update();
     }
   }

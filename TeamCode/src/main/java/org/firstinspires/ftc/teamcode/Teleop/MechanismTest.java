@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
@@ -38,7 +39,7 @@ public class MechanismTest extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotor Shooter;
+  public DcMotorEx Shooter;
 
   // Internal Motion Units
   public IMU imu;
@@ -87,7 +88,7 @@ public class MechanismTest extends LinearOpMode {
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake  = hardwareMap.get(DcMotor.class, "Intake");
-    Shooter = hardwareMap.get(DcMotor.class, "Shooter");
+    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
     imu = hardwareMap.get(IMU.class,  "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
@@ -120,6 +121,9 @@ public class MechanismTest extends LinearOpMode {
     int ShooterCurrent,ShooterLast = 0;
     long TimeCurrent,TimeLast = 0;
     double Shooterspeed = 0;
+    double flapPos = 0.50;
+    double ShooterTarget = 0;
+    double ShooterPower = 0;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -134,6 +138,12 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
+      ShooterCurrent = Shooter.getCurrentPosition();
+      TimeCurrent = System.currentTimeMillis();
+      double CalcShooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
+      ShooterLast = ShooterCurrent;
+      TimeLast = TimeCurrent;
+      Shooterspeed = Shooter.getVelocity();
       if (gamepad1.y)
       {
         fRDrive.setPower(gamepad1.left_stick_y);
@@ -170,26 +180,63 @@ public class MechanismTest extends LinearOpMode {
       {
         bLDrive.setPower(0);
       }
+
+      if (gamepad1.dpad_up)
+      {
+        ShooterTarget += 10;
+      }
+
+      if (gamepad1.dpad_down)
+      {
+        ShooterTarget -= 10;
+      }
+      telemetry.addData("ShooterTarget", ShooterTarget);
+
       if (gamepad1.left_bumper)
       {
-        Shooter.setPower(gamepad1.left_stick_y);
+        if (Shooterspeed < ShooterTarget)
+        {
+          ShooterPower += 0.01;
+        }
+
+        if (Shooterspeed > ShooterTarget)
+        {
+          ShooterPower -= 0.01;
+        }
+
+        Shooter.setVelocity(ShooterTarget);
+
         telemetry.addData("Active Motor: ","Shooter");
       }
       else
       {
         Shooter.setPower(0);
       }
+      if (gamepad1.right_bumper)
+      {
+        flapPos = gamepad1.left_stick_y;
+      }
+      if (gamepad1.dpad_up)
+      {
+        flapPos = 0.55;
+      }
+      if (gamepad1.dpad_down)
+      {
+        flapPos = 0.45;
+      }
+      if (gamepad1.dpad_left)
+        flapPos = 0.50;
+      Flap.setPosition(flapPos);
       telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
       telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());
       telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
-      ShooterCurrent = Shooter.getCurrentPosition();
-      TimeCurrent = System.currentTimeMillis();
-      Shooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
-      ShooterLast = ShooterCurrent;
-      TimeLast = TimeCurrent;
+      telemetry.addData("Flap Servo Set Position: ",flapPos);
+      telemetry.addData("Flap Servo reported position: ", Flap.getPosition());
       telemetry.addData("Shooter Encoder: ",ShooterCurrent);
-      telemetry.addData("Shooter Speed (ticks/milli): ",Shooterspeed);
+      telemetry.addData("Shooter Speed (ticks/sec): ",Shooterspeed);
+      telemetry.addData("Calculated Shooter Speed (ticks/sec): ",(CalcShooterspeed * 1000));
+      telemetry.addData("ShooterPower", ShooterPower);
       telemetry.update();
     }
   }
