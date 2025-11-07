@@ -752,7 +752,7 @@ class TranslationalTuner extends OpMode {
     public void start() {
         follower.deactivateAllPIDFs();
         follower.activateTranslational();
-        forwards = new Path(new BezierLine(new Pose(0,0), new Pose(-DISTANCE,0)));
+        forwards = new Path(new BezierLine(new Pose(0,0), new Pose(DISTANCE,0)));
         forwards.setConstantHeadingInterpolation(0);
         backwards = new Path(new BezierLine(new Pose(DISTANCE,0), new Pose(0,0)));
         backwards.setConstantHeadingInterpolation(0);
@@ -768,10 +768,10 @@ class TranslationalTuner extends OpMode {
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
-                follower.followPath(backwards);
+                follower.followPath(forwards);
             } else {
                 forward = true;
-                follower.followPath(forwards);
+                follower.followPath(backwards);
             }
         }
 
@@ -838,10 +838,10 @@ class HeadingTuner extends OpMode {
         if (!follower.isBusy()) {
             if (forward) {
                 forward = false;
-                follower.followPath(backwards);
+                follower.followPath(forwards);
             } else {
                 forward = true;
-                follower.followPath(forwards);
+                follower.followPath(backwards);
             }
         }
 
