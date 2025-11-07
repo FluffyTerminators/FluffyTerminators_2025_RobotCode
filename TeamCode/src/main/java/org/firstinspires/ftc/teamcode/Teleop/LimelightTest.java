@@ -27,6 +27,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.*;
 import com.qualcomm.hardware.limelightvision.LLStatus;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import static org.firstinspires.ftc.teamcode.Util.Constants.ShooterCal.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -164,7 +165,7 @@ public class LimelightTest extends LinearOpMode {
     boolean Last2DD = false;
     double ShooterTarget = 0;
 
-    double Shooterspeed;
+    double Shooterspeed = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -340,7 +341,7 @@ public class LimelightTest extends LinearOpMode {
       } else {
         Shooter.setPower(0);
       } */
-      if (gamepad1.dpad_up) {
+     /* if (gamepad1.dpad_up) {
         ShooterTarget += 20;
       }
 
@@ -349,7 +350,7 @@ public class LimelightTest extends LinearOpMode {
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
 
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());*/
 
     /*  if (gamepad2.dpad_left) {
         if (!(Last2DL)) {
@@ -388,6 +389,8 @@ public class LimelightTest extends LinearOpMode {
 
       }
 
+
+
       if (result != null && result.isValid()) {
         Pose3D botpose = result.getBotpose();
         if (botpose != null) {
@@ -412,15 +415,9 @@ public class LimelightTest extends LinearOpMode {
           double distance = Math.sqrt((x * x) + (y * y));
           telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-         // ShooterTarget = 1480 - ((1/(distance+0.25)) * 140);
-          telemetry.addData("Target", ShooterTarget);
+          ShooterTarget = Constants.ShooterCal.interpolate(distance);
         }
 
-        if (gamepad2.y) {
-          Shooter.setVelocity(ShooterTarget);
-        } else {
-          Shooter.setVelocity(0);
-        }
 
       /*  if (botPose_mt2 != null) {
           double x = botPose_mt2.getPosition().x;
@@ -428,7 +425,22 @@ public class LimelightTest extends LinearOpMode {
           telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
         }
       }*/
+
+
+      } else
+      {
+        ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
+
+      if (gamepad1.right_bumper) {
+        Shooter.setVelocity(ShooterTarget);
+      } else
+      {
+        Shooter.setVelocity(0);
+      }
+
+      telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());
       telemetry.update();
     }
   }
