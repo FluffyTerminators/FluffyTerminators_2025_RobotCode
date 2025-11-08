@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -16,10 +19,13 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
+import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
 import org.firstinspires.ftc.teamcode.Util.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
@@ -42,10 +48,93 @@ public class ShootParkAuto extends OpMode {
   private NormalizedColorSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
-  private boolean toggle;
+  private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
   private double shooterState = 0;
+
+  public LimeComp.DetectedColour getDetectedColor()
+  {
+    NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
+    NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
+
+    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
+    normRed1 = colors1.red / colors1.alpha;
+    normGreen1 = colors1.blue / colors1.alpha;
+    normBlue1 = colors1.green / colors1.alpha;
+    normRed2 = colors2.red / colors2.alpha;
+    normBlue2 = colors2.blue / colors2.alpha;
+    normGreen2 = colors2.green / colors2.alpha;
+
+    AverageSpinRed = (normRed1 + normRed2) / 2;
+    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
+    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
+
+
+    telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
+    telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
+    telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
+
+    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
+      telemetry.addData("Colour","green");
+      return LimeComp.DetectedColour.GREEN;
+    }
+
+    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+      telemetry.addData("Colour","purple");
+      return LimeComp.DetectedColour.PURPLE;
+    }
+
+    return LimeComp.DetectedColour.UNKNOWN;
+  }
+
+  public void runShooter()
+  {
+    Shooter.setVelocity(ShooterTarget);
+    telemetry.addData("Shooter Motor", Shooter);
+    telemetry.addData("Spindexer?", spindexToggle);
+    telemetry.addData("Shooter Target", ShooterTarget);
+    telemetry.addData("Runtime", lastRunTime);
+    telemetry.addData("Shooter State", shooterState);
+    telemetry.addData("First Colour", SpindexerSensor1);
+    telemetry.addData("Second Colour", SpindexerSensor2);
+    telemetry.addData("Servo", Flap);
+    lastRunTime = linearOpMode.getRuntime();
+    shooterState = 1;
+    if (shooterState == 1)
+    {
+      spindexToggle = true;
+      if (getDetectedColor() == LimeComp.DetectedColour.GREEN || getDetectedColor() == LimeComp.DetectedColour.PURPLE)
+      {
+        lastRunTime = linearOpMode.getRuntime();
+        shooterState = 2;
+      }
+    }
+    if (shooterState == 2)
+    {
+      Flap.setPosition(Constants.flapDeploy);
+      if (linearOpMode.getRuntime() == lastRunTime + 0.5)
+      {
+        shooterState = 3;
+      }
+    }
+    if (shooterState == 3)
+    {
+      spindexToggle = false;
+      if (Shooter.getVelocity() < ShooterTarget)
+      {
+        shooterState = 4;
+      }
+    }
+    if (shooterState == 4)
+    {
+      Flap.setPosition(Constants.flapUp);
+      if (Shooter.getVelocity() > ShooterTarget)
+      {
+        shooterState = -1;
+      }
+    }
+  }
 
   @Override
   public void init() {
@@ -113,7 +202,7 @@ public class ShootParkAuto extends OpMode {
     panelsTelemetry.debug("Heading", follower.getPose().getHeading());
     panelsTelemetry.update(telemetry);
 
-    if (toggle) {
+    if (spindexToggle) {
       SpindxerServo.setPower(1);
     } else {
       SpindxerServo.setPower(0);
@@ -155,14 +244,7 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1:
-        AutoFunctions.runShooter(Shooter,
-                toggle,
-                ShooterTarget,
-                0,
-                shooterState,
-                SpindexerSensor1,
-                SpindexerSensor2,
-                Flap);
+        runShooter();
         if (shooterState == -1)
         {
           pathState = 2;
