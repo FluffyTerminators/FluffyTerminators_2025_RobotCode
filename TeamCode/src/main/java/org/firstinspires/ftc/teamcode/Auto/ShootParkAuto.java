@@ -70,7 +70,6 @@ public class ShootParkAuto extends OpMode {
   @Override
   public void loop() {
     LLResult result = limelight.getLatestResult();
-    double ShooterTarget;
 
     if (result != null && result.isValid()) {
       Pose3D botpose = result.getBotpose();
@@ -88,15 +87,19 @@ public class ShootParkAuto extends OpMode {
       Pose3D botPose_mt2 = result.getBotpose_MT2();
 
       List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-      for (LLResultTypes.FiducialResult fiducial : fiducials) {
-        int id = fiducial.getFiducialId(); // The ID number of the fiducial
-        double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
-        double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
-        double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
-        double distance = Math.sqrt((x * x) + (y * y));
-        telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
+      if (fiducials != null && !fiducials.isEmpty()) {
+        for (LLResultTypes.FiducialResult fiducial : fiducials) {
+          int id = fiducial.getFiducialId(); // The ID number of the fiducial
+          double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
+          double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
+          double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
+          double distance = Math.sqrt((x * x) + (y * y));
+          telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-        ShooterTarget = Constants.ShooterCal.interpolate(distance);
+          ShooterTarget = Constants.ShooterCal.interpolate(distance);
+        }
+      } else {
+        ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
     }
     else
