@@ -127,7 +127,7 @@ public class AutoFunctions
       flap.setPosition(Constants.flapUp);
       if (shooterMotor.getVelocity() > shooterVel)
       {
-        shooterState = 0;
+        shooterState = -1;
       }
     }
   }

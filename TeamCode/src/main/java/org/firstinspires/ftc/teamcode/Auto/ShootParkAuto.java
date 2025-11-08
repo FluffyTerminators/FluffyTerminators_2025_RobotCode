@@ -163,7 +163,10 @@ public class ShootParkAuto extends OpMode {
                 SpindexerSensor1,
                 SpindexerSensor2,
                 Flap);
-        pathState = 2;
+        if (shooterState == -1)
+        {
+          pathState = 2;
+        }
         break;
 
       case 2:
