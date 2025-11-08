@@ -378,7 +378,7 @@ class ForwardVelocityTuner extends OpMode {
                 end = true;
                 stopRobot();
             } else {
-                follower.setTeleOpDrive(-1,0,0,true);
+                follower.setTeleOpDrive(1,0,0,true);
                 //double currentVelocity = Math.abs(follower.getVelocity().getXComponent());
                 double currentVelocity = Math.abs(follower.poseTracker.getLocalizer().getVelocity().getX());
                 velocities.add(currentVelocity);
