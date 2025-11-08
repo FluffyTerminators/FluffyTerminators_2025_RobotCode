@@ -61,8 +61,8 @@ public class Constants
     public static class PEDROConstants
     {
         public static FollowerConstants followerConstants = new FollowerConstants()
-                .forwardZeroPowerAcceleration(-55.50120432611453)
-                .lateralZeroPowerAcceleration(-84.22805501815317);
+                .forwardZeroPowerAcceleration(55.50120432611453)
+                .lateralZeroPowerAcceleration(84.22805501815317);
 
         public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
