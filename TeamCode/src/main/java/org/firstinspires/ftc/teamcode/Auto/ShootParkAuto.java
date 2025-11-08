@@ -187,8 +187,6 @@ public class ShootParkAuto extends OpMode {
 
           ShooterTarget = Constants.ShooterCal.interpolate(distance);
         }
-      } else {
-        ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
     }
     else
