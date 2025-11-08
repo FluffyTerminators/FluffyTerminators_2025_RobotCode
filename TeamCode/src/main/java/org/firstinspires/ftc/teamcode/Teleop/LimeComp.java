@@ -28,10 +28,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
-
 import java.util.List;
-
-
 //Download Missing Files
 
 @TeleOp(name = "LimelightComp")
@@ -92,9 +89,6 @@ public class LimeComp extends LinearOpMode {
   }
 
   public void runOpMode() throws InterruptedException {
-
-    //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
-    //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
     bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
     bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
@@ -152,8 +146,8 @@ public class LimeComp extends LinearOpMode {
     boolean Last2DL = false;
     boolean Last2DD = false;
     double ShooterTarget = 0;
-
     double Shooterspeed;
+    double FlapPos;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -162,8 +156,11 @@ public class LimeComp extends LinearOpMode {
     Flap.setPosition(flapUp);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
+
     waitForStart();
-    while (opModeIsActive()) {
+
+    while (opModeIsActive())
+    {
       telemetry.addData("Status", "Running");
       result = limelight.getLatestResult();
       pinpoint.update();
@@ -181,8 +178,9 @@ public class LimeComp extends LinearOpMode {
       // Rotate the driver input vector so it is field-centric
       Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
       Forward = rawStrafe * sinHeading + rawForward * cosHeading;
-
       Shooterspeed = Shooter.getVelocity();
+
+      FlapPos = gamepad2.left_stick_y;
 
       if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
@@ -224,6 +222,7 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("BRDrive_Actual", bRDrive.getPower());
       telemetry.addData("BLDrive_Actual", bLDrive.getPower());
 
+      Flap.setPosition(FlapPos);
 
       DetectedColour Colour = getDetectedColor(telemetry);
 
@@ -231,7 +230,7 @@ public class LimeComp extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      if (gamepad2.left_bumper) {
+      if (gamepad2.left_trigger < 0) {
         if (shootSequence) {
           shootSequence = false;
         } else {
@@ -240,13 +239,13 @@ public class LimeComp extends LinearOpMode {
         }
       }
 
-      if (gamepad2.b) {
+      if (gamepad2.dpad_down) {
         spindexerPower = spindexerBWD;
       } else {
         spindexerPower = spindexerFWD;
       }
 
-      if (gamepad2.x) {
+      if (gamepad2.dpad_up) {
         if (!spinToggleLast) {
           spindexerToggle = !spindexerToggle;
           spinToggleLast = true;
@@ -256,7 +255,7 @@ public class LimeComp extends LinearOpMode {
       }
 
 
-      if (gamepad2.right_bumper) {
+      if (gamepad2.right_trigger < 0) {
         if (!inToggleLast) {
           intakeToggle = !intakeToggle;
           inToggleLast = true;
@@ -265,116 +264,16 @@ public class LimeComp extends LinearOpMode {
         inToggleLast = false;
       }
 
-      if (gamepad2.left_bumper) {
-        Flap.setPosition(flapDeploy);
-      } else {
-        Flap.setPosition(flapUp);
-      }
-
-
-     /* if (shootSequence)
-      {
-        lastRuntime = getRuntime();
-        if (shooterStage == 1)
-        {
-          Flap.setPosition(flapDeploy);
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-        if (Shooter.getPower() == 1) {
-          lastRuntime = getRuntime();
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-        shooterStage = 2;
-        }
-        }
-        if (shooterStage == 2)
-        {
-          Flap.setPosition(flapUp);
-          lastRuntime = getRuntime();
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-          if (Shooter.getPower() < 1)
-          {
-            shooterStage = 3;
-          }
-        }
-        if (shooterStage == 3)
-        {
-          Flap.setPosition(flapUp);
-          shooterStage = 4;
-        }
-        if (shooterStage == 4)
-        {
-          shooterToggle = false;
-        }
-        shootSequence = false;
-      }
-      else
-      {
-        shooterToggle = false;
-        Flap.setPosition(flapUp);
-      }b */
-
       if (spindexerToggle) {
         SpindxerServo.setPower(spindexerPower);
       } else {
         SpindxerServo.setPower(0);
       }
 
-     /* if (shooterToggle) {
-        Shooter.setPower(Constants.shooterPower);
-      } else {
-        Shooter.setPower(0);
-      } */
-      if (gamepad1.dpad_up) {
-        ShooterTarget += 20;
-      }
-
-      if (gamepad1.dpad_down) {
-        ShooterTarget -= 20;
-      }
-      telemetry.addData("ShooterTarget", ShooterTarget);
-
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());
-
-    /*  if (gamepad2.dpad_left) {
-        if (!(Last2DL)) {
-          shooterToggle = !shooterToggle;
-        }
-        Last2DL = true;
-      } else {
-        Last2DL = false;
-      }
-      if (gamepad2.dpad_up) {
-        if (!(Last2DU)) {
-          S_Targetspeed += 100;
-          if (S_Targetspeed > 2000) {
-            S_Targetspeed = 2000;
-          }
-        }
-        Last2DU = true;
-      } else {
-        Last2DU = false;
-      }
-      if (gamepad2.dpad_down) {
-        if (!(Last2DD)) {
-          S_Targetspeed -= 100;
-          if (S_Targetspeed < 0) {
-            S_Targetspeed = 0;
-          }
-        }
-        Last2DD = true;
-      } */
-
-
       if (intakeToggle) {
         Intake.setPower(0.75);
       } else {
         Intake.setPower(0);
-
       }
 
       if (result != null && result.isValid()) {
@@ -401,26 +300,43 @@ public class LimeComp extends LinearOpMode {
           double distance = Math.sqrt((x * x) + (y * y));
           telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-         // ShooterTarget = 1480 - ((1/(distance+0.25)) * 140);
-          telemetry.addData("Target", ShooterTarget);
+          ShooterTarget = Constants.ShooterCal.interpolate(distance);
         }
-
-        if (gamepad1.left_bumper) {
-          Shooter.setVelocity(ShooterTarget);
-        } else
-        {
-          Shooter.setVelocity(0);
-        }
-
-      /*  if (botPose_mt2 != null) {
-          double x = botPose_mt2.getPosition().x;
-          double y = botPose_mt2.getPosition().y;
-          telemetry.addData("MT2 Location:", "(" + x + ", " + y + ")");
-        }
-      }*/
-
-        telemetry.update();
       }
+      else
+      {
+        ShooterTarget = Constants.ShooterCal.interpolate(0.2);
+      }
+
+      if (gamepad2.left_bumper) {
+        Shooter.setVelocity(ShooterTarget);
+      } else
+      {
+        Shooter.setVelocity(0);
+      }
+
+      if (shootSequence)
+      {
+        Shooter.setVelocity(ShooterTarget);
+        lastRuntime = getRuntime();
+        shooterStage = 1;
+        if (getRuntime() == (lastRuntime + 0.5))
+        {
+          Flap.setPosition(flapDeploy);
+          lastRuntime = getRuntime();
+
+          if (getRuntime() == (lastRuntime + 1))
+          {
+            Flap.setPosition(flapUp);
+          }
+        }
+      } else
+      {
+        Shooter.setVelocity(0);
+      }
+      telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());
+      telemetry.update();
     }
   }
 }
