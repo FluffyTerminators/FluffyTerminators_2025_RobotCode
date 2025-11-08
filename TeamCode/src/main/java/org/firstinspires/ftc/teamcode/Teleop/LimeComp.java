@@ -63,7 +63,7 @@ public class LimeComp extends LinearOpMode {
 
   public Limelight3A limelight;
 
-  public enum DetectedColour {
+  public enum DetectedColour{
     GREEN,
     PURPLE,
     UNKNOWN,
@@ -81,9 +81,24 @@ public class LimeComp extends LinearOpMode {
     normBlue2 = colors2.blue / colors2.alpha;
     normGreen2 = colors2.green / colors2.alpha;
 
+    AverageSpinRed = (normRed1 + normRed2) / 2;
+    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
+    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
+
+
     telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
     telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
     telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
+
+    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
+      telemetry.addData("Colour","green");
+      return DetectedColour.GREEN;
+    }
+
+    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+      telemetry.addData("Colour","purple");
+      return DetectedColour.PURPLE;
+    }
 
     return DetectedColour.UNKNOWN;
   }
@@ -180,7 +195,7 @@ public class LimeComp extends LinearOpMode {
       Forward = rawStrafe * sinHeading + rawForward * cosHeading;
       Shooterspeed = Shooter.getVelocity();
 
-      FlapPos = gamepad2.left_stick_y;
+     // FlapPos = gamepad2.left_stick_y;
 
       if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
@@ -222,7 +237,7 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("BRDrive_Actual", bRDrive.getPower());
       telemetry.addData("BLDrive_Actual", bLDrive.getPower());
 
-      Flap.setPosition(FlapPos);
+     // Flap.setPosition(FlapPos);
 
       DetectedColour Colour = getDetectedColor(telemetry);
 
@@ -230,7 +245,7 @@ public class LimeComp extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      if (gamepad2.left_trigger < 0) {
+      if (gamepad2.left_trigger > 0) {
         if (shootSequence) {
           shootSequence = false;
         } else {
@@ -255,7 +270,7 @@ public class LimeComp extends LinearOpMode {
       }
 
 
-      if (gamepad2.right_trigger < 0) {
+      if (gamepad2.right_trigger > 0) {
         if (!inToggleLast) {
           intakeToggle = !intakeToggle;
           inToggleLast = true;
@@ -320,19 +335,43 @@ public class LimeComp extends LinearOpMode {
         Shooter.setVelocity(ShooterTarget);
         lastRuntime = getRuntime();
         shooterStage = 1;
-        if (getRuntime() == (lastRuntime + 0.5))
+        if (shooterStage == 1)
+        {
+          spindexerToggle = true;
+          if (getDetectedColor(telemetry) == DetectedColour.GREEN || getDetectedColor(telemetry) == DetectedColour.PURPLE)
+          {
+            lastRuntime = getRuntime();
+            shooterStage = 2;
+          }
+        }
+        if (shooterStage == 2)
         {
           Flap.setPosition(flapDeploy);
-          lastRuntime = getRuntime();
-
-          if (getRuntime() == (lastRuntime + 1))
+          if (getRuntime() == lastRuntime + 0.5)
+          {
+            shooterStage = 3;
+          }
+          if (shooterStage == 3)
+          {
+            spindexerToggle = false;
+            if (Shooter.getVelocity() == ShooterTarget)
+            {
+              shooterStage = 4;
+            }
+          }
+          if (shooterStage == 4)
           {
             Flap.setPosition(flapUp);
+            if (Shooter.getVelocity() < ShooterTarget)
+            {
+              shootSequence = false;
+            }
           }
         }
       } else
       {
         Shooter.setVelocity(0);
+        shooterStage = 1;
       }
       telemetry.addData("Target", ShooterTarget);
       telemetry.addData("Shooter Vel", Shooter.getVelocity());

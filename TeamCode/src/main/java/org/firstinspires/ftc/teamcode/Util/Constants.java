@@ -41,28 +41,28 @@ public class Constants
             .rightRearMotorName("BRDrive")
             .leftRearMotorName("BLDrive")
             .leftFrontMotorName("FLDrive")
-            .leftFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .leftRearMotorDirection(DcMotorSimple.Direction.REVERSE)
-            .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .rightRearMotorDirection(DcMotorSimple.Direction.FORWARD)
-            .xVelocity(53.67945393239419)
-            .yVelocity(45.12708961306595);
+            .leftFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .leftRearMotorDirection(DcMotorSimple.Direction.FORWARD)
+            .rightFrontMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
+            .xVelocity(54.009306179256896)
+            .yVelocity(40.09489380843996);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(-5)
-            .strafePodX(0.5)
-            .distanceUnit(DistanceUnit.CM)
+            .forwardPodY(-25)
+            .strafePodX(100)
+            .distanceUnit(DistanceUnit.MM)
             .hardwareMapName("pinpoint")
             .encoderResolution(GoBildaOdometryPods.goBILDA_4_BAR_POD)
-            .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD)
+            .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED)
             .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
     public static class PEDROConstants
     {
         public static FollowerConstants followerConstants = new FollowerConstants()
-                .forwardZeroPowerAcceleration(59.654383190903296)
-                .lateralZeroPowerAcceleration(92.44744654233428);
+                .forwardZeroPowerAcceleration(-55.50120432611453)
+                .lateralZeroPowerAcceleration(-84.22805501815317);
 
         public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
@@ -87,8 +87,7 @@ public class Constants
     public static final double flapDeploy = 0.5;
     public static final double flapDown = 0.45;
 
-    public static class HardwareMappings
-    {
+    public static class HardwareMappings {
         // Hubs
         public static Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
         public static Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
@@ -100,36 +99,22 @@ public class Constants
         public static DcMotor fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
 
         // Mechanism Motors
-        public static DcMotor Intake  = hardwareMap.get(DcMotor.class, "Intake");
+        public static DcMotor Intake = hardwareMap.get(DcMotor.class, "Intake");
         public static DcMotor Shooter = hardwareMap.get(DcMotor.class, "Shooter");
 
         // Internal Motion Units
-        public static IMU imu                        = hardwareMap.get(IMU.class,                   "imu");
+        public static IMU imu = hardwareMap.get(IMU.class, "imu");
         public static GoBildaPinpointDriver pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
 
         // Servos
         public static CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
         public static CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
-        public static CRServo SpindxerServo        = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-        public static Servo Flap                   = hardwareMap.get(Servo.class,   "Flap");
+        public static CRServo SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
+        public static Servo Flap = hardwareMap.get(Servo.class, "Flap");
 
         // Colour Sensors
         public static NormalizedColorSensor SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
         public static NormalizedColorSensor SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
-
-
-        public static FollowerConstants followerConstants = new FollowerConstants()
-                .mass(9.35);
-
-        public static PinpointConstants localizerConstants = new PinpointConstants()
-                .forwardPodY(-25)
-                .strafePodX(100)
-                .distanceUnit(DistanceUnit.MM)
-                .hardwareMapName("pinpoint")
-                .encoderResolution(GoBildaOdometryPods.goBILDA_4_BAR_POD)
-                .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED)
-                .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED);
-
     }
 
     public static class ShooterCal
