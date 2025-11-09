@@ -148,6 +148,7 @@ public class LimeComp extends LinearOpMode {
     boolean inToggleLast = false;
     boolean outToggleLast = false;
     boolean shootSequence = false;
+    boolean shootTriggerLast = false;
     int shooterStage = 0;
     double lastRuntime = getRuntime();
     int S_lastencoder = 0;
@@ -253,15 +254,14 @@ public class LimeComp extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      boolean shootTriggerPressed = gamepad2.left_trigger > 0.05;
-      if (shootTriggerPressed) {
-        if (!shootSequence) {
-          shooterStage = 1; // reset the autonomous sequence when the trigger is freshly pressed
+      boolean shootTriggerPressed = gamepad2.left_trigger > 0.1;
+      if (shootTriggerPressed && !shootTriggerLast) {
+        shootSequence = !shootSequence;
+        if (shootSequence) {
+          shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
         }
-        shootSequence = true;
-      } else {
-        shootSequence = false;
       }
+      shootTriggerLast = shootTriggerPressed;
 
       if (gamepad2.dpad_down) {
         spindexerPower = spindexerBWD;
