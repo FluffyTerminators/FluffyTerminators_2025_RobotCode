@@ -187,8 +187,8 @@ public class LimeComp extends LinearOpMode {
       double rawStrafe = -gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
 
-      double sinHeading = Math.sin(Heading);
-      double cosHeading = Math.cos(Heading);
+      double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for standard CCW math
+      double cosHeading = Math.cos(-Heading);
 
       // Rotate the driver input vector so it is field-centric
       Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
