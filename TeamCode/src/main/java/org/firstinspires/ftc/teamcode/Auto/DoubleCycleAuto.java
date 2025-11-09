@@ -120,6 +120,49 @@ public class DoubleCycleAuto extends OpMode {
         // Add your state machine Here
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
+
+        switch (pathState) {
+            case 0:
+                follower.followPath(paths.Path1);
+                pathState = 1;
+                break;
+            case 1:
+                if (!follower.isBusy()){
+                    follower.followPath(paths.Path2);
+                    pathState = 2;
+                }
+                break;
+            case 2:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Path3);
+                    pathState = 3;
+                }
+                break;
+            case 3:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Path4);
+                    pathState = 4;
+                }
+                break;
+            case 4:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Path5);
+                    pathState = 5;
+                }
+                break;
+            case 5:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Path6);
+                    pathState = 6;
+                }
+                break;
+            case 6:
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Path7);
+                    pathState = -1;
+                }
+                break;
+        }
         return pathState;
     }
 }
