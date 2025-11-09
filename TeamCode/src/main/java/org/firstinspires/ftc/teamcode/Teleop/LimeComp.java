@@ -324,7 +324,7 @@ public class LimeComp extends LinearOpMode {
             double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Vertical offset (meters)
             double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
             double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
-            double distance = Math.sqrt((x * x) + (z * z)); // Use horizontal plane distance to the tag
+            double distance = Math.hypot(x, y); // Use horizontal plane distance to the tag
             telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
             ShooterTarget = Constants.ShooterCal.interpolate(distance);
