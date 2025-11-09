@@ -117,16 +117,15 @@ public class ShootParkAuto extends OpMode {
       case 2: // Drop flap to feed note
         spindexToggle = false;
         Flap.setPosition(Constants.flapDeploy);
-        lastRunTime = getRuntime();
-        if (getRuntime() > lastRunTime + 0.25) {
+        if (getRuntime() - lastRunTime > 0.25) {
+          lastRunTime = getRuntime();
           shooterState = 3;
         }
         break;
 
       case 3: // Stop spindexer and wait for flywheel to slow down
         spindexToggle = true;
-        lastRunTime = getRuntime();
-        if (getRuntime() > lastRunTime + 0.25) {
+        if (getRuntime() - lastRunTime > 0.25) {
           spindexToggle = false;
         }
         if (Shooter.getVelocity() < ShooterTarget) {
