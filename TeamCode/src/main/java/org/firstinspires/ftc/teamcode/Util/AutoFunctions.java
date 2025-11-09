@@ -77,57 +77,109 @@ public class AutoFunctions
     return LimeComp.DetectedColour.UNKNOWN;
   }
 
-  public static void runShooter(DcMotorEx shooterMotor,
-                                Boolean spindexToggle,
-                                double shooterVel,
-                                double spinUpTime,
-                                double shooterState,
-                                NormalizedColorSensor colourSensorA,
-                                NormalizedColorSensor colourSensorB,
-                                Servo flap)
+  public static class ShooterController
   {
-    shooterMotor.setVelocity(shooterVel);
-    telemetry.addData("Shooter Motor", shooterMotor);
-    telemetry.addData("Spindexer?", spindexToggle);
-    telemetry.addData("Shooter Target", shooterVel);
-    telemetry.addData("Runtime", spinUpTime);
-    telemetry.addData("Shooter State", shooterState);
-    telemetry.addData("First Colour", colourSensorA);
-    telemetry.addData("Second Colour", colourSensorB);
-    telemetry.addData("Servo", flap);
-    spinUpTime = linearOpMode.getRuntime();
-    shooterState = 1;
-    if (shooterState == 1)
+    private static final double FEED_DELAY_SECONDS = 0.25;
+
+    private boolean spindexToggle;
+    private double lastRunTime;
+    private int shooterState;
+
+    public ShooterController()
     {
-      spindexToggle = true;
-      if (getDetectedColor(telemetry, colourSensorA, colourSensorB) == LimeComp.DetectedColour.GREEN || getDetectedColor(telemetry, colourSensorA, colourSensorB) == LimeComp.DetectedColour.PURPLE)
-      {
-        spinUpTime = linearOpMode.getRuntime();
-        shooterState = 2;
-      }
+      reset();
     }
-    if (shooterState == 2)
-    {
-      flap.setPosition(Constants.flapDeploy);
-      if (linearOpMode.getRuntime() == spinUpTime + 0.5)
-      {
-        shooterState = 3;
-      }
-    }
-    if (shooterState == 3)
+
+    public void reset()
     {
       spindexToggle = false;
-      if (shooterMotor.getVelocity() < shooterVel)
-      {
-        shooterState = 4;
-      }
+      lastRunTime = 0;
+      shooterState = 0;
     }
-    if (shooterState == 4)
+
+    public boolean isFinished()
     {
-      flap.setPosition(Constants.flapUp);
-      if (shooterMotor.getVelocity() > shooterVel)
+      return shooterState == -1;
+    }
+
+    public int getShooterState()
+    {
+      return shooterState;
+    }
+
+    public void runShooter(Telemetry telemetry,
+                           DcMotorEx shooterMotor,
+                           Servo flap,
+                           CRServo spindexerServo,
+                           NormalizedColorSensor colourSensorA,
+                           NormalizedColorSensor colourSensorB,
+                           double shooterTarget,
+                           double runtimeSeconds)
+    {
+      shooterMotor.setVelocity(shooterTarget);
+
+      telemetry.addData("Shooter Target", shooterTarget);
+      telemetry.addData("Shooter State", shooterState);
+      telemetry.addData("Spindexer Active", spindexToggle);
+
+      switch (shooterState)
       {
-        shooterState = -1;
+        case 0: // Spin up and start feeding when ready
+          spindexToggle = true;
+          shooterState = 1;
+          break;
+
+        case 1: // Wait for a detected note before dropping the flap
+          LimeComp.DetectedColour detectedColour = getDetectedColor(telemetry, colourSensorA, colourSensorB);
+          telemetry.addData("Detected Colour", detectedColour);
+          if (detectedColour == LimeComp.DetectedColour.GREEN || detectedColour == LimeComp.DetectedColour.PURPLE)
+          {
+            lastRunTime = runtimeSeconds;
+            shooterState = 2;
+          }
+          break;
+
+        case 2: // Drop flap to feed the note
+          spindexToggle = false;
+          flap.setPosition(Constants.flapDeploy);
+          if (runtimeSeconds - lastRunTime > FEED_DELAY_SECONDS)
+          {
+            lastRunTime = runtimeSeconds;
+            shooterState = 3;
+          }
+          break;
+
+        case 3: // Kick spindexer to clear the chamber and wait for flywheel drop
+          spindexToggle = true;
+          if (runtimeSeconds - lastRunTime > FEED_DELAY_SECONDS)
+          {
+            spindexToggle = false;
+            if (shooterMotor.getVelocity() < shooterTarget)
+            {
+              shooterState = 4;
+            }
+          }
+          break;
+
+        case 4: // Retract flap once velocity recovers, then finish cycle
+          flap.setPosition(Constants.flapUp);
+          if (shooterMotor.getVelocity() > shooterTarget)
+          {
+            shooterMotor.setVelocity(0);
+            shooterState = -1;
+          }
+          break;
+
+        case -1:
+        default:
+          spindexToggle = false;
+          shooterMotor.setVelocity(0);
+          break;
+      }
+
+      if (spindexerServo != null)
+      {
+        spindexerServo.setPower(spindexToggle ? 1 : 0);
       }
     }
   }
