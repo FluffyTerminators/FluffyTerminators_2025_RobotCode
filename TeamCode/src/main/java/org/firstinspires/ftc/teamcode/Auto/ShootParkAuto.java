@@ -99,21 +99,21 @@ public class ShootParkAuto extends OpMode {
     telemetry.addData("First Colour", SpindexerSensor1);
     telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
-    lastRunTime = linearOpMode.getRuntime();
+    lastRunTime = getRuntime();
     shooterState = 1;
     if (shooterState == 1)
     {
       spindexToggle = true;
       if (getDetectedColor() == LimeComp.DetectedColour.GREEN || getDetectedColor() == LimeComp.DetectedColour.PURPLE)
       {
-        lastRunTime = linearOpMode.getRuntime();
+        lastRunTime = getRuntime();
         shooterState = 2;
       }
     }
     if (shooterState == 2)
     {
       Flap.setPosition(Constants.flapDeploy);
-      if (linearOpMode.getRuntime() == lastRunTime + 0.5)
+      if (getRuntime() == lastRunTime + 0.5)
       {
         shooterState = 3;
       }
