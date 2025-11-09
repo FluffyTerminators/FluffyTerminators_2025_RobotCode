@@ -120,7 +120,7 @@ public class Constants
     public static class ShooterCal
     {
         private static final double[] distance     = {0.0, 0.05, 0.1,  0.15, 0.2,  0.25, 0.3,  0.35, 0.41, 0.45, 0.49, 0.51, 0.54, 0.55, 0.58, 0.6,  0.61, 1.2};
-        private static final double[] shooterTicks = {0.0, 1200, 1400, 1400, 1340, 1340, 1320, 1320, 1300, 1180, 1320, 1320, 1400, 1460, 1380, 1380, 1320, 1460};
+        private static final double[] shooterTicks = {1100, 1200, 1400, 1400, 1340, 1340, 1320, 1320, 1300, 1180, 1320, 1320, 1400, 1460, 1380, 1380, 1320, 1460};
 
 
 
