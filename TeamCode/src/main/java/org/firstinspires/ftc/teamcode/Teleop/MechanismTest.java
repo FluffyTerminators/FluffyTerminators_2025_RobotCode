@@ -194,16 +194,6 @@ public class MechanismTest extends LinearOpMode {
 
       if (gamepad1.left_bumper)
       {
-        if (Shooterspeed < ShooterTarget)
-        {
-          ShooterPower += 0.01;
-        }
-
-        if (Shooterspeed > ShooterTarget)
-        {
-          ShooterPower -= 0.01;
-        }
-
         Shooter.setVelocity(ShooterTarget);
 
         telemetry.addData("Active Motor: ","Shooter");
