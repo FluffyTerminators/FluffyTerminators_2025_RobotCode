@@ -203,6 +203,14 @@ public class LimeComp extends LinearOpMode {
         Turn /= Constants.brake;
       }
 
+      if (gamepad2.right_bumper)
+      {
+        Flap.setPosition(flapDeploy);
+      } else
+      {
+        Flap.setPosition(flapUp);
+      }
+
       if (gamepad1.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
@@ -354,7 +362,7 @@ public class LimeComp extends LinearOpMode {
           if (shooterStage == 3)
           {
             spindexerToggle = false;
-            if (Shooter.getVelocity() == ShooterTarget)
+            if (Shooter.getVelocity() > ShooterTarget)
             {
               shooterStage = 4;
             }
