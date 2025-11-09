@@ -69,7 +69,7 @@ public class AutoFunctions
       return LimeComp.DetectedColour.GREEN;
     }
 
-    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+    if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
       telemetry.addData("Colour","purple");
       return LimeComp.DetectedColour.PURPLE;
     }

@@ -183,12 +183,12 @@ public class LimeComp extends LinearOpMode {
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
 
-      double rawForward = -gamepad1.left_stick_y; // FTC joystick forward is negative
+      double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
       double rawStrafe = -gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
 
-      double sinHeading = Math.sin(Heading);
-      double cosHeading = Math.cos(Heading);
+      double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for standard CCW math
+      double cosHeading = Math.cos(-Heading);
 
       // Rotate the driver input vector so it is field-centric
       Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
@@ -212,7 +212,7 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad1.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
         pinpoint.setHeading(0, AngleUnit.DEGREES);
@@ -331,12 +331,7 @@ public class LimeComp extends LinearOpMode {
         ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
 
-      if (gamepad2.left_bumper) {
-        Shooter.setVelocity(ShooterTarget);
-      } else
-      {
-        Shooter.setVelocity(0);
-      }
+      boolean manualShooterRequest = gamepad2.left_bumper;
 
       if (shootSequence)
       {
@@ -376,6 +371,9 @@ public class LimeComp extends LinearOpMode {
             }
           }
         }
+      } else if (manualShooterRequest)
+      {
+        Shooter.setVelocity(ShooterTarget);
       } else
       {
         Shooter.setVelocity(0);

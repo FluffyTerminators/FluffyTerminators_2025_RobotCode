@@ -51,7 +51,7 @@ public class ShootParkAuto extends OpMode {
   private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
-  private double shooterState = 0;
+  private int shooterState = 0;
 
   public LimeComp.DetectedColour getDetectedColor()
   {
@@ -80,7 +80,7 @@ public class ShootParkAuto extends OpMode {
       return LimeComp.DetectedColour.GREEN;
     }
 
-    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+    if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
       telemetry.addData("Colour","purple");
       return LimeComp.DetectedColour.PURPLE;
     }
@@ -99,40 +99,47 @@ public class ShootParkAuto extends OpMode {
     telemetry.addData("First Colour", SpindexerSensor1);
     telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
-    lastRunTime = getRuntime();
-    shooterState = 1;
-    if (shooterState == 1)
-    {
-      spindexToggle = true;
-      if (getDetectedColor() == LimeComp.DetectedColour.GREEN || getDetectedColor() == LimeComp.DetectedColour.PURPLE)
-      {
-        lastRunTime = getRuntime();
-        shooterState = 2;
-      }
-    }
-    if (shooterState == 2)
-    {
-      Flap.setPosition(Constants.flapDeploy);
-      if (getRuntime() > lastRunTime + 0.5)
-      {
-        shooterState = 3;
-      }
-    }
-    if (shooterState == 3)
-    {
-      spindexToggle = false;
-      if (Shooter.getVelocity() < ShooterTarget)
-      {
-        shooterState = 4;
-      }
-    }
-    if (shooterState == 4)
-    {
-      Flap.setPosition(Constants.flapUp);
-      if (Shooter.getVelocity() > ShooterTarget)
-      {
-        shooterState = -1;
-      }
+
+    switch (shooterState) {
+      case 0: // Spin up
+        spindexToggle = true;
+        shooterState = 1;
+        break;
+
+      case 1: // Wait for note detection
+        LimeComp.DetectedColour detectedColour = getDetectedColor();
+        if (detectedColour == LimeComp.DetectedColour.GREEN || detectedColour == LimeComp.DetectedColour.PURPLE) {
+          lastRunTime = getRuntime();
+          shooterState = 2;
+        }
+        break;
+
+      case 2: // Drop flap to feed note
+        spindexToggle = false;
+        Flap.setPosition(Constants.flapDeploy);
+        if (getRuntime() - lastRunTime > 0.25) {
+          lastRunTime = getRuntime();
+          shooterState = 3;
+        }
+        break;
+
+      case 3: // Stop spindexer and wait for flywheel to slow down
+        spindexToggle = true;
+        if (getRuntime() - lastRunTime > 0.25) {
+          spindexToggle = false;
+        }
+        if (Shooter.getVelocity() < ShooterTarget) {
+          shooterState = 4;
+        }
+        break;
+
+      case 4: // Retract flap once flywheel recovers
+        Flap.setPosition(Constants.flapUp);
+        if (Shooter.getVelocity() > ShooterTarget) {
+          Shooter.setVelocity(0);
+          shooterState = -1;
+        }
+        break;
     }
   }
 

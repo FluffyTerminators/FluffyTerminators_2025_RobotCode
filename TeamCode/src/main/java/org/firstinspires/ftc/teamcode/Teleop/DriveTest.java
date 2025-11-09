@@ -85,9 +85,17 @@ public class DriveTest extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      Forward = ((Math.cos(Heading) * gamepad2.left_stick_y) + (Math.sin(Heading) * gamepad2.left_stick_x));
-      Strafe = ((Math.sin(Heading) * gamepad2.left_stick_y) - (Math.cos(Heading) * gamepad2.left_stick_x));
+
+      double rawForward = gamepad2.left_stick_y; // FTC joystick forward is negative
+      double rawStrafe = -gamepad2.left_stick_x;
       Turn = -gamepad2.right_stick_x;
+
+      double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for CCW math
+      double cosHeading = Math.cos(-Heading);
+
+      // Rotate the driver input vector so it is field-centric
+      Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
+      Forward = rawStrafe * sinHeading + rawForward * cosHeading;
 
       if (gamepad2.right_bumper) {
         Forward /= 2;
@@ -95,7 +103,7 @@ public class DriveTest extends LinearOpMode {
         Turn /= 2;
       }
         if (gamepad2.left_bumper) {
-          imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+          imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
           imu.resetYaw();
           pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
           pinpoint.setHeading(0, AngleUnit.DEGREES);
