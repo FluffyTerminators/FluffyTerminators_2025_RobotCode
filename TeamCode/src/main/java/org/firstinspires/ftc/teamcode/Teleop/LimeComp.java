@@ -318,8 +318,6 @@ public class LimeComp extends LinearOpMode {
         List<FiducialResult> fiducials = result.getFiducialResults();
         for (FiducialResult fiducial : fiducials) {
           int id = fiducial.getFiducialId(); // The ID number of the fiducial
-
-          if (id == 20) {
             double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Horizontal offset (meters)
             double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Vertical offset (meters)
             double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
@@ -328,7 +326,7 @@ public class LimeComp extends LinearOpMode {
             telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
             ShooterTarget = Constants.ShooterCal.interpolate(distance);
-          }
+
         }
       }
       else
