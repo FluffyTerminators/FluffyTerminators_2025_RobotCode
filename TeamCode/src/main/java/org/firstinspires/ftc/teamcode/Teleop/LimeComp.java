@@ -163,6 +163,7 @@ public class LimeComp extends LinearOpMode {
     double ShooterTarget = 0;
     double Shooterspeed;
     double FlapPos;
+    boolean shooterLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -254,12 +255,12 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad2.left_trigger > 0) {
-        if (shootSequence) {
-          shootSequence = false;
-        } else {
-          shootSequence = true;
-          shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
+        if (!shooterLast) {
+          shootSequence = !shootSequence;
+          shooterLast = true;
         }
+      } else {
+        shooterLast = false;
       }
 
       if (gamepad2.dpad_down) {
