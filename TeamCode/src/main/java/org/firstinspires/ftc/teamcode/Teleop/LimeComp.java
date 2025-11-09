@@ -183,7 +183,7 @@ public class LimeComp extends LinearOpMode {
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
 
-      double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
+      double rawForward = -gamepad1.left_stick_y; // FTC joystick forward is negative
       double rawStrafe = -gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
 
