@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.pinpoint;
-
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -14,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 
-@Autonomous(name = "Pedro Pathing Autonomous", group = "Autonomous")
+@Autonomous(name = "DoubleCycleAuto")
 @Configurable // Panels
 public class DoubleCycleAuto extends OpMode {
 
@@ -28,7 +26,7 @@ public class DoubleCycleAuto extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(56, 8, Math.toRadians(0)));
+        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -57,6 +55,7 @@ public class DoubleCycleAuto extends OpMode {
         public PathChain Path4;
         public PathChain Path5;
         public PathChain Path6;
+        public PathChain Path7;
 
         public Paths(Follower follower) {
             Path1 = follower
@@ -106,50 +105,19 @@ public class DoubleCycleAuto extends OpMode {
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(110))
                     .build();
+
+            Path7 = follower
+                    .pathBuilder()
+                    .addPath(
+                            new BezierLine(new Pose(56.000, 8.000), new Pose(56.000, 8.000))
+                    )
+                    .setLinearHeadingInterpolation(Math.toRadians(110), Math.toRadians(90))
+                    .build();
         }
     }
 
     public int autonomousPathUpdate() {
         // Add your state machine Here
-        switch (pathState)
-        {
-            case 0:
-            follower.followPath(paths.Path1);
-            pathState = 1;
-            break;
-
-            case 1:
-            if (!follower.isBusy()){
-
-                follower.followPath(paths.Path2);
-                pathState = 2;
-            }
-                break;
-            case 2:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Path3);
-                    pathState = 3;
-                }
-                break;
-            case 3:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Path4);
-                    pathState = 4;
-                }
-                break;
-            case 4:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Path5);
-                    pathState = 5;
-                }
-                break;
-            case 5:
-                if (!follower.isBusy()) {
-                    follower.followPath(paths.Path6);
-                    pathState = -1;
-                }
-                break;
-        }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
         return pathState;
