@@ -127,9 +127,9 @@ public class ShootParkAuto extends OpMode {
         spindexToggle = true;
         if (getRuntime() - lastRunTime > 0.25) {
           spindexToggle = false;
-        }
-        if (Shooter.getVelocity() < ShooterTarget) {
-          shooterState = 4;
+          if (Shooter.getVelocity() < ShooterTarget) {
+            shooterState = 4;
+          }
         }
         break;
 
