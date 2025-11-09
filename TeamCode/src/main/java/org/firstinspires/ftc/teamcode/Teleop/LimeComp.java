@@ -331,12 +331,7 @@ public class LimeComp extends LinearOpMode {
         ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
 
-      if (gamepad2.left_bumper) {
-        Shooter.setVelocity(ShooterTarget);
-      } else
-      {
-        Shooter.setVelocity(0);
-      }
+      boolean manualShooterRequest = gamepad2.left_bumper;
 
       if (shootSequence)
       {
@@ -376,6 +371,9 @@ public class LimeComp extends LinearOpMode {
             }
           }
         }
+      } else if (manualShooterRequest)
+      {
+        Shooter.setVelocity(ShooterTarget);
       } else
       {
         Shooter.setVelocity(0);
