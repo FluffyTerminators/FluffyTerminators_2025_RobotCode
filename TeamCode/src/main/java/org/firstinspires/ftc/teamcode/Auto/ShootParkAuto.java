@@ -113,7 +113,7 @@ public class ShootParkAuto extends OpMode {
     if (shooterState == 2)
     {
       Flap.setPosition(Constants.flapDeploy);
-      if (getRuntime() == lastRunTime + 0.5)
+      if (getRuntime() > lastRunTime + 0.5)
       {
         shooterState = 3;
       }
