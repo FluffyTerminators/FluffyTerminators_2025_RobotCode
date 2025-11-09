@@ -123,7 +123,6 @@ public class CompTeleop extends LinearOpMode {
     boolean inToggleLast = false;
     boolean outToggleLast = false;
     boolean shootSequence = false;
-    boolean shootButtonLast = false;
     int shooterStage = 0;
     double lastRuntime = getRuntime();
     int S_lastencoder = 0;
@@ -212,16 +211,16 @@ public class CompTeleop extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      boolean shootButtonPressed = gamepad2.left_bumper;
-      if (shootButtonPressed && !shootButtonLast) {
-        if (shootSequence) {
+      if (gamepad2.left_bumper) {
+        if (shootSequence)
+        {
           shootSequence = false;
-        } else {
+        }
+        else {
           shootSequence = true;
           shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
         }
       }
-      shootButtonLast = shootButtonPressed;
 
       if (gamepad2.b)
       {
