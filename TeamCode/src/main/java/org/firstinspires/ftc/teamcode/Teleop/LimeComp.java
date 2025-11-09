@@ -212,7 +212,7 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad1.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
+        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
         pinpoint.setHeading(0, AngleUnit.DEGREES);
