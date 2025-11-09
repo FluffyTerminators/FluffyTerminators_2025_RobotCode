@@ -125,7 +125,7 @@ public class ShootParkAuto extends OpMode {
 
       case 3: // Stop spindexer and wait for flywheel to slow down
         spindexToggle = true;
-        if (getRuntime() - lastRunTime > 0.25) {
+        if (getRuntime() - lastRunTime > 1) {
           spindexToggle = false;
           if (Shooter.getVelocity() < ShooterTarget) {
             shooterState = 4;
