@@ -123,7 +123,6 @@ public class CompTeleop extends LinearOpMode {
     boolean inToggleLast = false;
     boolean outToggleLast = false;
     boolean shootSequence = false;
-    boolean shootButtonLast = false;
     int shooterStage = 0;
     double lastRuntime = getRuntime();
     int S_lastencoder = 0;
@@ -213,15 +212,14 @@ public class CompTeleop extends LinearOpMode {
       }
 
       boolean shootButtonPressed = gamepad2.left_bumper;
-      if (shootButtonPressed && !shootButtonLast) {
-        if (shootSequence) {
-          shootSequence = false;
-        } else {
-          shootSequence = true;
-          shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
+      if (shootButtonPressed) {
+        if (!shootSequence) {
+          shooterStage = 1; // reset the sequence on a fresh press
         }
+        shootSequence = true;
+      } else {
+        shootSequence = false;
       }
-      shootButtonLast = shootButtonPressed;
 
       if (gamepad2.b)
       {
