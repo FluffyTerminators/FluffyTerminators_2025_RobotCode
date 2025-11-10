@@ -332,7 +332,7 @@ public class LimelightTest extends LinearOpMode {
       } else {
         Shooter.setPower(0);
       } */
-     /* if (gamepad1.dpad_up) {
+      if (gamepad1.dpad_up) {
         ShooterTarget += 20;
       }
 
@@ -341,7 +341,7 @@ public class LimelightTest extends LinearOpMode {
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
 
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());*/
+      telemetry.addData("Shooter Vel", Shooter.getVelocity());
 
     /*  if (gamepad2.dpad_left) {
         if (!(Last2DL)) {
@@ -402,11 +402,10 @@ public class LimelightTest extends LinearOpMode {
           int id = fiducial.getFiducialId(); // The ID number of the fiducial
           double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
           double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
+          double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
           double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
-          double distance = Math.sqrt((x * x) + (y * y));
+          double distance = Math.sqrt((x * x) + (z * z));
           telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
-
-          ShooterTarget = Constants.ShooterCal.interpolate(distance);
         }
 
 
@@ -418,10 +417,10 @@ public class LimelightTest extends LinearOpMode {
       }*/
 
 
-      } else
+      } /* else
       {
         ShooterTarget = Constants.ShooterCal.interpolate(0.2);
-      }
+      } */
 
       if (gamepad1.right_bumper) {
         Shooter.setVelocity(ShooterTarget);

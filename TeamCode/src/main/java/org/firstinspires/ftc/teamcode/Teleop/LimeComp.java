@@ -257,6 +257,7 @@ public class LimeComp extends LinearOpMode {
       if (gamepad2.left_trigger > 0) {
         if (!shooterLast) {
           shootSequence = !shootSequence;
+          shooterStage = 1;
           shooterLast = true;
         }
       } else {
@@ -340,7 +341,6 @@ public class LimeComp extends LinearOpMode {
       {
         Shooter.setVelocity(ShooterTarget);
         lastRuntime = getRuntime();
-        shooterStage = 1;
         if (shooterStage == 1)
         {
           spindexerToggle = true;
@@ -384,6 +384,7 @@ public class LimeComp extends LinearOpMode {
       }
       telemetry.addData("Target", ShooterTarget);
       telemetry.addData("Shooter Vel", Shooter.getVelocity());
+      telemetry.addData("Shooter Stage", shooterStage);
       telemetry.update();
     }
   }
