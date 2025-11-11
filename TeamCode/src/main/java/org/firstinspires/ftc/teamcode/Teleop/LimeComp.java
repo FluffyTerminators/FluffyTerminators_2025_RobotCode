@@ -154,6 +154,7 @@ public class LimeComp extends LinearOpMode {
     boolean highOveride = false;
     boolean highOverrideLast = false;
     boolean lowOverrideLast = false;
+    int pipeline = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -167,6 +168,7 @@ public class LimeComp extends LinearOpMode {
 
     while (opModeIsActive())
     {
+      telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
       telemetry.addData("Status", "Running");
       result = limelight.getLatestResult();
       pinpoint.update();
@@ -242,6 +244,16 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad1.b) {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
+      }
+
+      if (gamepad1.dpad_up)
+      {
+        limelight.pipelineSwitch(pipeline + 1);
+      }
+
+      if (gamepad1.dpad_down)
+      {
+        limelight.pipelineSwitch(pipeline - 1);
       }
 
       if (gamepad2.left_trigger > 0)
