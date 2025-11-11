@@ -62,15 +62,14 @@ public class LimeComp extends LinearOpMode {
 
   public Limelight3A limelight;
 
-  public enum DetectedColour{
-    GREEN,
-    PURPLE,
-    UNKNOWN,
+  public enum Distance {
+    LOADED,
+    EMPTY
   }
 
   private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
 
-  public DetectedColour getDetectedColor(Telemetry telemetry) {
+  public Distance getDetectedColor(Telemetry telemetry) {
     double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
     double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
     double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
@@ -83,11 +82,11 @@ public class LimeComp extends LinearOpMode {
 
     if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
       telemetry.addData("ObjectDetected", true);
-      return DetectedColour.GREEN;
+      return Distance.LOADED;
     }
 
     telemetry.addData("ObjectDetected", false);
-    return DetectedColour.UNKNOWN;
+    return Distance.EMPTY;
   }
 
   public void runOpMode() throws InterruptedException {
@@ -235,7 +234,7 @@ public class LimeComp extends LinearOpMode {
 
      // Flap.setPosition(FlapPos);
 
-      DetectedColour Colour = getDetectedColor(telemetry);
+      Distance detectedDistance = getDetectedColor(telemetry);
 
       if (gamepad1.b) {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
@@ -335,7 +334,7 @@ public class LimeComp extends LinearOpMode {
         {
           Shooter.setVelocity(ShooterTarget);
           spindexerToggle = true;
-          if (Colour == DetectedColour.GREEN || Colour == DetectedColour.PURPLE)
+          if (detectedDistance == Distance.LOADED)
           {
             lastRuntime = getRuntime();
             shooterStage = 2;
