@@ -75,8 +75,8 @@ public class LimeComp extends LinearOpMode {
 
     float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
     normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
+    normGreen1 = colors1.green / colors1.alpha;
+    normBlue1 = colors1.blue / colors1.alpha;
     normRed2 = colors2.red / colors2.alpha;
     normBlue2 = colors2.blue / colors2.alpha;
     normGreen2 = colors2.green / colors2.alpha;
@@ -95,7 +95,7 @@ public class LimeComp extends LinearOpMode {
       return DetectedColour.GREEN;
     }
 
-    if ((AverageSpinRed > 0.0064 && AverageSpinRed < 0.0041) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0010) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
+    if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
       telemetry.addData("Colour","purple");
       return DetectedColour.PURPLE;
     }
@@ -339,39 +339,49 @@ public class LimeComp extends LinearOpMode {
 
       if (shootSequence)
       {
-        Shooter.setVelocity(ShooterTarget);
-        lastRuntime = getRuntime();
+        if (shooterStage < 1 || shooterStage > 4)
+        {
+          shooterStage = 1;
+        }
+
         if (shooterStage == 1)
         {
+          Shooter.setVelocity(ShooterTarget);
           spindexerToggle = true;
-          if (getDetectedColor(telemetry) == DetectedColour.GREEN || getDetectedColor(telemetry) == DetectedColour.PURPLE)
+          if (Colour == DetectedColour.GREEN || Colour == DetectedColour.PURPLE)
           {
             lastRuntime = getRuntime();
             shooterStage = 2;
           }
         }
-        if (shooterStage == 2)
+        else if (shooterStage == 2)
         {
+          Shooter.setVelocity(ShooterTarget);
           Flap.setPosition(flapDeploy);
-          if (getRuntime() == lastRuntime + 0.5)
+          if (getRuntime() - lastRuntime >= 0.5)
           {
             shooterStage = 3;
           }
-          if (shooterStage == 3)
+        }
+        else if (shooterStage == 3)
+        {
+          Shooter.setVelocity(ShooterTarget);
+          spindexerToggle = false;
+          if (Shooter.getVelocity() >= ShooterTarget)
           {
-            spindexerToggle = false;
-            if (Shooter.getVelocity() > ShooterTarget)
-            {
-              shooterStage = 4;
-            }
+            lastRuntime = getRuntime();
+            shooterStage = 4;
           }
-          if (shooterStage == 4)
+        }
+        else if (shooterStage == 4)
+        {
+          Shooter.setVelocity(0);
+          Flap.setPosition(flapUp);
+          // give the flywheel time to coast down before re-arming
+          if (Shooter.getVelocity() <= 50 || getRuntime() - lastRuntime >= 1.0)
           {
-            Flap.setPosition(flapUp);
-            if (Shooter.getVelocity() < ShooterTarget)
-            {
-              shootSequence = false;
-            }
+            shootSequence = false;
+            shooterStage = 1;
           }
         }
       } else if (manualShooterRequest)
