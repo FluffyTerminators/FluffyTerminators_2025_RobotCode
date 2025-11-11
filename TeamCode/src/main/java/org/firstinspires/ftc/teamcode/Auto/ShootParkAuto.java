@@ -53,7 +53,13 @@ public class ShootParkAuto extends OpMode {
   private double lastRunTime = 0;
   private int shooterState = 0;
 
-  public LimeComp.DetectedColour getDetectedColor()
+  public enum DetectedColour{
+    GREEN,
+    PURPLE,
+    UNKNOWN,
+  }
+
+  public DetectedColour getDetectedColor()
   {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
@@ -77,15 +83,15 @@ public class ShootParkAuto extends OpMode {
 
     if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
       telemetry.addData("Colour","green");
-      return LimeComp.DetectedColour.GREEN;
+      return  DetectedColour.GREEN;
     }
 
     if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
       telemetry.addData("Colour","purple");
-      return LimeComp.DetectedColour.PURPLE;
+      return  DetectedColour.PURPLE;
     }
 
-    return LimeComp.DetectedColour.UNKNOWN;
+    return  DetectedColour.UNKNOWN;
   }
 
   public void runShooter()
@@ -107,8 +113,8 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1: // Wait for note detection
-        LimeComp.DetectedColour detectedColour = getDetectedColor();
-        if (detectedColour == LimeComp.DetectedColour.GREEN || detectedColour == LimeComp.DetectedColour.PURPLE) {
+        DetectedColour detectedColour = getDetectedColor();
+        if (detectedColour ==  DetectedColour.GREEN || detectedColour ==  DetectedColour.PURPLE) {
           lastRunTime = getRuntime();
           shooterState = 2;
         }
