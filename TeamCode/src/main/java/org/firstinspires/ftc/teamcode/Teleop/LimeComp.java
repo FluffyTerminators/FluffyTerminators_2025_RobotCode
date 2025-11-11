@@ -248,12 +248,14 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad1.dpad_up)
       {
-        limelight.pipelineSwitch(pipeline + 1);
+        pipeline = pipeline + 1;
+        limelight.pipelineSwitch(pipeline);
       }
 
       if (gamepad1.dpad_down)
       {
-        limelight.pipelineSwitch(pipeline - 1);
+        pipeline = pipeline - 1;
+        limelight.pipelineSwitch(pipeline);
       }
 
       if (gamepad2.left_trigger > 0)
