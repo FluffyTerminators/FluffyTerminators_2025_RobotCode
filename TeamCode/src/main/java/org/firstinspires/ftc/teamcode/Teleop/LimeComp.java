@@ -152,7 +152,8 @@ public class LimeComp extends LinearOpMode {
     boolean shooterLast = false;
     boolean lowOveride = false;
     boolean highOveride = false;
-    boolean overideLast = false;
+    boolean highOverrideLast = false;
+    boolean lowOverrideLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -329,22 +330,22 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.y)
       {
-        if (!overideLast) {
+        if (!highOverrideLast) {
           highOveride = !highOveride;
-          overideLast = true;
         }
+        highOverrideLast = true;
       } else {
-        overideLast = false;
+        highOverrideLast = false;
       }
 
       if (gamepad2.a)
       {
-        if (!overideLast) {
+        if (!lowOverrideLast) {
           lowOveride = !lowOveride;
-          overideLast = true;
         }
+        lowOverrideLast = true;
       } else {
-        overideLast = false;
+        lowOverrideLast = false;
       }
 
       if (highOveride) {
