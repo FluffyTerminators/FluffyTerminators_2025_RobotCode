@@ -159,6 +159,7 @@ public class ShootParkAuto extends OpMode {
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
+    Flap.setPosition(Constants.flapDeploy);
 
     follower = Constants.PEDROConstants.createFollower(hardwareMap);
     follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
@@ -234,7 +235,7 @@ public class ShootParkAuto extends OpMode {
               .addPath(
                       new BezierLine(new Pose(56.000, 8.000), new Pose(63, 24.338))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(120))
+              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
               .build();
 
       ParkMiddle = follower
@@ -253,19 +254,26 @@ public class ShootParkAuto extends OpMode {
     switch (pathState)
     {
       case 0:
-        follower.followPath(paths.LaunchCorner);
-        pathState = 1;
-        break;
-
-      case 1:
         runShooter();
         if (shooterState == -1)
         {
-          pathState = 2;
+          pathState = 1;
         }
+        break;
+      case 1:
+        follower.followPath(paths.LaunchCorner);
+        pathState = 2;
         break;
 
       case 2:
+        runShooter();
+        if (shooterState == -1)
+        {
+          pathState = 3;
+        }
+        break;
+
+      case 3:
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
