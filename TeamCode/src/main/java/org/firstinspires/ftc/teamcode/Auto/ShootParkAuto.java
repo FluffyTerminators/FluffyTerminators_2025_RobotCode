@@ -253,13 +253,6 @@ public class ShootParkAuto extends OpMode {
 
     switch (pathState)
     {
-      case 0:
-        runShooter();
-        if (shooterState == -1)
-        {
-          pathState = 1;
-        }
-        break;
       case 1:
         follower.followPath(paths.LaunchCorner);
         pathState = 2;
@@ -269,7 +262,15 @@ public class ShootParkAuto extends OpMode {
         runShooter();
         if (shooterState == -1)
         {
-          pathState = 3;
+          runShooter();
+          if (shooterState == -1)
+          {
+            runShooter();
+            if (shooterState == -1)
+            {
+              pathState = 3;
+            }
+          }
         }
         break;
 
