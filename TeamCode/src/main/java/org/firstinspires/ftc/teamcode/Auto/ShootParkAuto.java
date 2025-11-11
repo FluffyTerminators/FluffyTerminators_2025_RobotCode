@@ -141,7 +141,7 @@ public class ShootParkAuto extends OpMode {
 
       case 4: // Retract flap once flywheel recovers
         Flap.setPosition(Constants.flapUp);
-        if (Shooter.getVelocity() > ShooterTarget) {
+        if (Shooter.getVelocity() < ShooterTarget - 200) {
           Shooter.setVelocity(0);
           shooterState = -1;
         }
