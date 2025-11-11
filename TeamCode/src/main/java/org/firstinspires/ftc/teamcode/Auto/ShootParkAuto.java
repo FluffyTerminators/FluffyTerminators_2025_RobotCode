@@ -18,12 +18,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
 import org.firstinspires.ftc.teamcode.Util.AutoFunctions;
@@ -44,8 +44,8 @@ public class ShootParkAuto extends OpMode {
   private Limelight3A limelight;
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx Shooter;
-  private NormalizedColorSensor SpindexerSensor1;
-  private NormalizedColorSensor SpindexerSensor2;
+  private ColorRangeSensor SpindexerSensor1;
+  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -53,45 +53,31 @@ public class ShootParkAuto extends OpMode {
   private double lastRunTime = 0;
   private int shooterState = 3;
 
-  public enum DetectedColour{
-    GREEN,
-    PURPLE,
-    UNKNOWN,
+  public enum Distance {
+    LOADED,
+    EMPTY
   }
 
-  public DetectedColour getDetectedColor()
-  {
-    NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
-    NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
+  private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
 
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
-    normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors2.alpha;
-    normBlue2 = colors2.blue / colors2.alpha;
-    normGreen2 = colors2.green / colors2.alpha;
+  public Distance getDetectedColor() {
+    double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
+    double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
+    double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
+    double usableSensor2 = Double.isNaN(sensor2DistanceCm) ? Double.POSITIVE_INFINITY : sensor2DistanceCm;
+    double closestDistance = Math.min(usableSensor1, usableSensor2);
 
-    AverageSpinRed = (normRed1 + normRed2) / 2;
-    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
-    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
+    telemetry.addData("SpindexerDist1(cm)", sensor1DistanceCm);
+    telemetry.addData("SpindexerDist2(cm)", sensor2DistanceCm);
+    telemetry.addData("SpindexerClosest(cm)", closestDistance);
 
-
-    telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
-    telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
-    telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
-
-    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
-      telemetry.addData("Colour","green");
-      return  DetectedColour.GREEN;
+    if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
+      telemetry.addData("ObjectDetected", true);
+      return Distance.LOADED;
     }
 
-    if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
-      telemetry.addData("Colour","purple");
-      return  DetectedColour.PURPLE;
-    }
-
-    return  DetectedColour.UNKNOWN;
+    telemetry.addData("ObjectDetected", false);
+    return Distance.EMPTY;
   }
 
   public void runShooter()
@@ -113,8 +99,8 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1: // Wait for note detection
-        DetectedColour detectedColour = getDetectedColor();
-        if (detectedColour ==  DetectedColour.GREEN || detectedColour ==  DetectedColour.PURPLE) {
+        Distance detectedDistance = getDetectedColor();
+        if (detectedDistance == Distance.LOADED) {
           lastRunTime = getRuntime();
           shooterState = 2;
         }
@@ -155,8 +141,8 @@ public class ShootParkAuto extends OpMode {
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
-    SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
+    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
+    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     Flap.setPosition(Constants.flapDeploy);
