@@ -33,6 +33,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 import org.firstinspires.ftc.teamcode.Util.Constants.*;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
 import org.firstinspires.ftc.teamcode.Util.Constants;
@@ -94,6 +95,7 @@ public class AutoFunctions
                                 NormalizedColorSensor colourSensorB,
                                 Servo flap)
   {
+    ShooterPidTuning.applyTo(shooterMotor);
     shooterMotor.setVelocity(shooterVel);
     telemetry.addData("Shooter Motor", shooterMotor);
     telemetry.addData("Spindexer?", spindexToggle);

@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.Util.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import java.util.List;
 import org.firstinspires.ftc.teamcode.Util.AutoFunctions.*;
 
@@ -155,6 +156,7 @@ public class ShootParkAuto extends OpMode {
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterPidTuning.applyTo(Shooter);
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
@@ -171,6 +173,7 @@ public class ShootParkAuto extends OpMode {
 
   @Override
   public void loop() {
+    ShooterPidTuning.applyTo(Shooter);
     LLResult result = limelight.getLatestResult();
 
     if (result != null && result.isValid()) {

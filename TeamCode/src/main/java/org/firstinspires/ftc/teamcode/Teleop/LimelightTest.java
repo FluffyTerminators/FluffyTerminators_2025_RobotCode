@@ -23,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.*;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -104,6 +105,7 @@ public class LimelightTest extends LinearOpMode {
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake = hardwareMap.get(DcMotor.class, "Intake");
     Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterPidTuning.applyTo(Shooter);
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
@@ -258,6 +260,8 @@ public class LimelightTest extends LinearOpMode {
         spinToggleLast = false;
       }
 
+
+      ShooterPidTuning.applyTo(Shooter);
 
       if (gamepad2.right_bumper) {
         if (!inToggleLast) {

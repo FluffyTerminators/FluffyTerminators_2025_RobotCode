@@ -18,6 +18,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 //import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 
@@ -89,6 +90,7 @@ public class MechanismTest extends LinearOpMode {
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake  = hardwareMap.get(DcMotor.class, "Intake");
     Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterPidTuning.applyTo(Shooter);
     imu = hardwareMap.get(IMU.class,  "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
@@ -138,6 +140,7 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
+      ShooterPidTuning.applyTo(Shooter);
       ShooterCurrent = Shooter.getCurrentPosition();
       TimeCurrent = System.currentTimeMillis();
       double CalcShooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
@@ -231,4 +234,3 @@ public class MechanismTest extends LinearOpMode {
     }
   }
 }
-
