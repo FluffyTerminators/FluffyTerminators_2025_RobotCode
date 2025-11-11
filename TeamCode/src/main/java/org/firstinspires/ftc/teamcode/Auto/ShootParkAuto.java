@@ -253,12 +253,12 @@ public class ShootParkAuto extends OpMode {
 
     switch (pathState)
     {
-      case 1:
+      case 0:
         follower.followPath(paths.LaunchCorner);
-        pathState = 2;
+        pathState = 1;
         break;
 
-      case 2:
+      case 1:
         runShooter();
         if (shooterState == -1)
         {
@@ -268,21 +268,21 @@ public class ShootParkAuto extends OpMode {
             runShooter();
             if (shooterState == -1)
             {
-              pathState = 3;
+              pathState = 2;
             }
           }
         }
         break;
 
-      case 3:
+      case 2:
         runShooter();
         if (shooterState == -1)
         {
-          pathState = 4;
+          pathState = 3;
         }
         break;
 
-      case 4:
+      case 3:
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
