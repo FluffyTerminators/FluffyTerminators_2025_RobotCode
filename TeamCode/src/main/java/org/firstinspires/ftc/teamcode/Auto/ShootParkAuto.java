@@ -94,7 +94,7 @@ public class ShootParkAuto extends OpMode {
     return  DetectedColour.UNKNOWN;
   }
 
-  public void runShooter()
+  public void runShooter(int shooterState)
   {
     Shooter.setVelocity(ShooterTarget);
     telemetry.addData("Shooter Motor", Shooter);
@@ -259,13 +259,13 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1:
-        runShooter();
+        runShooter(2);
         if (shooterState == -1)
         {
-          runShooter();
+          runShooter(1);
           if (shooterState == -1)
           {
-            runShooter();
+            runShooter(1);
             if (shooterState == -1)
             {
               pathState = 2;
@@ -275,14 +275,6 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 2:
-        runShooter();
-        if (shooterState == -1)
-        {
-          pathState = 3;
-        }
-        break;
-
-      case 3:
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
