@@ -160,6 +160,7 @@ public class ShootParkAuto extends OpMode {
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     Flap.setPosition(Constants.flapDeploy);
+    lastRunTime = getRuntime();
 
     follower = Constants.PEDROConstants.createFollower(hardwareMap);
     follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
