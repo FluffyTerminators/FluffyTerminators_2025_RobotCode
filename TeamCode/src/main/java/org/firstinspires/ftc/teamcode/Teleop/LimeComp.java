@@ -150,6 +150,9 @@ public class LimeComp extends LinearOpMode {
     double Shooterspeed;
     double FlapPos;
     boolean shooterLast = false;
+    boolean lowOveride = false;
+    boolean highOveride = false;
+    boolean overideLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -240,7 +243,8 @@ public class LimeComp extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      if (gamepad2.left_trigger > 0) {
+      if (gamepad2.left_trigger > 0)
+      {
         if (!shooterLast) {
           shootSequence = !shootSequence;
           shooterStage = 1;
@@ -323,6 +327,34 @@ public class LimeComp extends LinearOpMode {
 
       boolean manualShooterRequest = gamepad2.left_bumper;
 
+      if (gamepad2.y)
+      {
+        if (!overideLast) {
+          highOveride = !highOveride;
+          overideLast = true;
+        }
+      } else {
+        overideLast = false;
+      }
+
+      if (gamepad2.a)
+      {
+        if (!overideLast) {
+          lowOveride = !lowOveride;
+          overideLast = true;
+        }
+      } else {
+        overideLast = false;
+      }
+
+      if (highOveride) {
+       ShooterTarget = 1580;
+      }
+
+      if (lowOveride) {
+        ShooterTarget = 1420;
+      }
+
       if (shootSequence)
       {
         if (shooterStage < 1 || shooterStage > 4)
@@ -342,16 +374,14 @@ public class LimeComp extends LinearOpMode {
         }
         else if (shooterStage == 2)
         {
-          Shooter.setVelocity(ShooterTarget);
           Flap.setPosition(flapDeploy);
-          if (getRuntime() - lastRuntime >= 0.5)
+          if (getRuntime() - lastRuntime >= 1)
           {
             shooterStage = 3;
           }
         }
         else if (shooterStage == 3)
         {
-          Shooter.setVelocity(ShooterTarget);
           spindexerToggle = false;
           if (Shooter.getVelocity() >= ShooterTarget)
           {
@@ -361,11 +391,11 @@ public class LimeComp extends LinearOpMode {
         }
         else if (shooterStage == 4)
         {
-          Shooter.setVelocity(0);
           Flap.setPosition(flapUp);
           // give the flywheel time to coast down before re-arming
           if (Shooter.getVelocity() <= 50 || getRuntime() - lastRuntime >= 1.0)
           {
+            Shooter.setVelocity(0);
             shootSequence = false;
             shooterStage = 1;
           }
@@ -378,9 +408,11 @@ public class LimeComp extends LinearOpMode {
         Shooter.setVelocity(0);
         shooterStage = 1;
       }
-      telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("Shooter Target", ShooterTarget);
       telemetry.addData("Shooter Vel", Shooter.getVelocity());
       telemetry.addData("Shooter Stage", shooterStage);
+      telemetry.addData("highOveride", highOveride);
+      telemetry.addData("lowOveride", lowOveride);
       telemetry.update();
     }
   }
