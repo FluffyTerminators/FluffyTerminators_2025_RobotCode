@@ -259,7 +259,7 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1:
-        runShooter(2);
+        runShooter(3);
         if (shooterState == -1)
         {
           runShooter(1);
