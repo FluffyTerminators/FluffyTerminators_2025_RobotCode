@@ -155,6 +155,8 @@ public class LimeComp extends LinearOpMode {
     boolean highOverrideLast = false;
     boolean lowOverrideLast = false;
     int pipeline = 0;
+    boolean pipelineUpLast = false;
+    boolean pipelineDownLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -190,7 +192,7 @@ public class LimeComp extends LinearOpMode {
 
      // FlapPos = gamepad2.left_stick_y;
 
-      if (gamepad1.right_bumper) {
+      if (gamepad1.x) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
@@ -248,14 +250,26 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad1.dpad_up)
       {
-        pipeline = pipeline + 1;
-        limelight.pipelineSwitch(pipeline);
+        if (!pipelineUpLast) {
+          pipeline = pipeline + 1;
+          limelight.pipelineSwitch(pipeline);
+          pipelineUpLast = true;
+        }
+      } else
+      {
+       pipelineUpLast = false;
       }
 
       if (gamepad1.dpad_down)
       {
-        pipeline = pipeline - 1;
-        limelight.pipelineSwitch(pipeline);
+        if (!pipelineDownLast) {
+          pipeline = pipeline - 1;
+          limelight.pipelineSwitch(pipeline);
+          pipelineDownLast = true;
+        }
+      } else
+      {
+        pipelineDownLast = false;
       }
 
       if (gamepad2.left_trigger > 0)
