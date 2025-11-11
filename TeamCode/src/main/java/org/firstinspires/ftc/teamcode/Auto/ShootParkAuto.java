@@ -274,6 +274,14 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 3:
+        runShooter();
+        if (shooterState == -1)
+        {
+          pathState = 4;
+        }
+        break;
+
+      case 4:
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
