@@ -40,7 +40,15 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.*
 
 public class AutoFunctions
 {
-  public static LimeComp.DetectedColour getDetectedColor(Telemetry telemetry,
+
+  public enum DetectedColour{
+    GREEN,
+    PURPLE,
+    UNKNOWN,
+  } 
+  
+  
+  public static  DetectedColour getDetectedColor(Telemetry telemetry,
                                                          NormalizedColorSensor colourSensorA,
                                                          NormalizedColorSensor colourSensorB)
   {
@@ -66,15 +74,15 @@ public class AutoFunctions
 
     if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.0117) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
       telemetry.addData("Colour","green");
-      return LimeComp.DetectedColour.GREEN;
+      return  DetectedColour.GREEN;
     }
 
     if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0064) && (AverageSpinBlue > 0.0010 && AverageSpinBlue < 0.004) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.011)) {
       telemetry.addData("Colour","purple");
-      return LimeComp.DetectedColour.PURPLE;
+      return  DetectedColour.PURPLE;
     }
 
-    return LimeComp.DetectedColour.UNKNOWN;
+    return  DetectedColour.UNKNOWN;
   }
 
   public static void runShooter(DcMotorEx shooterMotor,
@@ -100,7 +108,7 @@ public class AutoFunctions
     if (shooterState == 1)
     {
       spindexToggle = true;
-      if (getDetectedColor(telemetry, colourSensorA, colourSensorB) == LimeComp.DetectedColour.GREEN || getDetectedColor(telemetry, colourSensorA, colourSensorB) == LimeComp.DetectedColour.PURPLE)
+      if (getDetectedColor(telemetry, colourSensorA, colourSensorB) ==  DetectedColour.GREEN || getDetectedColor(telemetry, colourSensorA, colourSensorB) ==  DetectedColour.PURPLE)
       {
         spinUpTime = linearOpMode.getRuntime();
         shooterState = 2;
