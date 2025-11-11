@@ -51,7 +51,7 @@ public class ShootParkAuto extends OpMode {
   private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
-  private int shooterState = 0;
+  private int shooterState = 3;
 
   public enum DetectedColour{
     GREEN,
@@ -94,7 +94,7 @@ public class ShootParkAuto extends OpMode {
     return  DetectedColour.UNKNOWN;
   }
 
-  public void runShooter(int shooterState)
+  public void runShooter()
   {
     Shooter.setVelocity(ShooterTarget);
     telemetry.addData("Shooter Motor", Shooter);
@@ -260,13 +260,13 @@ public class ShootParkAuto extends OpMode {
         break;
 
       case 1:
-        runShooter(3);
+        runShooter();
         if (shooterState == -1)
         {
-          runShooter(1);
+          runShooter();
           if (shooterState == -1)
           {
-            runShooter(1);
+            runShooter();
             if (shooterState == -1)
             {
               pathState = 2;
