@@ -157,6 +157,8 @@ public class LimeComp extends LinearOpMode {
     int pipeline = 0;
     boolean pipelineUpLast = false;
     boolean pipelineDownLast = false;
+    boolean fieldCentricMode = true;
+    double fieldCentricTimer = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -170,6 +172,11 @@ public class LimeComp extends LinearOpMode {
 
     while (opModeIsActive())
     {
+      if (fieldCentricMode) {
+        telemetry.addData("Drive Mode:","Field Centric");
+      } else {
+        telemetry.addData("Drive Mode","Robot Centric");
+      }
       telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
       telemetry.addData("Status", "Running");
       result = limelight.getLatestResult();
@@ -182,12 +189,17 @@ public class LimeComp extends LinearOpMode {
       double rawStrafe = -gamepad1.left_stick_x;
       Turn = -gamepad1.right_stick_x;
 
-      double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for standard CCW math
-      double cosHeading = Math.cos(-Heading);
+      if (fieldCentricMode) {
+        double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for standard CCW math
+        double cosHeading = Math.cos(-Heading);
 
-      // Rotate the driver input vector so it is field-centric
-      Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
-      Forward = rawStrafe * sinHeading + rawForward * cosHeading;
+        // Rotate the driver input vector so it is field-centric
+        Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
+        Forward = rawStrafe * sinHeading + rawForward * cosHeading;
+      } else {
+        Forward = rawForward;
+        Strafe = rawStrafe;
+      }
       Shooterspeed = Shooter.getVelocity();
 
      // FlapPos = gamepad2.left_stick_y;
@@ -270,6 +282,19 @@ public class LimeComp extends LinearOpMode {
       } else
       {
         pipelineDownLast = false;
+      }
+
+      if (gamepad1.y) {
+        if (fieldCentricTimer == 0) {
+          fieldCentricTimer = getRuntime();
+        } else {
+          if ((fieldCentricTimer > 0) && (getRuntime() - fieldCentricTimer > 0.5)) {
+            fieldCentricMode = !fieldCentricMode;
+            fieldCentricTimer = -1;
+          }
+        }
+      } else {
+        fieldCentricTimer = 0;
       }
 
       if (gamepad2.left_trigger > 0)
