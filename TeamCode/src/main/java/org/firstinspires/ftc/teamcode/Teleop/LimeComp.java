@@ -256,7 +256,7 @@ public class LimeComp extends LinearOpMode {
 
       Distance detectedDistance = getDetectedColor(telemetry);
 
-      if (gamepad1.b) {
+      if (gamepad1.y) {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
@@ -284,7 +284,7 @@ public class LimeComp extends LinearOpMode {
         pipelineDownLast = false;
       }
 
-      if (gamepad1.y) {
+      if (gamepad1.b) {
         if (fieldCentricTimer == 0) {
           fieldCentricTimer = getRuntime();
         } else {
