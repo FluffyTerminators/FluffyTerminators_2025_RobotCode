@@ -52,6 +52,8 @@ public class ShootParkAuto extends OpMode {
   private double ShooterTarget;
   private double lastRunTime = 0;
   private int shooterState = 3;
+  private int cyclesAtSpeed = 0;
+  private int shotsToTake = 0;
 
   public enum Distance {
     LOADED,
@@ -93,6 +95,9 @@ public class ShootParkAuto extends OpMode {
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
+      case -1:
+        break;
+
       case 0: // Spin up
         spindexToggle = true;
         shooterState = 1;
@@ -112,6 +117,7 @@ public class ShootParkAuto extends OpMode {
         if (getRuntime() - lastRunTime > 0.25) {
           lastRunTime = getRuntime();
           shooterState = 3;
+          cyclesAtSpeed = 0;
         }
         break;
 
@@ -119,18 +125,30 @@ public class ShootParkAuto extends OpMode {
         spindexToggle = true;
         if (getRuntime() - lastRunTime > 1) {
           spindexToggle = false;
-          if (Shooter.getVelocity() > ShooterTarget) {
+          if ((Shooter.getVelocity() > ShooterTarget - 40) && (Shooter.getVelocity() < ShooterTarget +40)) {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 200) {
             shooterState = 4;
+            lastRunTime = getRuntime();
           }
         }
         break;
 
       case 4: // Retract flap once flywheel recovers
         Flap.setPosition(Constants.flapUp);
+        if (getRuntime() - lastRunTime > 0.5) {
+          shooterState = 2;
+        }
         if (Shooter.getVelocity() < ShooterTarget - 400) {
           Shooter.setVelocity(0);
           shooterState = -1;
         }
+        break;
+
+      default:
         break;
     }
   }
@@ -243,22 +261,18 @@ public class ShootParkAuto extends OpMode {
       case 0:
         follower.followPath(paths.LaunchCorner);
         pathState = 1;
+        shotsToTake = 3;
         break;
 
       case 1:
         runShooter();
         if (shooterState == -1)
         {
-          shooterState = 0;
-          runShooter();
-          if (shooterState == -1)
-          {
+          shotsToTake --;
+          if (shotsToTake > 0) {
             shooterState = 0;
-            runShooter();
-            if (shooterState == -1)
-            {
-              pathState = 2;
-            }
+          } else {
+            pathState = 2;
           }
         }
         break;
@@ -269,6 +283,9 @@ public class ShootParkAuto extends OpMode {
           follower.followPath(paths.ParkMiddle);
           pathState = -1;
         }
+        break;
+
+      default:
         break;
     }
     // Access paths with paths.pathName
