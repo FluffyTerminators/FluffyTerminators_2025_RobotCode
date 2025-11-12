@@ -262,7 +262,7 @@ public class ShootParkAuto extends OpMode {
       case 0:
         follower.followPath(paths.LaunchCorner);
         pathState = 1;
-        shotsToTake = 2;
+        shotsToTake = 1;
         break;
 
       case 1:
