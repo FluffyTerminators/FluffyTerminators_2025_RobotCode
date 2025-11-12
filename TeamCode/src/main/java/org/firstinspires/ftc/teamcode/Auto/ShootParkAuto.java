@@ -54,6 +54,7 @@ public class ShootParkAuto extends OpMode {
   private int shooterState = 3;
   private int cyclesAtSpeed = 0;
   private int shotsToTake = 0;
+  private int cycleThreshold = 100;
 
   public enum Distance {
     LOADED,
@@ -130,7 +131,7 @@ public class ShootParkAuto extends OpMode {
           } else {
             cyclesAtSpeed = 0;
           }
-          if (cyclesAtSpeed > 200) {
+          if (cyclesAtSpeed > cycleThreshold) {
             shooterState = 4;
             lastRunTime = getRuntime();
           }
