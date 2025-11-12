@@ -208,14 +208,14 @@ public class MechanismTest extends LinearOpMode {
       }
       if (gamepad1.dpad_up)
       {
-        flapPos = 0.55;
+        flapPos = Constants.flapUp;
       }
       if (gamepad1.dpad_down)
       {
-        flapPos = 0.45;
+        flapPos = Constants.flapDown;
       }
       if (gamepad1.dpad_left)
-        flapPos = 0.50;
+        flapPos = Constants.flapDeploy;
       Flap.setPosition(flapPos);
       telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
