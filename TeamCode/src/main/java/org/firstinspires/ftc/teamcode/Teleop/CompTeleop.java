@@ -69,7 +69,7 @@ public class CompTeleop extends LinearOpMode {
     NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
     NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
 
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2;
+    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
     normRed1 = colors1.red / colors1.alpha;
     normGreen1 = colors1.blue / colors1.alpha;
     normBlue1 = colors1.green / colors1.alpha;
@@ -77,12 +77,29 @@ public class CompTeleop extends LinearOpMode {
     normBlue2 = colors2.blue / colors2.alpha;
     normGreen2 = colors2.green / colors2.alpha;
 
+    AverageSpinRed = (normRed1 + normRed2) / 2;
+    AverageSpinBlue = (normBlue1 + normBlue2) / 2;
+    AverageSpinGreen = (normGreen1 + normGreen2) / 2;
+
     telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
     telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
     telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
 
+    if ((AverageSpinRed > 0.002&& AverageSpinRed < 0.0039) && (AverageSpinBlue > 0.0109 && AverageSpinBlue < 0.012) && (AverageSpinGreen < 0.012 && AverageSpinGreen > 0.0093)) {
+      telemetry.addData("Colour","green");
+      return DetectedColour.GREEN;
+    }
+
+    if ((AverageSpinRed > 0.0041 && AverageSpinRed < 0.0145) && (AverageSpinBlue > 0.004 && AverageSpinBlue < 0.0235) && (AverageSpinGreen > 0.0082 && AverageSpinGreen < 0.022)) {
+      telemetry.addData("Colour","purple");
+      return DetectedColour.PURPLE;
+    }
+
+    telemetry.addData("Colour","unknown");
+
     return DetectedColour.UNKNOWN;
   }
+
 
   public void runOpMode() throws InterruptedException {
 
@@ -148,7 +165,7 @@ public class CompTeleop extends LinearOpMode {
       telemetry.addData("Status", "Running");
       pinpoint.update();
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
-      Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
+      Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
 
       double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
@@ -164,9 +181,9 @@ public class CompTeleop extends LinearOpMode {
 
       if (gamepad1.right_bumper)
       {
-        Forward /= Constants.brake;
-        Strafe /= Constants.brake;
-        Turn /= Constants.brake;
+        Forward /= brake;
+        Strafe /= brake;
+        Turn /= brake;
       }
 
       if (gamepad1.left_bumper)
