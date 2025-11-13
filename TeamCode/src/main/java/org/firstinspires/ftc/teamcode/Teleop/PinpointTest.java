@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.Util.Tuning.follower;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -33,7 +34,7 @@ import org.firstinspires.ftc.teamcode.Util.Constants;
 
 //Download Missing Files
 
-
+@Disabled
 @TeleOp(name = "Pinpoint Test")
 public class PinpointTest extends LinearOpMode {
 

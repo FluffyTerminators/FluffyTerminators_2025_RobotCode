@@ -6,6 +6,7 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -31,7 +32,7 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 
 import java.util.Collections;
 import java.util.List;
-
+@Disabled
 @Autonomous(name = "Limelight")
 public class LimelightAuto extends OpMode {
 

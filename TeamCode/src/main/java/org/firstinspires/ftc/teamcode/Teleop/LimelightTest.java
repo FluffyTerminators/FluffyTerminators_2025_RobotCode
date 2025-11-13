@@ -5,6 +5,7 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -34,7 +35,7 @@ import java.util.List;
 
 
 //Download Missing Files
-
+@Disabled
 @TeleOp(name = "LimelightTest")
 public class LimelightTest extends LinearOpMode {
 

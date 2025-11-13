@@ -159,6 +159,7 @@ public class LimeComp extends LinearOpMode {
     boolean pipelineDownLast = false;
     boolean fieldCentricMode = true;
     double fieldCentricTimer = 0;
+    int cyclesAtSpeed = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -215,7 +216,9 @@ public class LimeComp extends LinearOpMode {
         Flap.setPosition(flapDeploy);
       } else
       {
-        Flap.setPosition(flapUp);
+        if (!shootSequence) {
+          Flap.setPosition(flapUp);
+        }
       }
 
       if (gamepad1.left_bumper) {
@@ -411,6 +414,12 @@ public class LimeComp extends LinearOpMode {
 
       if (shootSequence)
       {
+        if ((Shooter.getVelocity() > ShooterTarget - 80) && (Shooter.getVelocity() < ShooterTarget +80)) {
+          cyclesAtSpeed ++;
+        } else {
+          cyclesAtSpeed = 0;
+        }
+        telemetry.addData("Cycles At Speed",cyclesAtSpeed);
         if (shooterStage < 1 || shooterStage > 4)
         {
           shooterStage = 1;
@@ -428,17 +437,18 @@ public class LimeComp extends LinearOpMode {
         }
         else if (shooterStage == 2)
         {
+          spindexerToggle = true;
           Flap.setPosition(flapDeploy);
-          if (getRuntime() - lastRuntime >= 1)
+          if (getRuntime() - lastRuntime >= 2)
           {
             shooterStage = 3;
           }
         }
         else if (shooterStage == 3)
         {
-          spindexerToggle = false;
-          if (Shooter.getVelocity() >= ShooterTarget)
+          if (cyclesAtSpeed >= 50)
           {
+            spindexerToggle = false;
             lastRuntime = getRuntime();
             shooterStage = 4;
           }
@@ -447,7 +457,7 @@ public class LimeComp extends LinearOpMode {
         {
           Flap.setPosition(flapUp);
           // give the flywheel time to coast down before re-arming
-          if (Shooter.getVelocity() <= 50 || getRuntime() - lastRuntime >= 1.0)
+          if (Shooter.getVelocity() <= ShooterTarget - 100 || getRuntime() - lastRuntime >= 1.0)
           {
             Shooter.setVelocity(0);
             shootSequence = false;

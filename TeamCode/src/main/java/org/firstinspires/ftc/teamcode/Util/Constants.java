@@ -83,8 +83,8 @@ public class Constants
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double brake = 2;
-    public static final double flapUp = 0.50;
-    public static final double flapDeploy = 0.46;
+    public static final double flapUp = 0.5175;
+    public static final double flapDeploy = 0.4665;
     public static final double flapDown = 0.42;
 
     public static class HardwareMappings {

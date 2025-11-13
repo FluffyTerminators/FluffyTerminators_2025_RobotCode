@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Blinker;
@@ -25,7 +27,7 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 //Download Missing Files
 
-
+@Disabled
 @TeleOp(name = "Drive Test")
 public class DriveTest extends LinearOpMode {
 

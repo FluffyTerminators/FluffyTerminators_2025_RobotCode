@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,7 +23,7 @@ import org.firstinspires.ftc.teamcode.Util.HardwareMapping.*;
 
 //Download Missing Files
 
-
+@Disabled
 @TeleOp(name = "Refactor Test")
 public class HardwareMappingsTest extends LinearOpMode {
   HardwareMapping hardware = new HardwareMapping();

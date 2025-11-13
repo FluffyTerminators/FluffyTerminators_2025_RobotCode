@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,7 +24,7 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 
 //Download Missing Files
 
-
+@Disabled
 @TeleOp(name = "MechanismTest")
 public class MechanismTest extends LinearOpMode {
 
