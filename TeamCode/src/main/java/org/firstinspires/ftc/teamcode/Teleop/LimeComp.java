@@ -225,7 +225,6 @@ public class LimeComp extends LinearOpMode {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-        pinpoint.setHeading(0, AngleUnit.DEGREES);
         pinpoint.update();
       }
 
@@ -471,6 +470,18 @@ public class LimeComp extends LinearOpMode {
       {
         Shooter.setVelocity(0);
         shooterStage = 1;
+      }
+
+      if (gamepad2.b)
+      {
+        if (Shooter.getVelocity() > 0)
+        {
+          Shooter.setPower(-0.5);
+        }
+        if (Shooter.getVelocity() < 0)
+        {
+          Shooter.setPower(0.5);
+        }
       }
       telemetry.addData("Shooter Target", ShooterTarget);
       telemetry.addData("Shooter Vel", Shooter.getVelocity());

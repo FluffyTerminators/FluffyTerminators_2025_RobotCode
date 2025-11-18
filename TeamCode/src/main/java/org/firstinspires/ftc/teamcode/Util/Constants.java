@@ -86,6 +86,9 @@ public class Constants
     public static final double flapUp = 0.5175;
     public static final double flapDeploy = 0.4665;
     public static final double flapDown = 0.42;
+    public static final double PID_P = 20.0;
+    public static final double PID_I = 3.0;
+    public static final double PID_D = 30.0;
 
     public static class HardwareMappings {
         // Hubs
@@ -120,7 +123,7 @@ public class Constants
     public static class ShooterCal
     {
         private static final double[] distance     = {0.0, 1.1, 1.5, 1.9, 2.4, 2.9};
-        private static final double[] shooterTicks = {1340, 1300, 1380, 1420, 1400, 1580};
+        private static final double[] shooterTicks = {1300, 1280, 1320, 1320, 1340, 1500};
 
 
 
