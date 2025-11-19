@@ -45,7 +45,8 @@ public class LimeComp extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotorEx Shooter;
+  public DcMotorEx ShooterFront;
+  public DcMotorEx ShooterBack;
 
   // Internal Motion Units
   public IMU imu;
@@ -53,7 +54,7 @@ public class LimeComp extends LinearOpMode {
 
   // Servos
   public CRServo SpindxerServo;
-  public Servo Flap;
+
 
   // Colour Sensors
   public ColorRangeSensor SpindexerSensor1;
@@ -95,20 +96,22 @@ public class LimeComp extends LinearOpMode {
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake = hardwareMap.get(DcMotor.class, "Intake");
-    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
+    ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(0); // Switch to pipeline number 0
+    limelight.pipelineSwitch(7); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
+    ShooterBack.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
+    ShooterFront.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
 
     telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
@@ -118,6 +121,9 @@ public class LimeComp extends LinearOpMode {
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
+    ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
@@ -147,7 +153,8 @@ public class LimeComp extends LinearOpMode {
     boolean Last2DL = false;
     boolean Last2DD = false;
     double ShooterTarget = 0;
-    double Shooterspeed;
+    double ShooterFspeed;
+    double ShooterBspeed;
     double FlapPos;
     boolean shooterLast = false;
     boolean lowOveride = false;
@@ -165,7 +172,6 @@ public class LimeComp extends LinearOpMode {
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    Flap.setPosition(flapUp);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
 
@@ -201,7 +207,8 @@ public class LimeComp extends LinearOpMode {
         Forward = rawForward;
         Strafe = rawStrafe;
       }
-      Shooterspeed = Shooter.getVelocity();
+      ShooterFspeed = ShooterFront.getVelocity();
+      ShooterBspeed = ShooterBack.getVelocity();
 
      // FlapPos = gamepad2.left_stick_y;
 
@@ -209,16 +216,6 @@ public class LimeComp extends LinearOpMode {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
-      }
-
-      if (gamepad2.right_bumper)
-      {
-        Flap.setPosition(flapDeploy);
-      } else
-      {
-        if (!shootSequence) {
-          Flap.setPosition(flapUp);
-        }
       }
 
       if (gamepad1.left_bumper) {
@@ -413,78 +410,26 @@ public class LimeComp extends LinearOpMode {
 
       if (shootSequence)
       {
-        if ((Shooter.getVelocity() > ShooterTarget - 80) && (Shooter.getVelocity() < ShooterTarget +80)) {
-          cyclesAtSpeed ++;
-        } else {
-          cyclesAtSpeed = 0;
-        }
-        telemetry.addData("Cycles At Speed",cyclesAtSpeed);
-        if (shooterStage < 1 || shooterStage > 4)
-        {
-          shooterStage = 1;
-        }
-
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
         if (shooterStage == 1)
         {
-          Shooter.setVelocity(ShooterTarget);
-          spindexerToggle = true;
-          if (detectedDistance == Distance.LOADED)
-          {
-            lastRuntime = getRuntime();
-            shooterStage = 2;
-          }
-        }
-        else if (shooterStage == 2)
-        {
-          spindexerToggle = true;
-          Flap.setPosition(flapDeploy);
-          if (getRuntime() - lastRuntime >= 2)
-          {
-            shooterStage = 3;
-          }
-        }
-        else if (shooterStage == 3)
-        {
-          if (cyclesAtSpeed >= 50)
-          {
-            spindexerToggle = false;
-            lastRuntime = getRuntime();
-            shooterStage = 4;
-          }
-        }
-        else if (shooterStage == 4)
-        {
-          Flap.setPosition(flapUp);
-          // give the flywheel time to coast down before re-arming
-          if (Shooter.getVelocity() <= ShooterTarget - 100 || getRuntime() - lastRuntime >= 1.0)
-          {
-            Shooter.setVelocity(0);
-            shootSequence = false;
-            shooterStage = 1;
-          }
+
         }
       } else if (manualShooterRequest)
       {
-        Shooter.setVelocity(ShooterTarget);
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
       } else
       {
-        Shooter.setVelocity(0);
+        ShooterFront.setVelocity(0);
+        ShooterBack.setVelocity(0);
         shooterStage = 1;
       }
 
-      if (gamepad2.b)
-      {
-        if (Shooter.getVelocity() > 0)
-        {
-          Shooter.setPower(-0.5);
-        }
-        if (Shooter.getVelocity() < 0)
-        {
-          Shooter.setPower(0.5);
-        }
-      }
       telemetry.addData("Shooter Target", ShooterTarget);
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());
+      telemetry.addData("Shooter Front Vel", ShooterFront.getVelocity());
+      telemetry.addData("Shooter Back Vel", ShooterBack.getVelocity());
       telemetry.addData("Shooter Stage", shooterStage);
       telemetry.addData("highOveride", highOveride);
       telemetry.addData("lowOveride", lowOveride);
