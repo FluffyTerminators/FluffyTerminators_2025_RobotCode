@@ -225,6 +225,22 @@ public class LimeComp extends LinearOpMode {
         pinpoint.update();
       }
 
+      if (gamepad1.right_stick_button) {
+        if ((result != null) && (result.isValid())) {
+          List<FiducialResult> fiducials = result.getFiducialResults();
+          for (FiducialResult fiducial : fiducials) {
+            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+            if ((id == 20) || (id == 24)) {
+              double targetOffset = fiducial.getTargetXDegrees();
+              Turn = targetOffset / 20.0;
+              if (Turn < -1) {Turn = -1;}
+              if (Turn > 1) {Turn = 1;}
+              if (Math.abs(Turn) < 0.05) {Turn = 0;}
+            }
+          }
+        }
+      }
+
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
       telemetry.addData("forward", Forward);
       telemetry.addData("strafe", Strafe);
@@ -362,6 +378,7 @@ public class LimeComp extends LinearOpMode {
         List<FiducialResult> fiducials = result.getFiducialResults();
         for (FiducialResult fiducial : fiducials) {
           int id = fiducial.getFiducialId(); // The ID number of the fiducial
+          if ((id == 20) || (id == 24)) {
             double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Horizontal offset (meters)
             double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Vertical offset (meters)
             double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
@@ -370,7 +387,7 @@ public class LimeComp extends LinearOpMode {
             telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
             ShooterTarget = Constants.ShooterCal.interpolate(distance);
-
+          }
         }
       }
       else
