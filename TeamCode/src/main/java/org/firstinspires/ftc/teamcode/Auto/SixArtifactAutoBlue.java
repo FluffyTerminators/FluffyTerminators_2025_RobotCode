@@ -227,7 +227,7 @@ public class SixArtifactAutoBlue extends OpMode {
       ToClimb = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(62.000, 25.000), new Pose(44.000, 35.000))
+                      new BezierLine(new Pose(62.000, 25.000), new Pose(44.000, 38.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(115), Math.toRadians(180))
               .build();
@@ -236,7 +236,7 @@ public class SixArtifactAutoBlue extends OpMode {
               .pathBuilder()
               .setConstraints(slowCollectConstraints)
               .addPath(
-                      new BezierLine(new Pose(44.000, 35.000), new Pose(13.000, 35.000))
+                      new BezierLine(new Pose(44.000, 38.000), new Pose(13.000, 38.00))
               )
               .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
               .build();
@@ -244,7 +244,7 @@ public class SixArtifactAutoBlue extends OpMode {
       ToLaunch2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(13.000, 35.000), new Pose(62.000, 25.000))
+                      new BezierLine(new Pose(13.000, 38.000), new Pose(62.000, 25.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(115))
               .build();
@@ -281,6 +281,7 @@ public class SixArtifactAutoBlue extends OpMode {
               shooterState = 0;
             } else {
               pathState = 2;
+              Intake.setPower(0.75);
             }
           }
         }
@@ -289,6 +290,7 @@ public class SixArtifactAutoBlue extends OpMode {
       case 2:
         if (!follower.isBusy())
         {
+          follower.setMaxPower(0.5); // Slow down for the collect segment
           follower.followPath(paths.ToClimb);
           pathState = 3;
         }
@@ -297,7 +299,6 @@ public class SixArtifactAutoBlue extends OpMode {
       case 3:
         if (!follower.isBusy())
         {
-          Intake.setPower(0.75);
           pathState = 4;
         }
         break;
@@ -305,7 +306,6 @@ public class SixArtifactAutoBlue extends OpMode {
       case 4:
         if (!follower.isBusy())
         {
-          follower.setMaxPower(0.2); // Slow down for the collect segment
           follower.followPath(paths.Collect);
           spindexToggle = true;
           pathState = 5;
