@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
@@ -35,7 +33,6 @@ import java.util.List;
 
 
 //Download Missing Files
-@Disabled
 @TeleOp(name = "LimelightTest")
 public class LimelightTest extends LinearOpMode {
 
@@ -51,7 +48,8 @@ public class LimelightTest extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotorEx Shooter;
+  public DcMotorEx ShooterFront;
+  public DcMotorEx ShooterBack;
 
   // Internal Motion Units
   public IMU imu;
@@ -61,7 +59,7 @@ public class LimelightTest extends LinearOpMode {
   //public CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
   //public CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
   public CRServo SpindxerServo;
-  public Servo Flap;
+
 
   // Colour Sensors
   public NormalizedColorSensor SpindexerSensor1;
@@ -104,20 +102,22 @@ public class LimelightTest extends LinearOpMode {
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake = hardwareMap.get(DcMotor.class, "Intake");
-    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
+    ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(0); // Switch to pipeline number 0
+    limelight.pipelineSwitch(7); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
+    ShooterBack.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
+    ShooterFront.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
 
     telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
@@ -127,6 +127,9 @@ public class LimelightTest extends LinearOpMode {
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
+    ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
@@ -157,13 +160,13 @@ public class LimelightTest extends LinearOpMode {
     boolean Last2DD = false;
     double ShooterTarget = 0;
 
-    double Shooterspeed = 0;
+    double ShooterFspeed = 0;
+    double ShooterBspeed = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    Flap.setPosition(flapUp);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -186,7 +189,8 @@ public class LimelightTest extends LinearOpMode {
       Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
       Forward = rawStrafe * sinHeading + rawForward * cosHeading;
 
-      Shooterspeed = Shooter.getVelocity();
+      ShooterFspeed = ShooterFront.getVelocity();
+      ShooterBspeed = ShooterBack.getVelocity();
 
       if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
@@ -269,58 +273,8 @@ public class LimelightTest extends LinearOpMode {
         inToggleLast = false;
       }
 
-      if (gamepad2.left_bumper) {
-        Flap.setPosition(flapDeploy);
-      } else {
-        Flap.setPosition(flapUp);
-      }
 
 
-     /* if (shootSequence)
-      {
-        lastRuntime = getRuntime();
-        if (shooterStage == 1)
-        {
-          Flap.setPosition(flapDeploy);
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-        if (Shooter.getPower() == 1) {
-          lastRuntime = getRuntime();
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-        shooterStage = 2;
-        }
-        }
-        if (shooterStage == 2)
-        {
-          Flap.setPosition(flapUp);
-          lastRuntime = getRuntime();
-          if (getRuntime() == (lastRuntime + 400)) {
-            shooterToggle = true;
-          }
-          if (Shooter.getPower() < 1)
-          {
-            shooterStage = 3;
-          }
-        }
-        if (shooterStage == 3)
-        {
-          Flap.setPosition(flapUp);
-          shooterStage = 4;
-        }
-        if (shooterStage == 4)
-        {
-          shooterToggle = false;
-        }
-        shootSequence = false;
-      }
-      else
-      {
-        shooterToggle = false;
-        Flap.setPosition(flapUp);
-      }b */
 
       if (spindexerToggle) {
         SpindxerServo.setPower(spindexerPower);
@@ -342,7 +296,8 @@ public class LimelightTest extends LinearOpMode {
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
 
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());
+      telemetry.addData("Shooter Front Vel", ShooterFront.getVelocity());
+      telemetry.addData("Shooter Back Vel", ShooterBack.getVelocity());
 
     /*  if (gamepad2.dpad_left) {
         if (!(Last2DL)) {
@@ -424,14 +379,15 @@ public class LimelightTest extends LinearOpMode {
       } */
 
       if (gamepad1.right_bumper) {
-        Shooter.setVelocity(ShooterTarget);
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
       } else
       {
-        Shooter.setVelocity(0);
+        ShooterFront.setVelocity(0);
+        ShooterBack.setVelocity(0);
       }
 
       telemetry.addData("Target", ShooterTarget);
-      telemetry.addData("Shooter Vel", Shooter.getVelocity());
       telemetry.update();
     }
   }

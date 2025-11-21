@@ -26,7 +26,7 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 
 import java.util.List;
 
-@Autonomous(name = "Shoot & Park Blue")
+@Autonomous(name = "Shoot & Park Red")
 @Configurable // Panels
 public class ShootParkAutoRed extends OpMode {
 
@@ -275,8 +275,13 @@ public class ShootParkAutoRed extends OpMode {
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
-          pathState = -1;
+          pathState = 3;
         }
+        break;
+
+      case 3:
+        spindexToggle = false;
+        pathState = -1;
         break;
 
       default:

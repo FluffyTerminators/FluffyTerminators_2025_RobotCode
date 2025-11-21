@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -12,6 +15,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -24,8 +28,9 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 
 //Download Missing Files
 
-@Disabled
+
 @TeleOp(name = "MechanismTest")
+@Configurable // Panels
 public class MechanismTest extends LinearOpMode {
 
   // Hubs
@@ -40,7 +45,8 @@ public class MechanismTest extends LinearOpMode {
 
   // Mechanism Motors
   public DcMotor Intake;
-  public DcMotorEx Shooter;
+  public DcMotorEx ShooterFront;
+  public DcMotorEx ShooterBack;
 
   // Internal Motion Units
   public IMU imu;
@@ -50,7 +56,6 @@ public class MechanismTest extends LinearOpMode {
   //public CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
   //public CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
   public CRServo SpindxerServo;
-  public Servo Flap;
 
   // Colour Sensors
   public NormalizedColorSensor SpindexerSensor1;
@@ -89,11 +94,11 @@ public class MechanismTest extends LinearOpMode {
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
     Intake  = hardwareMap.get(DcMotor.class, "Intake");
-    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
+    ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
     imu = hardwareMap.get(IMU.class,  "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap = hardwareMap.get(Servo.class,   "Spindexer_Flap_Servo");
     SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
@@ -103,6 +108,9 @@ public class MechanismTest extends LinearOpMode {
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+    ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
+    ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
@@ -125,11 +133,25 @@ public class MechanismTest extends LinearOpMode {
     double flapPos = 0.50;
     double ShooterTarget = 0;
     double ShooterPower = 0;
+    double ShooterFspeed = 0;
+    double ShooterBspeed = 0;
+    double P = 0;
+    double I = 0;
+    double D = 0;
+    boolean aLast = false;
+    boolean bLast = false;
+    boolean xLast = false;
+    boolean yLast = false;
+    boolean upLast = false;
+    boolean downLast = false;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-
+    //PIDFCoefficients Motorsettings = ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+    P = Constants.PID_P;
+    I = Constants.PID_I;
+    D = Constants.PID_D;
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -139,94 +161,94 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      ShooterCurrent = Shooter.getCurrentPosition();
-      TimeCurrent = System.currentTimeMillis();
-      double CalcShooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
-      ShooterLast = ShooterCurrent;
-      TimeLast = TimeCurrent;
-      Shooterspeed = Shooter.getVelocity();
-      if (gamepad1.y)
-      {
-        fRDrive.setPower(gamepad1.left_stick_y);
-        telemetry.addData("Active Motor: ","Front Right");
-      }
-      else
-      {
-        fRDrive.setPower(0);
-      }
-      if (gamepad1.x)
-      {
-        fLDrive.setPower(gamepad1.left_stick_y);
-        telemetry.addData("Active Motor: ","Front Left");
-      }
-      else
-      {
-        fLDrive.setPower(0);
-      }
-      if (gamepad1.a)
-      {
-        bRDrive.setPower(gamepad1.left_stick_y);
-        telemetry.addData("Active Motor: ","Back Right");
-      }
-      else
-      {
-        bRDrive.setPower(0);
-      }
-      if (gamepad1.b)
-      {
-        bLDrive.setPower(gamepad1.left_stick_y);
-        telemetry.addData("Active Motor: ","Back Left");
-      }
-      else
-      {
-        bLDrive.setPower(0);
-      }
+     // ShooterCurrent = ShooterFront.getCurrentPosition();
+     // TimeCurrent = System.currentTimeMillis();
+     // double CalcShooterspeed = (double)(ShooterCurrent - ShooterLast)/(double)(TimeCurrent-TimeLast);
+     // ShooterLast = ShooterCurrent;
+     // TimeLast = TimeCurrent;
+      ShooterFspeed = ShooterFront.getVelocity();
+      ShooterBspeed = ShooterBack.getVelocity();
 
+      Intake.setPower(gamepad1.left_trigger);
+      SpindxerServo.setPower(gamepad1.right_trigger);
       if (gamepad1.dpad_up)
       {
-        ShooterTarget += 10;
+        if (!upLast) {
+          ShooterTarget += 10;
+        }
+        upLast = true;
+      } else {
+        upLast = false;
       }
 
       if (gamepad1.dpad_down)
       {
-        ShooterTarget -= 10;
+        if (!downLast) {
+          ShooterTarget -= 10;
+        }
+        downLast = true;
+      } else {
+        downLast = false;
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
 
       if (gamepad1.left_bumper)
       {
-        Shooter.setVelocity(ShooterTarget);
-
-        telemetry.addData("Active Motor: ","Shooter");
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
+        telemetry.addData("Active Motor: ","Shooter Front");
       }
       else
       {
-        Shooter.setPower(0);
+        ShooterFront.setPower(0);
+        ShooterBack.setPower(0);
       }
-      if (gamepad1.right_bumper)
+
+      if (gamepad1.x)
       {
-        flapPos = gamepad1.left_stick_y;
+        if (!xLast) {
+          P = P + 0.1;
+        }
+        xLast = true;
+      } else {
+        xLast = false;
       }
-      if (gamepad1.dpad_up)
+      if (gamepad1.a)
       {
-        flapPos = Constants.flapUp;
+        if (!aLast) {
+          I = I + 0.1;
+        }
+        aLast = true;
+      } else {
+        aLast = false;
       }
-      if (gamepad1.dpad_down)
+      if (gamepad1.b)
       {
-        flapPos = Constants.flapDown;
+        if (!bLast) {
+          D = D + 0.1;
+        }
+        bLast = true;
+      } else {
+        bLast = false;
       }
-      if (gamepad1.dpad_left)
-        flapPos = Constants.flapDeploy;
-      Flap.setPosition(flapPos);
-      telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
+      if (gamepad1.y)
+      {
+        ShooterBack.setVelocityPIDFCoefficients(P, I, D, 0);
+        ShooterFront.setVelocityPIDFCoefficients(P, I, D, 0);
+      }
+
+      telemetry.addData("PIDF Values Back", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("PIDF Values Front", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("P", P);
+      telemetry.addData("I", I);
+      telemetry.addData("D", D);
+      /*telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
       telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());
       telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
-      telemetry.addData("Flap Servo Set Position: ",flapPos);
-      telemetry.addData("Flap Servo reported position: ", Flap.getPosition());
-      telemetry.addData("Shooter Encoder: ",ShooterCurrent);
-      telemetry.addData("Shooter Speed (ticks/sec): ",Shooterspeed);
-      telemetry.addData("Calculated Shooter Speed (ticks/sec): ",(CalcShooterspeed * 1000));
+      telemetry.addData("Flap Servo Set Position: ",flapPos);*/
+      telemetry.addData("Shooter Front (ticks/sec): ",ShooterFspeed);
+      telemetry.addData("Shooter Back (ticks/sec): ",ShooterBspeed);
       telemetry.addData("ShooterPower", ShooterPower);
       telemetry.update();
     }

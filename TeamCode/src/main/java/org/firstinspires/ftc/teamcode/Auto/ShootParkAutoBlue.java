@@ -24,10 +24,10 @@ import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import java.util.List;
 
-@Autonomous(name = "Shoot & Park Red")
+@Autonomous(name = "Shoot & Park Blue")
 @Configurable // Panels
-public class ShootParkAutoBlue extends OpMode {
-
+public class ShootParkAutoBlue extends OpMode
+{
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
   private int pathState; // Current autonomous path state (state machine)
@@ -244,7 +244,6 @@ public class ShootParkAutoBlue extends OpMode {
               .build();
     }
   }
-
   public int autonomousPathUpdate() {
     // Add your state machine Here
 
@@ -273,9 +272,15 @@ public class ShootParkAutoBlue extends OpMode {
         if (!follower.isBusy()){
 
           follower.followPath(paths.ParkMiddle);
-          pathState = -1;
+          pathState = 3;
         }
         break;
+
+      case 3:
+        spindexToggle = false;
+        pathState = -1;
+        break;
+
 
       default:
         break;
