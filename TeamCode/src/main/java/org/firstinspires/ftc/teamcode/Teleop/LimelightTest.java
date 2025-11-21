@@ -22,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.*;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -116,8 +117,8 @@ public class LimelightTest extends LinearOpMode {
     limelight.pipelineSwitch(7); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
-    ShooterBack.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
-    ShooterFront.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
 
     telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
@@ -177,6 +178,8 @@ public class LimelightTest extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
+      ShooterPidTuning.applyTo(ShooterFront);
+      ShooterPidTuning.applyTo(ShooterBack);
 
       double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
       double rawStrafe = -gamepad1.left_stick_x;

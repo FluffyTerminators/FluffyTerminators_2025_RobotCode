@@ -23,6 +23,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
@@ -78,6 +79,7 @@ public class ShootParkAutoRed extends OpMode {
 
   public void runShooter()
   {
+    ShooterPidTuning.applyTo(Shooter);
     Shooter.setVelocity(ShooterTarget);
     telemetry.addData("Shooter Motor", Shooter);
     telemetry.addData("Spindexer?", spindexToggle);
@@ -153,6 +155,7 @@ public class ShootParkAutoRed extends OpMode {
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
+    ShooterPidTuning.applyTo(Shooter);
     SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
