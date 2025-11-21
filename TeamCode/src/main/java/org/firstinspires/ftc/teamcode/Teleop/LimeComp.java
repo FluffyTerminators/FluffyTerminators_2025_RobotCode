@@ -168,6 +168,8 @@ public class LimeComp extends LinearOpMode {
     boolean fieldCentricMode = true;
     double fieldCentricTimer = 0;
     int cyclesAtSpeed = 0;
+    double stageStartTime = 0;
+    int shotsFired = 0;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -316,7 +318,10 @@ public class LimeComp extends LinearOpMode {
       {
         if (!shooterLast) {
           shootSequence = !shootSequence;
-          shooterStage = 1;
+          shooterStage = shootSequence ? 1 : 0;
+          shotsFired = 0;
+          cyclesAtSpeed = 0;
+          stageStartTime = getRuntime();
           shooterLast = true;
         }
       } else {
@@ -420,92 +425,50 @@ public class LimeComp extends LinearOpMode {
       {
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
-        if (shooterStage == 1)
-        {
+        boolean shooterStable = Math.abs(ShooterFront.getVelocity() - ShooterTarget) < 50 &&
+                                Math.abs(ShooterBack.getVelocity() - ShooterTarget) < 50;
+        if (shooterStable) {
+          cyclesAtSpeed++;
+        } else {
+          cyclesAtSpeed = 0;
+        }
+
+        if (shooterStage == 1) {
+          // Spin up and hold speed briefly before the first shot
           spindexerToggle = false;
-          if (
-              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-             )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
+          if (cyclesAtSpeed > 3) {
             shooterStage = 2;
-            lastRuntime = getRuntime();
+            stageStartTime = getRuntime();
           }
-        }
-        if (shooterStage == 2)
-        {
+        } else if (shooterStage == 2) {
+          // Fire a note
           spindexerToggle = true;
-          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
-          {
+          if (getRuntime() - stageStartTime > 0.35) {
+            spindexerToggle = false;
+            shotsFired++;
+            stageStartTime = getRuntime();
+            cyclesAtSpeed = 0;
+            shooterStage = (shotsFired >= 3) ? 5 : 3;
+          }
+        } else if (shooterStage == 3) {
+          // Quick recovery to let the flywheels return to speed
           spindexerToggle = false;
-          shooterStage = 3;
+          if ((getRuntime() - stageStartTime > 0.25) && cyclesAtSpeed > 2) {
+            shooterStage = 2;
+            stageStartTime = getRuntime();
+          }
+        } else if (shooterStage == 5) {
+          // Done shooting, spin down shortly after last shot
+          spindexerToggle = false;
+          if (getRuntime() - stageStartTime > 0.4) {
+            shootSequence = false;
+            shooterStage = 0;
           }
         }
-        if (shooterStage == 3)
-        {
-          if (
-                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-             )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
-            shooterStage = 4;
-            lastRuntime = getRuntime();
-          }
-        }
-        if (shooterStage == 4)
-        {
-          spindexerToggle = true;
-          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
-          {
-            spindexerToggle = false;
-            shooterStage = 5;
-          }
-        }
-        if (shooterStage == 5)
-        {
-          if (
-                  (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                          (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-          )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
-            shooterStage = 6;
-            lastRuntime = getRuntime();
-          }
-        }
-        if (shooterStage == 6)
-        {
-          spindexerToggle = true;
-          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
-          {
-            spindexerToggle = false;
-            shooterStage = 7;
-          }
-        }
-        if (shooterStage == 7)
-        {
-          ShooterFront.setVelocity(0);
-          ShooterBack.setVelocity(0);
-        }
-        if (spindexerToggle)
-        {
+
+        if (spindexerToggle) {
           SpindxerServo.setPower(1);
-        } else
-        {
+        } else {
           SpindxerServo.setPower(0);
         }
       } else if (manualShooterRequest)
