@@ -165,6 +165,7 @@ public class LimeComp extends LinearOpMode {
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+    resetPinpointAndWaitForReady();
     Flap.setPosition(flapUp);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
@@ -224,9 +225,7 @@ public class LimeComp extends LinearOpMode {
       if (gamepad1.left_bumper) {
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
-        pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-        pinpoint.setHeading(0, AngleUnit.DEGREES);
-        pinpoint.update();
+        resetPinpointAndWaitForReady(); //resets the position to 0 and recalibrates the IMU
       }
 
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
@@ -478,6 +477,22 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("highOveride", highOveride);
       telemetry.addData("lowOveride", lowOveride);
       telemetry.update();
+    }
+  }
+
+  private void resetPinpointAndWaitForReady() {
+    if (pinpoint == null) {
+      return;
+    }
+    pinpoint.resetPosAndIMU();
+    pinpoint.setHeading(0, AngleUnit.DEGREES);
+    telemetry.addLine("Calibrating Pinpoint...");
+    telemetry.update();
+    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY.status) {
+      pinpoint.update();
+      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+      telemetry.update();
+      sleep(10);
     }
   }
 }
