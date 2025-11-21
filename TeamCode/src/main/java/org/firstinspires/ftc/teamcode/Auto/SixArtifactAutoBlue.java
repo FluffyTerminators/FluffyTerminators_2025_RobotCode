@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -212,6 +213,9 @@ public class SixArtifactAutoBlue extends OpMode {
     public PathChain Park;
 
     public Paths(Follower follower) {
+      // 50% slower constraints for the collect segment
+      PathConstraints slowCollectConstraints = new PathConstraints(0.495, 50, 1, 1);
+
       ToLaunch = follower
               .pathBuilder()
               .addPath(
@@ -230,6 +234,7 @@ public class SixArtifactAutoBlue extends OpMode {
 
       Collect = follower
               .pathBuilder()
+              .setConstraints(slowCollectConstraints)
               .addPath(
                       new BezierLine(new Pose(44.000, 35.000), new Pose(13.000, 35.000))
               )
