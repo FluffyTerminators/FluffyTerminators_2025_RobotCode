@@ -174,7 +174,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.dpad_up)
       {
         if (!upLast) {
-          ShooterTarget += 10;
+          ShooterTarget += 20;
         }
         upLast = true;
       } else {
@@ -184,7 +184,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.dpad_down)
       {
         if (!downLast) {
-          ShooterTarget -= 10;
+          ShooterTarget -= 20;
         }
         downLast = true;
       } else {
@@ -196,7 +196,13 @@ public class MechanismTest extends LinearOpMode {
       {
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
-        telemetry.addData("Active Motor: ","Shooter Front");
+        telemetry.addData("Active Motor: ","Shooters");
+      }
+      else if (gamepad1.right_bumper)
+      {
+        ShooterFront.setVelocity(ShooterTarget * -0.1);
+        ShooterBack.setVelocity(ShooterTarget * 1.2);
+        telemetry.addData("Active Motor: ","Shooters");
       }
       else
       {
@@ -207,7 +213,11 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.x)
       {
         if (!xLast) {
-          P = P + 0.1;
+          if (!gamepad1.right_stick_button) {
+            P = P + 0.1;
+          } else {
+            P -= 0.1;
+          }
           ShooterPidTuning.velocityKp = P;
         }
         xLast = true;
@@ -217,7 +227,11 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.a)
       {
         if (!aLast) {
-          I = I + 0.1;
+          if (!gamepad1.right_stick_button) {
+            I = I + 0.1;
+          } else {
+            I -= 0.1;
+          }
           ShooterPidTuning.velocityKi = I;
         }
         aLast = true;
@@ -227,7 +241,11 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.b)
       {
         if (!bLast) {
-          D = D + 0.1;
+          if (!gamepad1.right_stick_button) {
+            D = D + 0.1;
+          } else {
+            D -= 0.1;
+          }
           ShooterPidTuning.velocityKd = D;
         }
         bLast = true;

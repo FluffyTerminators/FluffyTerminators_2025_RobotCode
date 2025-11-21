@@ -217,7 +217,7 @@ public class LimeComp extends LinearOpMode {
 
      // FlapPos = gamepad2.left_stick_y;
 
-      if (gamepad1.x) {
+      if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
@@ -235,7 +235,7 @@ public class LimeComp extends LinearOpMode {
           for (FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
             if ((id == 20) || (id == 24)) {
-              double targetOffset = fiducial.getTargetXDegrees();
+              double targetOffset = -fiducial.getTargetXDegrees();
               Turn = targetOffset / 20.0;
               if (Turn < -1) {Turn = -1;}
               if (Turn > 1) {Turn = 1;}
@@ -328,18 +328,15 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad2.dpad_down) {
-        spindexerPower = spindexerBWD;
+        SpindxerServo.setPower(-1);
       } else {
-        spindexerPower = spindexerFWD;
+        SpindxerServo.setPower(0);
       }
 
       if (gamepad2.dpad_up) {
-        if (!spinToggleLast) {
-          spindexerToggle = !spindexerToggle;
-          spinToggleLast = true;
-        }
+        SpindxerServo.setPower(1);
       } else {
-        spinToggleLast = false;
+        SpindxerServo.setPower(0);
       }
 
 
@@ -350,12 +347,6 @@ public class LimeComp extends LinearOpMode {
         }
       } else {
         inToggleLast = false;
-      }
-
-      if (spindexerToggle) {
-        SpindxerServo.setPower(spindexerPower);
-      } else {
-        SpindxerServo.setPower(0);
       }
 
       if (intakeToggle) {
@@ -422,11 +413,11 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = 1580;
+       ShooterTarget = 720;
       }
 
       if (lowOveride) {
-        ShooterTarget = 1420;
+        ShooterTarget = 600;
       }
 
       if (shootSequence)
@@ -435,7 +426,91 @@ public class LimeComp extends LinearOpMode {
         ShooterBack.setVelocity(ShooterTarget);
         if (shooterStage == 1)
         {
-
+          spindexerToggle = false;
+          if (
+              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+             )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 2;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 2)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+          spindexerToggle = false;
+          shooterStage = 3;
+          }
+        }
+        if (shooterStage == 3)
+        {
+          if (
+                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+             )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 4;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 4)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+            spindexerToggle = false;
+            shooterStage = 5;
+          }
+        }
+        if (shooterStage == 5)
+        {
+          if (
+                  (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+                          (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+          )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 6;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 6)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+            spindexerToggle = false;
+            shooterStage = 7;
+          }
+        }
+        if (shooterStage == 7)
+        {
+          ShooterFront.setVelocity(0);
+          ShooterBack.setVelocity(0);
+        }
+        if (spindexerToggle)
+        {
+          SpindxerServo.setPower(1);
+        } else
+        {
+          SpindxerServo.setPower(0);
         }
       } else if (manualShooterRequest)
       {
@@ -466,7 +541,7 @@ public class LimeComp extends LinearOpMode {
     pinpoint.setHeading(0, AngleUnit.DEGREES);
     telemetry.addLine("Calibrating Pinpoint...");
     telemetry.update();
-    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY.status) {
+    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
       pinpoint.update();
       telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
       telemetry.update();
