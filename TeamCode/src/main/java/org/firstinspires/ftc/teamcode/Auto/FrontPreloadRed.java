@@ -4,7 +4,6 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -31,7 +30,7 @@ import java.util.List;
 
 @Autonomous(name = "Front Preload Blue")
 @Configurable // Panels
-public class FrontPreloadBlueNew extends OpMode {
+public class FrontPreloadRed extends OpMode {
 
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
@@ -139,8 +138,8 @@ public class FrontPreloadBlueNew extends OpMode {
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
-    follower = Constants.PEDROConstants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(22.020, 124.588, Math.toRadians(323)));
+    follower = PEDROConstants.createFollower(hardwareMap);
+    follower.setStartingPose(new Pose(120.5, 127, Math.toRadians(217)));
 
     paths = new Paths(follower); // Build paths
 
@@ -212,17 +211,17 @@ public class FrontPreloadBlueNew extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 78.000))
+                      new BezierLine(new Pose(120.500, 127.000), new Pose(84.000, 78.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(132))
+              .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(50))
               .build();
 
       Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(60.000, 78.000), new Pose(62.000, 58.000))
+                      new BezierLine(new Pose(84.000, 78.000), new Pose(84.000, 58.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(132), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(90))
               .build();
     }
   }

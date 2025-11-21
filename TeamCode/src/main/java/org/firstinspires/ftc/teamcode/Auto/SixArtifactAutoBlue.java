@@ -227,7 +227,7 @@ public class SixArtifactAutoBlue extends OpMode {
       ToClimb = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(62.000, 25.000), new Pose(44.000, 38.000))
+                      new BezierLine(new Pose(62.000, 25.000), new Pose(44.000, 39.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(115), Math.toRadians(180))
               .build();
@@ -236,7 +236,7 @@ public class SixArtifactAutoBlue extends OpMode {
               .pathBuilder()
               .setConstraints(slowCollectConstraints)
               .addPath(
-                      new BezierLine(new Pose(44.000, 38.000), new Pose(13.000, 38.00))
+                      new BezierLine(new Pose(44.000, 39.000), new Pose(13.000, 39.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
               .build();
@@ -244,7 +244,7 @@ public class SixArtifactAutoBlue extends OpMode {
       ToLaunch2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(13.000, 38.000), new Pose(62.000, 25.000))
+                      new BezierLine(new Pose(13.000, 39.00), new Pose(62.000, 25.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(115))
               .build();

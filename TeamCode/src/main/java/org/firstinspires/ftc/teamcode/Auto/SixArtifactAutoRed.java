@@ -4,10 +4,10 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -23,15 +23,14 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
-import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "Front Preload Blue")
+@Autonomous(name = "6 Artifact Red")
 @Configurable // Panels
-public class FrontPreloadBlueNew extends OpMode {
+public class SixArtifactAutoRed extends OpMode {
 
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
@@ -41,6 +40,7 @@ public class FrontPreloadBlueNew extends OpMode {
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
+  private DcMotor Intake;
   private ColorRangeSensor SpindexerSensor1;
   private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
@@ -83,7 +83,7 @@ public class FrontPreloadBlueNew extends OpMode {
         ShooterBack.setVelocity(ShooterTarget);
         if (
                 (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+                        (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
         )
         {
           cyclesAtSpeed ++;
@@ -124,6 +124,7 @@ public class FrontPreloadBlueNew extends OpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
+    Intake = hardwareMap.get(DcMotor.class, "Intake");
     SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
@@ -140,7 +141,7 @@ public class FrontPreloadBlueNew extends OpMode {
     ShooterPidTuning.applyTo(ShooterBack);
 
     follower = Constants.PEDROConstants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(22.020, 124.588, Math.toRadians(323)));
+    follower.setStartingPose(new Pose(88, 8, Math.toRadians(90)));
 
     paths = new Paths(follower); // Build paths
 
@@ -205,24 +206,55 @@ public class FrontPreloadBlueNew extends OpMode {
 
   public static class Paths {
 
-    public PathChain Path1;
-    public PathChain Path2;
+    public PathChain ToLaunch;
+    public PathChain ToClimb;
+    public PathChain Collect;
+    public PathChain ToLaunch2;
+    public PathChain Park;
 
     public Paths(Follower follower) {
-      Path1 = follower
+      // 50% slower constraints for the collect segment
+      PathConstraints slowCollectConstraints = new PathConstraints(0.2, 20, 1, 1);
+
+      ToLaunch = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 78.000))
+                      new BezierLine(new Pose(88.000, 8.000), new Pose(82.000, 25.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(132))
+              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(57))
               .build();
 
-      Path2 = follower
+      ToClimb = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(60.000, 78.000), new Pose(62.000, 58.000))
+                      new BezierLine(new Pose(82.000, 25.000), new Pose(100.000, 39.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(132), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(0))
+              .build();
+
+      Collect = follower
+              .pathBuilder()
+              .setConstraints(slowCollectConstraints)
+              .addPath(
+                      new BezierLine(new Pose(100.000, 39.000), new Pose(130.000, 39.000))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+              .build();
+
+      ToLaunch2 = follower
+              .pathBuilder()
+              .addPath(
+                      new BezierLine(new Pose(130.000, 39.00), new Pose(82.000, 25.000))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(57))
+              .build();
+
+      Park = follower
+              .pathBuilder()
+              .addPath(
+                      new BezierLine(new Pose(82.000, 25.000), new Pose(82.000, 55.000))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(90))
               .build();
     }
   }
@@ -233,9 +265,11 @@ public class FrontPreloadBlueNew extends OpMode {
     switch (pathState)
     {
       case 0:
-        follower.followPath(paths.Path1);
+        follower.followPath(paths.ToLaunch);
         pathState = 1;
         shotsToTake = 3;
+        shooterState = 0; // reset before starting volley
+        cyclesAtSpeed = 0;
         break;
 
       case 1:
@@ -247,14 +281,78 @@ public class FrontPreloadBlueNew extends OpMode {
               shooterState = 0;
             } else {
               pathState = 2;
+              Intake.setPower(0.75);
             }
           }
         }
         break;
 
       case 2:
-        follower.followPath(paths.Path2);
-        pathState = -1;
+        if (!follower.isBusy())
+        {
+          follower.setMaxPower(0.5); // Slow down for the collect segment
+          follower.followPath(paths.ToClimb);
+          pathState = 3;
+        }
+        break;
+
+      case 3:
+        if (!follower.isBusy())
+        {
+          pathState = 4;
+        }
+        break;
+
+      case 4:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.Collect);
+          spindexToggle = true;
+          pathState = 5;
+        }
+        break;
+
+      case 5:
+        if (!follower.isBusy())
+        {
+          follower.setMaxPower(1.0); // Restore normal speed after collecting
+          Intake.setPower(0);
+          spindexToggle = false;
+          pathState = 6;
+        }
+        break;
+
+      case 6:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.ToLaunch2);
+          shotsToTake = 3;
+          shooterState = 0; // reset before second volley
+          cyclesAtSpeed = 0;
+          pathState = 7;
+        }
+        break;
+
+      case 7:
+        if (!follower.isBusy()) {
+          runShooter();
+          if (shooterState == -1) {
+            shotsToTake--;
+            if (shotsToTake > 0) {
+              shooterState = 0;
+            } else {
+              pathState = 8;
+            }
+          }
+        }
+        break;
+
+      case 8:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.Park);
+          pathState = -1;
+        }
         break;
     }
     // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
