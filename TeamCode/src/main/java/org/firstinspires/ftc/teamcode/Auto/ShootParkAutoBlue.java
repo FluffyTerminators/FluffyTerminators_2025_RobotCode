@@ -17,7 +17,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -41,7 +40,6 @@ public class ShootParkAutoBlue extends OpMode
   private DcMotorEx ShooterBack;
   private ColorRangeSensor SpindexerSensor1;
   private ColorRangeSensor SpindexerSensor2;
-  private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
   private double ShooterTarget;
@@ -49,7 +47,10 @@ public class ShootParkAutoBlue extends OpMode
   private int shooterState = 0;
   private int cyclesAtSpeed = 0;
   private int shotsToTake = 0;
-  private int cycleThreshold = 100;
+  private int cycleThreshold = 5;
+  private static final double VELOCITY_TOLERANCE = 50.0; // ticks/s tolerance
+  private static final double FEED_TIME = 0.25; // seconds to feed note
+  private static final double RECOVER_TIME = 0.2; // seconds to allow flywheel to bounce back
 
   public enum Distance {
     LOADED,
@@ -83,61 +84,65 @@ public class ShootParkAutoBlue extends OpMode
     ShooterFront.setVelocity(ShooterTarget);
     ShooterBack.setVelocity(ShooterTarget);
     telemetry.addData("ShooterFront Motor", ShooterFront);
+    telemetry.addData("ShooterBack Motor", ShooterBack);
     telemetry.addData("Spindexer?", spindexToggle);
-    telemetry.addData("ShooterFront Target", ShooterTarget);
+    telemetry.addData("Shooter Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
-    telemetry.addData("ShooterFront State", shooterState);
+    telemetry.addData("Shooter State", shooterState);
     telemetry.addData("First Colour", SpindexerSensor1);
     telemetry.addData("Second Colour", SpindexerSensor2);
-    telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
       case -1:
-        break;
-
-      case 0: // Spin up
         spindexToggle = false;
-        ShooterFront.setVelocity(ShooterTarget);
-        ShooterBack.setVelocity(ShooterTarget);
-        shooterState = 1;
         break;
 
-      case 1: // Wait for note detection
-        ShooterFront.setVelocity(ShooterTarget);
-        ShooterBack.setVelocity(ShooterTarget);
-        if (
-                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                        (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-        )
-        {
-          cyclesAtSpeed ++;
+      case 0: // Spin up while driving to position
+        spindexToggle = false;
+        if (isAtTargetVelocity()) {
+          cyclesAtSpeed++;
         } else {
           cyclesAtSpeed = 0;
         }
-        if (cyclesAtSpeed > 6) {
+        if (cyclesAtSpeed > cycleThreshold) {
+          shooterState = 1;
+          lastRunTime = getRuntime();
+          cyclesAtSpeed = 0;
+        }
+        break;
+
+      case 1: // Feed one note
+        spindexToggle = true;
+        if (getRuntime() - lastRunTime > FEED_TIME) {
+          spindexToggle = false;
           shooterState = 2;
           lastRunTime = getRuntime();
+          cyclesAtSpeed = 0;
         }
         break;
 
-      case 2: // Drop flap to feed note
-        spindexToggle = true;
-        if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
-        {
-          spindexToggle = false;
-          shooterState = 3;
+      case 2: // Let flywheel recover then mark shot complete
+        if (isAtTargetVelocity()) {
+          cyclesAtSpeed++;
+        } else {
+          cyclesAtSpeed = 0;
         }
-        break;
-
-      case 3: // Stop spindexer and wait for flywheel to slow down
-        ShooterFront.setVelocity(0);
-        ShooterBack.setVelocity(0);
-        shooterState = -1;
+        if (cyclesAtSpeed > cycleThreshold || getRuntime() - lastRunTime > RECOVER_TIME) {
+          shooterState = -1;
+        }
         break;
 
       default:
         break;
     }
+  }
+
+  private boolean isAtTargetVelocity() {
+    double front = ShooterFront.getVelocity();
+    double back = ShooterBack.getVelocity();
+    boolean frontOk = (front > ShooterTarget - VELOCITY_TOLERANCE) && (front < ShooterTarget + VELOCITY_TOLERANCE);
+    boolean backOk = (back > ShooterTarget - VELOCITY_TOLERANCE) && (back < ShooterTarget + VELOCITY_TOLERANCE);
+    return frontOk && backOk;
   }
   @Override
   public void init() {
@@ -146,11 +151,8 @@ public class ShootParkAutoBlue extends OpMode
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-    ShooterPidTuning.applyTo(ShooterFront);
-    ShooterPidTuning.applyTo(ShooterBack);
     SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
     SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
-    Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -260,6 +262,7 @@ public class ShootParkAutoBlue extends OpMode
         follower.followPath(paths.LaunchCorner);
         pathState = 1;
         shotsToTake = 3;
+        shooterState = 0; // start spin-up immediately
         break;
 
       case 1:
@@ -280,6 +283,8 @@ public class ShootParkAutoBlue extends OpMode
 
           follower.followPath(paths.ParkMiddle);
           pathState = 3;
+          ShooterFront.setVelocity(0);
+          ShooterBack.setVelocity(0);
         }
         break;
 
