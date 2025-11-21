@@ -305,6 +305,7 @@ public class SixArtifactAutoBlue extends OpMode {
       case 4:
         if (!follower.isBusy())
         {
+          follower.setMaxPower(0.2); // Slow down for the collect segment
           follower.followPath(paths.Collect);
           spindexToggle = true;
           pathState = 5;
@@ -314,6 +315,7 @@ public class SixArtifactAutoBlue extends OpMode {
       case 5:
         if (!follower.isBusy())
         {
+          follower.setMaxPower(1.0); // Restore normal speed after collecting
           Intake.setPower(0);
           spindexToggle = false;
           pathState = 6;
