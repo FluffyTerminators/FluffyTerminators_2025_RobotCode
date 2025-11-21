@@ -268,6 +268,8 @@ public class SixArtifactAutoBlue extends OpMode {
         follower.followPath(paths.ToLaunch);
         pathState = 1;
         shotsToTake = 3;
+        shooterState = 0; // reset before starting volley
+        cyclesAtSpeed = 0;
         break;
 
       case 1:
@@ -323,6 +325,8 @@ public class SixArtifactAutoBlue extends OpMode {
         {
           follower.followPath(paths.ToLaunch2);
           shotsToTake = 3;
+          shooterState = 0; // reset before second volley
+          cyclesAtSpeed = 0;
           pathState = 7;
         }
         break;
