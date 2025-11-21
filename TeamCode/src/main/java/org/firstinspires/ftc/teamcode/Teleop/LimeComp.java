@@ -275,10 +275,6 @@ public class LimeComp extends LinearOpMode {
 
       Distance detectedDistance = getDetectedColor(telemetry);
 
-      if (gamepad1.y) {
-        pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
-      }
-
       if (gamepad1.dpad_up)
       {
         if (!pipelineUpLast) {

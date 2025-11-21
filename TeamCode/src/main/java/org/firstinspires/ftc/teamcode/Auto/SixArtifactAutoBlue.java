@@ -263,6 +263,7 @@ public class SixArtifactAutoBlue extends OpMode {
         follower.followPath(paths.ToLaunch);
         pathState = 1;
         shotsToTake = 3;
+        break;
 
       case 1:
         if (!follower.isBusy()) {
@@ -276,6 +277,7 @@ public class SixArtifactAutoBlue extends OpMode {
             }
           }
         }
+        break;
 
       case 2:
         if (!follower.isBusy())
@@ -283,6 +285,7 @@ public class SixArtifactAutoBlue extends OpMode {
           follower.followPath(paths.ToClimb);
           pathState = 3;
         }
+        break;
 
       case 3:
         if (!follower.isBusy())
@@ -290,6 +293,7 @@ public class SixArtifactAutoBlue extends OpMode {
           Intake.setPower(0.75);
           pathState = 4;
         }
+        break;
 
       case 4:
         if (!follower.isBusy())
@@ -298,6 +302,7 @@ public class SixArtifactAutoBlue extends OpMode {
           spindexToggle = true;
           pathState = 5;
         }
+        break;
 
       case 5:
         if (!follower.isBusy())
@@ -306,6 +311,7 @@ public class SixArtifactAutoBlue extends OpMode {
           spindexToggle = false;
           pathState = 6;
         }
+        break;
 
       case 6:
         if (!follower.isBusy())
@@ -314,6 +320,7 @@ public class SixArtifactAutoBlue extends OpMode {
           shotsToTake = 3;
           pathState = 7;
         }
+        break;
 
       case 7:
         if (!follower.isBusy()) {
@@ -327,12 +334,15 @@ public class SixArtifactAutoBlue extends OpMode {
             }
           }
         }
+        break;
+
       case 8:
         if (!follower.isBusy())
         {
           follower.followPath(paths.Park);
           pathState = -1;
         }
+        break;
     }
     // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
     return pathState;
