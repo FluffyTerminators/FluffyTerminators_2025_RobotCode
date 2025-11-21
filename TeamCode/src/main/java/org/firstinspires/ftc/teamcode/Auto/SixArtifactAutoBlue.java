@@ -214,7 +214,7 @@ public class SixArtifactAutoBlue extends OpMode {
 
     public Paths(Follower follower) {
       // 50% slower constraints for the collect segment
-      PathConstraints slowCollectConstraints = new PathConstraints(0.495, 50, 1, 1);
+      PathConstraints slowCollectConstraints = new PathConstraints(0.2, 20, 1, 1);
 
       ToLaunch = follower
               .pathBuilder()
