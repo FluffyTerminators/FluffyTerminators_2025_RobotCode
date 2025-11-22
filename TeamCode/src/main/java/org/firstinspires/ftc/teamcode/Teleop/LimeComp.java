@@ -307,13 +307,6 @@ public class LimeComp extends LinearOpMode {
         SpindxerServo.setPower(0);
       }
 
-      if (gamepad2.dpad_up) {
-        SpindxerServo.setPower(1);
-      } else {
-        SpindxerServo.setPower(0);
-      }
-
-
       if (gamepad2.right_trigger > 0) {
         if (!inToggleLast) {
           intakeToggle = !intakeToggle;
