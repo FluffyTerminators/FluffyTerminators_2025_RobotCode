@@ -41,8 +41,6 @@ public class ShootParkAutoRed extends OpMode {
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -62,8 +60,6 @@ public class ShootParkAutoRed extends OpMode {
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -121,8 +117,6 @@ public class ShootParkAutoRed extends OpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -131,8 +125,7 @@ public class ShootParkAutoRed extends OpMode {
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    ShooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
@@ -209,7 +202,7 @@ public class ShootParkAutoRed extends OpMode {
       LaunchCorner = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(71.000, 8.000), new Pose(63, 24.338))
+                      new BezierLine(new Pose(71.000, 8.000), new Pose(63, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(65))
               .build();
@@ -217,7 +210,7 @@ public class ShootParkAutoRed extends OpMode {
       ParkMiddle = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(64, 24.338), new Pose(63, 59.107))
+                      new BezierLine(new Pose(64, 20), new Pose(63, 59.107))
               )
               .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(90))
               .build();

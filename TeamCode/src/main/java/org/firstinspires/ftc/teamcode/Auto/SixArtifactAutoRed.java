@@ -41,8 +41,6 @@ public class SixArtifactAutoRed extends OpMode {
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
   private DcMotor Intake;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -63,8 +61,6 @@ public class SixArtifactAutoRed extends OpMode {
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -125,8 +121,6 @@ public class SixArtifactAutoRed extends OpMode {
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
     Intake = hardwareMap.get(DcMotor.class, "Intake");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -135,8 +129,7 @@ public class SixArtifactAutoRed extends OpMode {
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    ShooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
@@ -219,7 +212,7 @@ public class SixArtifactAutoRed extends OpMode {
       ToLaunch = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(88.000, 8.000), new Pose(82.000, 25.000))
+                      new BezierLine(new Pose(88.000, 8.000), new Pose(82.000, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(57))
               .build();
@@ -227,7 +220,7 @@ public class SixArtifactAutoRed extends OpMode {
       ToClimb = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(82.000, 25.000), new Pose(100.000, 39.000))
+                      new BezierLine(new Pose(82.000, 20), new Pose(100.000, 39.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(0))
               .build();
@@ -244,7 +237,7 @@ public class SixArtifactAutoRed extends OpMode {
       ToLaunch2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(130.000, 39.00), new Pose(82.000, 25.000))
+                      new BezierLine(new Pose(130.000, 39.00), new Pose(82.000, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(57))
               .build();
@@ -252,7 +245,7 @@ public class SixArtifactAutoRed extends OpMode {
       Park = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(82.000, 25.000), new Pose(82.000, 55.000))
+                      new BezierLine(new Pose(82.000, 20), new Pose(82.000, 55.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(57), Math.toRadians(90))
               .build();

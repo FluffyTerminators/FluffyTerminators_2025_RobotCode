@@ -39,8 +39,6 @@ public class ShootParkAutoBlue extends OpMode
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -56,28 +54,6 @@ public class ShootParkAutoBlue extends OpMode
     EMPTY
   }
 
-  private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
-
-  public Distance getDetectedColor() {
-    double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
-    double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
-    double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
-    double usableSensor2 = Double.isNaN(sensor2DistanceCm) ? Double.POSITIVE_INFINITY : sensor2DistanceCm;
-    double closestDistance = Math.min(usableSensor1, usableSensor2);
-
-    telemetry.addData("SpindexerDist1(cm)", sensor1DistanceCm);
-    telemetry.addData("SpindexerDist2(cm)", sensor2DistanceCm);
-    telemetry.addData("SpindexerClosest(cm)", closestDistance);
-
-    if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
-      telemetry.addData("ObjectDetected", true);
-      return Distance.LOADED;
-    }
-
-    telemetry.addData("ObjectDetected", false);
-    return Distance.EMPTY;
-  }
-
   public void runShooter()
   {
     ShooterFront.setVelocity(ShooterTarget);
@@ -87,8 +63,6 @@ public class ShootParkAutoBlue extends OpMode
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -148,8 +122,6 @@ public class ShootParkAutoBlue extends OpMode
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
@@ -159,8 +131,7 @@ public class ShootParkAutoBlue extends OpMode
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    ShooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
@@ -237,7 +208,7 @@ public class ShootParkAutoBlue extends OpMode
       LaunchCorner = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(56.000, 8.000), new Pose(63, 24.338))
+                      new BezierLine(new Pose(56.000, 8.000), new Pose(63, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
               .build();
@@ -245,7 +216,7 @@ public class ShootParkAutoBlue extends OpMode
       ParkMiddle = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(63, 24.338), new Pose(63, 59.107))
+                      new BezierLine(new Pose(63, 20), new Pose(63, 59.107))
               )
               .setLinearHeadingInterpolation(Math.toRadians(120), Math.toRadians(90))
               .build();

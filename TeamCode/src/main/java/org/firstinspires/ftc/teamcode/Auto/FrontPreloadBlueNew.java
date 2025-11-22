@@ -41,8 +41,6 @@ public class FrontPreloadBlueNew extends OpMode {
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -63,8 +61,6 @@ public class FrontPreloadBlueNew extends OpMode {
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -124,8 +120,6 @@ public class FrontPreloadBlueNew extends OpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -134,8 +128,7 @@ public class FrontPreloadBlueNew extends OpMode {
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    ShooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
@@ -212,7 +205,7 @@ public class FrontPreloadBlueNew extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 78.000))
+                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 80))
               )
               .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(132))
               .build();
@@ -220,7 +213,7 @@ public class FrontPreloadBlueNew extends OpMode {
       Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(60.000, 78.000), new Pose(62.000, 58.000))
+                      new BezierLine(new Pose(60.000, 80), new Pose(62.000, 58.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(132), Math.toRadians(90))
               .build();

@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "Front Preload Blue")
+@Autonomous(name = "Front Preload Red")
 @Configurable // Panels
 public class FrontPreloadRed extends OpMode {
 
@@ -40,8 +40,6 @@ public class FrontPreloadRed extends OpMode {
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
@@ -62,8 +60,6 @@ public class FrontPreloadRed extends OpMode {
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -82,7 +78,7 @@ public class FrontPreloadRed extends OpMode {
         ShooterBack.setVelocity(ShooterTarget);
         if (
                 (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+                        (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
         )
         {
           cyclesAtSpeed ++;
@@ -123,8 +119,6 @@ public class FrontPreloadRed extends OpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -133,8 +127,7 @@ public class FrontPreloadRed extends OpMode {
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-    ShooterFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
@@ -211,7 +204,7 @@ public class FrontPreloadRed extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(120.500, 127.000), new Pose(84.000, 78.000))
+                      new BezierLine(new Pose(120.500, 127.000), new Pose(84.000, 80))
               )
               .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(50))
               .build();
@@ -219,7 +212,7 @@ public class FrontPreloadRed extends OpMode {
       Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(84.000, 78.000), new Pose(84.000, 58.000))
+                      new BezierLine(new Pose(84.000, 80), new Pose(84.000, 58.000))
               )
               .setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(90))
               .build();

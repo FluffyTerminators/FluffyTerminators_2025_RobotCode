@@ -55,11 +55,6 @@ public class LimeComp extends LinearOpMode {
 
   // Servos
   public CRServo SpindxerServo;
-
-
-  // Colour Sensors
-  public ColorRangeSensor SpindexerSensor1;
-  public ColorRangeSensor SpindexerSensor2;
   public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0);
 
   public Limelight3A limelight;
@@ -67,28 +62,6 @@ public class LimeComp extends LinearOpMode {
   public enum Distance {
     LOADED,
     EMPTY
-  }
-
-  private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
-
-  public Distance getDetectedColor(Telemetry telemetry) {
-    double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
-    double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
-    double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
-    double usableSensor2 = Double.isNaN(sensor2DistanceCm) ? Double.POSITIVE_INFINITY : sensor2DistanceCm;
-    double closestDistance = Math.min(usableSensor1, usableSensor2);
-
-    telemetry.addData("SpindexerDist1(cm)", sensor1DistanceCm);
-    telemetry.addData("SpindexerDist2(cm)", sensor2DistanceCm);
-    telemetry.addData("SpindexerClosest(cm)", closestDistance);
-
-    if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
-      telemetry.addData("ObjectDetected", true);
-      return Distance.LOADED;
-    }
-
-    telemetry.addData("ObjectDetected", false);
-    return Distance.EMPTY;
   }
 
   public void runOpMode() throws InterruptedException {
@@ -102,13 +75,11 @@ public class LimeComp extends LinearOpMode {
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(7); // Switch to pipeline number 0
+    limelight.pipelineSwitch(0); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
     ShooterPidTuning.applyTo(ShooterFront);
@@ -168,6 +139,7 @@ public class LimeComp extends LinearOpMode {
     boolean fieldCentricMode = true;
     double fieldCentricTimer = 0;
     int cyclesAtSpeed = 0;
+    boolean resetLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -224,9 +196,14 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad1.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-        imu.resetYaw();
-        resetPinpointAndWaitForReady(); //resets the position to 0 and recalibrates the IMU
+        if (!resetLast) {
+          imu.resetYaw();
+          resetPinpointAndWaitForReady(); //resets the position to 0 and recalibrates the IMU
+          resetLast = true;
+        }
+      } else
+      {
+        resetLast = false;
       }
 
       if (gamepad1.right_stick_button) {
@@ -273,7 +250,6 @@ public class LimeComp extends LinearOpMode {
 
      // Flap.setPosition(FlapPos);
 
-      Distance detectedDistance = getDetectedColor(telemetry);
 
       if (gamepad1.dpad_up)
       {
@@ -530,19 +506,20 @@ public class LimeComp extends LinearOpMode {
   }
 
   private void resetPinpointAndWaitForReady() {
-    if (pinpoint == null) {
-      return;
-    }
-    pinpoint.resetPosAndIMU();
     pinpoint.setHeading(0, AngleUnit.DEGREES);
-    telemetry.addLine("Calibrating Pinpoint...");
-    telemetry.update();
-    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
-      pinpoint.update();
-      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
-      telemetry.update();
-      sleep(10);
-    }
+//    if (pinpoint == null) {
+//      return;
+//    }
+//    pinpoint.resetPosAndIMU();
+//    pinpoint.setHeading(0, AngleUnit.DEGREES);
+//    telemetry.addLine("Calibrating Pinpoint...");
+//    telemetry.update();
+//    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
+//      pinpoint.update();
+//      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+//      telemetry.update();
+//      sleep(10);
+//    }
   }
 }
 
