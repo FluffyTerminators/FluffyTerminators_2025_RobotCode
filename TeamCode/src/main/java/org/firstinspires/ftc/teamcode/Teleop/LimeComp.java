@@ -507,6 +507,7 @@ public class LimeComp extends LinearOpMode {
 
   private void resetPinpointAndWaitForReady() {
     pinpoint.setHeading(0, AngleUnit.DEGREES);
+    pinpoint.update();
 //    if (pinpoint == null) {
 //      return;
 //    }
