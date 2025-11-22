@@ -301,6 +301,8 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.dpad_down) {
         SpindxerServo.setPower(-1);
+      } else if (gamepad2.dpad_up) {
+        SpindxerServo.setPower(1);
       } else {
         SpindxerServo.setPower(0);
       }
