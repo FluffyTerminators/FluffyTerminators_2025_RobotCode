@@ -259,11 +259,11 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
    * Confirm that the number received is a number, and does not include a change above the threshold
    * @param oldValue the reading from the previous cycle
    * @param newValue the new reading
-   * @param threshold the maximum change between this reading and the previous one, in native units
+   * @param threshold the maximum change between this reading and the previous one
    * @param bulkUpdate true if we are updating the loopTime variable. If not it should be false.
    * @return newValue if the position is good, oldValue otherwise
    */
-  private Float isPositionCorrupt(float oldValue, float newValue, float threshold, boolean bulkUpdate){
+  private Float isPositionCorrupt(float oldValue, float newValue, int threshold, boolean bulkUpdate){
     boolean noData = bulkUpdate && (loopTime < 1);
 
     boolean isCorrupt = noData || Float.isNaN(newValue) || Math.abs(newValue - oldValue) > threshold;
@@ -283,7 +283,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
    * @param threshold the velocity allowed to be reported
    * @return newValue if the velocity is good, oldValue otherwise
    */
-  private Float isVelocityCorrupt(float oldValue, float newValue, float threshold){
+  private Float isVelocityCorrupt(float oldValue, float newValue, int threshold){
     boolean isCorrupt = Float.isNaN(newValue) || Math.abs(newValue) > threshold;
     boolean noData = (loopTime <= 1);
 
@@ -299,10 +299,10 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
    * Call this once per loop to read new data from the Odometry Computer. Data will only update once this is called.
    */
   public void update(){
-    final float positionThreshold = 5000f; //more than one FTC field in mm
-    final float headingThreshold = (float) Math.toRadians(90); //reject unrealistic >90° jumps per update
+    final int positionThreshold = 5000; //more than one FTC field in mm
+    final int headingThreshold = 120; //About 20 full rotations in Radians
     final int velocityThreshold = 10000; //10k mm/sec is faster than an FTC robot should be going...
-    final float headingVelocityThreshold = (float) Math.toRadians(720); //About two rotations per second
+    final int headingVelocityThreshold = 120; //About 20 rotations per second
 
     float oldPosX = xPosition;
     float oldPosY = yPosition;
@@ -344,7 +344,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
    */
   public void update(ReadData data) {
     if (data == ReadData.ONLY_UPDATE_HEADING) {
-      final float headingThreshold = (float) Math.toRadians(90);
+      final int headingThreshold = 120;
 
       float oldPosH = hOrientation;
 
