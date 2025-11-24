@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 
-@Autonomous(name = "Leave Blue")
+@Autonomous(name = "Goal Leave Blue")
 @Configurable // Panels
 public class LeaveBlue extends OpMode {
 

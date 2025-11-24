@@ -7,6 +7,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
+import com.pedropathing.paths.PathConstraints;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -20,18 +21,16 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
-import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "FrontR Shoot & Park")
+@Autonomous(name = "FrontB 6 Artifact")
 @Configurable // Panels
-public class ShootParkAutoRed extends OpMode {
+public class SixArtifactAutoBlue extends OpMode {
 
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
@@ -41,15 +40,17 @@ public class ShootParkAutoRed extends OpMode {
   private GoBildaPinpointDriver pinpoint;
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
+  private DcMotor Intake;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
-  private int shooterState = 3;
+  private int shooterState = 0;
   private int cyclesAtSpeed = 0;
   private int shotsToTake = 0;
   private int cycleThreshold = 100;
+
 
   public void runShooter()
   {
@@ -110,6 +111,8 @@ public class ShootParkAutoRed extends OpMode {
         break;
     }
   }
+
+
   @Override
   public void init() {
     panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -117,6 +120,7 @@ public class ShootParkAutoRed extends OpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
+    Intake = hardwareMap.get(DcMotor.class, "Intake");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
@@ -129,8 +133,8 @@ public class ShootParkAutoRed extends OpMode {
     ShooterPidTuning.applyTo(ShooterFront);
     ShooterPidTuning.applyTo(ShooterBack);
 
-    follower = PEDROConstants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(71, 8, Math.toRadians(90)));
+    follower = Constants.PEDROConstants.createFollower(hardwareMap);
+    follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
 
     paths = new Paths(follower); // Build paths
 
@@ -174,7 +178,7 @@ public class ShootParkAutoRed extends OpMode {
     }
     else
     {
-      ShooterTarget = Constants.ShooterCal.interpolate(2.2);
+      ShooterTarget = Constants.ShooterCal.interpolate(0.2);
     }
     follower.update(); // Update Pedro Pathing
     pathState = autonomousPathUpdate(); // Update autonomous state machine
@@ -195,69 +199,155 @@ public class ShootParkAutoRed extends OpMode {
 
   public static class Paths {
 
-    public PathChain LaunchCorner;
-    public PathChain ParkMiddle;
+    public PathChain ToLaunch;
+    public PathChain ToClimb;
+    public PathChain Collect;
+    public PathChain ToLaunch2;
+    public PathChain Park;
 
     public Paths(Follower follower) {
-      LaunchCorner = follower
+      // 50% slower constraints for the collect segment
+      PathConstraints slowCollectConstraints = new PathConstraints(0.2, 20, 1, 1);
+
+      ToLaunch = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(71.000, 8.000), new Pose(63, 20))
+                      new BezierLine(new Pose(56.000, 8.000), new Pose(62.000, 20))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(65))
+              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
               .build();
 
-      ParkMiddle = follower
+      ToClimb = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(64, 20), new Pose(63, 59.107))
+                      new BezierLine(new Pose(62.000, 20), new Pose(44.000, 39.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(115), Math.toRadians(180))
+              .build();
+
+      Collect = follower
+              .pathBuilder()
+              .setConstraints(slowCollectConstraints)
+              .addPath(
+                      new BezierLine(new Pose(44.000, 39.000), new Pose(13.000, 39.000))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
+              .build();
+
+      ToLaunch2 = follower
+              .pathBuilder()
+              .addPath(
+                      new BezierLine(new Pose(13.000, 39.00), new Pose(62.000, 20))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(115))
+              .build();
+
+      Park = follower
+              .pathBuilder()
+              .addPath(
+                      new BezierLine(new Pose(62.000, 20), new Pose(62.000, 55.000))
+              )
+              .setLinearHeadingInterpolation(Math.toRadians(115), Math.toRadians(90))
               .build();
     }
   }
 
   public int autonomousPathUpdate() {
     // Add your state machine Here
-
+    // Access paths with paths.pathName
     switch (pathState)
     {
       case 0:
-        follower.followPath(paths.LaunchCorner);
+        follower.followPath(paths.ToLaunch);
         pathState = 1;
         shotsToTake = 3;
+        shooterState = 0; // reset before starting volley
+        cyclesAtSpeed = 0;
         break;
 
       case 1:
-        runShooter();
-        if (shooterState == -1)
-        {
-          shotsToTake --;
-          if (shotsToTake > 0) {
-            shooterState = 0;
-          } else {
-            pathState = 2;
+        if (!follower.isBusy()) {
+          runShooter();
+          if (shooterState == -1) {
+            shotsToTake--;
+            if (shotsToTake > 0) {
+              shooterState = 0;
+            } else {
+              pathState = 2;
+              Intake.setPower(0.75);
+            }
           }
         }
         break;
 
       case 2:
-        if (!follower.isBusy()){
-
-          follower.followPath(paths.ParkMiddle);
+        if (!follower.isBusy())
+        {
+          follower.setMaxPower(0.5); // Slow down for the collect segment
+          follower.followPath(paths.ToClimb);
           pathState = 3;
         }
         break;
 
       case 3:
-        spindexToggle = false;
-        pathState = -1;
+        if (!follower.isBusy())
+        {
+          pathState = 4;
+        }
         break;
 
-      default:
+      case 4:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.Collect);
+          spindexToggle = true;
+          pathState = 5;
+        }
+        break;
+
+      case 5:
+        if (!follower.isBusy())
+        {
+          follower.setMaxPower(1.0); // Restore normal speed after collecting
+          Intake.setPower(0);
+          spindexToggle = false;
+          pathState = 6;
+        }
+        break;
+
+      case 6:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.ToLaunch2);
+          shotsToTake = 3;
+          shooterState = 0; // reset before second volley
+          cyclesAtSpeed = 0;
+          pathState = 7;
+        }
+        break;
+
+      case 7:
+        if (!follower.isBusy()) {
+          runShooter();
+          if (shooterState == -1) {
+            shotsToTake--;
+            if (shotsToTake > 0) {
+              shooterState = 0;
+            } else {
+              pathState = 8;
+            }
+          }
+        }
+        break;
+
+      case 8:
+        if (!follower.isBusy())
+        {
+          follower.followPath(paths.Park);
+          pathState = -1;
+        }
         break;
     }
-    // Access paths with paths.pathName
     // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
     return pathState;
   }

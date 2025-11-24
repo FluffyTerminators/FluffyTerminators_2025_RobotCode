@@ -13,8 +13,10 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -22,9 +24,10 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import java.util.List;
 
-@Autonomous(name = "Shoot & Park Blue")
+@Autonomous(name = "FrontB Shoot & Park")
 @Configurable // Panels
 public class ShootParkAutoBlue extends OpMode
 {
@@ -34,15 +37,14 @@ public class ShootParkAutoBlue extends OpMode
   private Paths paths; // Paths defined in the Paths class
   private Limelight3A limelight;
   private GoBildaPinpointDriver pinpoint;
-  private DcMotorEx Shooter;
-  private ColorRangeSensor SpindexerSensor1;
-  private ColorRangeSensor SpindexerSensor2;
+  private DcMotorEx ShooterFront;
+  private DcMotorEx ShooterBack;
   private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
-  private int shooterState = 3;
+  private int shooterState = 0;
   private int cyclesAtSpeed = 0;
   private int shotsToTake = 0;
   private int cycleThreshold = 100;
@@ -52,38 +54,15 @@ public class ShootParkAutoBlue extends OpMode
     EMPTY
   }
 
-  private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
-
-  public Distance getDetectedColor() {
-    double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
-    double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
-    double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
-    double usableSensor2 = Double.isNaN(sensor2DistanceCm) ? Double.POSITIVE_INFINITY : sensor2DistanceCm;
-    double closestDistance = Math.min(usableSensor1, usableSensor2);
-
-    telemetry.addData("SpindexerDist1(cm)", sensor1DistanceCm);
-    telemetry.addData("SpindexerDist2(cm)", sensor2DistanceCm);
-    telemetry.addData("SpindexerClosest(cm)", closestDistance);
-
-    if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
-      telemetry.addData("ObjectDetected", true);
-      return Distance.LOADED;
-    }
-
-    telemetry.addData("ObjectDetected", false);
-    return Distance.EMPTY;
-  }
-
   public void runShooter()
   {
-    Shooter.setVelocity(ShooterTarget);
-    telemetry.addData("Shooter Motor", Shooter);
+    ShooterFront.setVelocity(ShooterTarget);
+    ShooterBack.setVelocity(ShooterTarget);
+    telemetry.addData("ShooterFront Motor", ShooterFront);
     telemetry.addData("Spindexer?", spindexToggle);
-    telemetry.addData("Shooter Target", ShooterTarget);
+    telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
-    telemetry.addData("Shooter State", shooterState);
-    telemetry.addData("First Colour", SpindexerSensor1);
-    telemetry.addData("Second Colour", SpindexerSensor2);
+    telemetry.addData("ShooterFront State", shooterState);
     telemetry.addData("Servo", Flap);
 
     switch (shooterState) {
@@ -91,72 +70,70 @@ public class ShootParkAutoBlue extends OpMode
         break;
 
       case 0: // Spin up
-        spindexToggle = true;
+        spindexToggle = false;
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
         shooterState = 1;
         break;
 
       case 1: // Wait for note detection
-        Distance detectedDistance = getDetectedColor();
-        if (detectedDistance == Distance.LOADED) {
-          lastRunTime = getRuntime();
+        ShooterFront.setVelocity(ShooterTarget);
+        ShooterBack.setVelocity(ShooterTarget);
+        if (
+                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+                        (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+        )
+        {
+          cyclesAtSpeed ++;
+        } else {
+          cyclesAtSpeed = 0;
+        }
+        if (cyclesAtSpeed > 6) {
           shooterState = 2;
+          lastRunTime = getRuntime();
         }
         break;
 
       case 2: // Drop flap to feed note
-        spindexToggle = false;
-        Flap.setPosition(Constants.flapDeploy);
-        if (getRuntime() - lastRunTime > 0.25) {
-          lastRunTime = getRuntime();
+        spindexToggle = true;
+        if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+        {
+          spindexToggle = false;
           shooterState = 3;
-          cyclesAtSpeed = 0;
         }
         break;
 
       case 3: // Stop spindexer and wait for flywheel to slow down
-        spindexToggle = true;
-        if (getRuntime() - lastRunTime > 1) {
-          spindexToggle = false;
-          if ((Shooter.getVelocity() > ShooterTarget - 40) && (Shooter.getVelocity() < ShooterTarget +40)) {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > cycleThreshold) {
-            shooterState = 4;
-            lastRunTime = getRuntime();
-          }
-        }
-        break;
-
-      case 4: // Retract flap once flywheel recovers
-        Flap.setPosition(Constants.flapUp);
-        if (getRuntime() - lastRunTime > 0.5) {
-          shooterState = 2;
-        }
-        if (Shooter.getVelocity() < ShooterTarget - 400) {
-          Shooter.setVelocity(0);
-          shooterState = -1;
-        }
+        ShooterFront.setVelocity(0);
+        ShooterBack.setVelocity(0);
+        shooterState = -1;
         break;
 
       default:
         break;
     }
   }
-
   @Override
   public void init() {
     panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-    Shooter = hardwareMap.get(DcMotorEx.class, "Shooter");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
+    ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
+    ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
     Flap = hardwareMap.get(Servo.class, "Spindexer_Flap_Servo");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    Flap.setPosition(Constants.flapDeploy);
     lastRunTime = getRuntime();
+    limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+    limelight.start(); // This tells Limelight to start looking!
+    limelight.pipelineSwitch(7); // Switch to pipeline number 0
+    ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
+    ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
 
     follower = Constants.PEDROConstants.createFollower(hardwareMap);
     follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
@@ -192,8 +169,9 @@ public class ShootParkAutoBlue extends OpMode
           int id = fiducial.getFiducialId(); // The ID number of the fiducial
           double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
           double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
+          double z = fiducial.getRobotPoseTargetSpace().getPosition().z;
           double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
-          double distance = Math.sqrt((x * x) + (y * y));
+          double distance = Math.sqrt((x * x) + (z * z));
           telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
           ShooterTarget = Constants.ShooterCal.interpolate(distance);
@@ -202,7 +180,7 @@ public class ShootParkAutoBlue extends OpMode
     }
     else
     {
-      ShooterTarget = Constants.ShooterCal.interpolate(0.2);
+      ShooterTarget = Constants.ShooterCal.interpolate(2.2);
     }
     follower.update(); // Update Pedro Pathing
     pathState = autonomousPathUpdate(); // Update autonomous state machine
@@ -230,7 +208,7 @@ public class ShootParkAutoBlue extends OpMode
       LaunchCorner = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(56.000, 8.000), new Pose(63, 24.338))
+                      new BezierLine(new Pose(56.000, 8.000), new Pose(63, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
               .build();
@@ -238,7 +216,7 @@ public class ShootParkAutoBlue extends OpMode
       ParkMiddle = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(63, 24.338), new Pose(63, 59.107))
+                      new BezierLine(new Pose(63, 20), new Pose(63, 59.107))
               )
               .setLinearHeadingInterpolation(Math.toRadians(120), Math.toRadians(90))
               .build();
@@ -252,7 +230,7 @@ public class ShootParkAutoBlue extends OpMode
       case 0:
         follower.followPath(paths.LaunchCorner);
         pathState = 1;
-        shotsToTake = 1;
+        shotsToTake = 3;
         break;
 
       case 1:

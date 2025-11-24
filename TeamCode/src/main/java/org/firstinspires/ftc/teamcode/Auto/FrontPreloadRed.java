@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
@@ -29,9 +28,9 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "FrontR Shoot & Park")
+@Autonomous(name = "Goal Preload Red")
 @Configurable // Panels
-public class ShootParkAutoRed extends OpMode {
+public class FrontPreloadRed extends OpMode {
 
   private TelemetryManager panelsTelemetry; // Panels Telemetry instance
   public Follower follower; // Pedro Pathing follower instance
@@ -46,10 +45,11 @@ public class ShootParkAutoRed extends OpMode {
   private boolean spindexToggle;
   private double ShooterTarget;
   private double lastRunTime = 0;
-  private int shooterState = 3;
+  private int shooterState = 0;
   private int cyclesAtSpeed = 0;
   private int shotsToTake = 0;
   private int cycleThreshold = 100;
+
 
   public void runShooter()
   {
@@ -110,6 +110,8 @@ public class ShootParkAutoRed extends OpMode {
         break;
     }
   }
+
+
   @Override
   public void init() {
     panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -130,7 +132,7 @@ public class ShootParkAutoRed extends OpMode {
     ShooterPidTuning.applyTo(ShooterBack);
 
     follower = PEDROConstants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(71, 8, Math.toRadians(90)));
+    follower.setStartingPose(new Pose(120.5, 127, Math.toRadians(217)));
 
     paths = new Paths(follower); // Build paths
 
@@ -174,7 +176,7 @@ public class ShootParkAutoRed extends OpMode {
     }
     else
     {
-      ShooterTarget = Constants.ShooterCal.interpolate(2.2);
+      ShooterTarget = Constants.ShooterCal.interpolate(0.2);
     }
     follower.update(); // Update Pedro Pathing
     pathState = autonomousPathUpdate(); // Update autonomous state machine
@@ -195,69 +197,58 @@ public class ShootParkAutoRed extends OpMode {
 
   public static class Paths {
 
-    public PathChain LaunchCorner;
-    public PathChain ParkMiddle;
+    public PathChain Path1;
+    public PathChain Path2;
 
     public Paths(Follower follower) {
-      LaunchCorner = follower
+      Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(71.000, 8.000), new Pose(63, 20))
+                      new BezierLine(new Pose(120.500, 127.000), new Pose(84.000, 80))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(65))
+              .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(50))
               .build();
 
-      ParkMiddle = follower
+      Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(64, 20), new Pose(63, 59.107))
+                      new BezierLine(new Pose(84.000, 80), new Pose(84.000, 58.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(90))
               .build();
     }
   }
 
   public int autonomousPathUpdate() {
     // Add your state machine Here
-
+    // Access paths with paths.pathName
     switch (pathState)
     {
       case 0:
-        follower.followPath(paths.LaunchCorner);
+        follower.followPath(paths.Path1);
         pathState = 1;
         shotsToTake = 3;
         break;
 
       case 1:
-        runShooter();
-        if (shooterState == -1)
-        {
-          shotsToTake --;
-          if (shotsToTake > 0) {
-            shooterState = 0;
-          } else {
-            pathState = 2;
+        if (!follower.isBusy()) {
+          runShooter();
+          if (shooterState == -1) {
+            shotsToTake--;
+            if (shotsToTake > 0) {
+              shooterState = 0;
+            } else {
+              pathState = 2;
+            }
           }
         }
         break;
 
       case 2:
-        if (!follower.isBusy()){
-
-          follower.followPath(paths.ParkMiddle);
-          pathState = 3;
-        }
-        break;
-
-      case 3:
-        spindexToggle = false;
+        follower.followPath(paths.Path2);
         pathState = -1;
         break;
-
-      default:
-        break;
     }
-    // Access paths with paths.pathName
     // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
     return pathState;
   }

@@ -638,7 +638,8 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
    * normalized heading is wrapped from -180°, to 180°.
    */
   public double getHeading(AngleUnit angleUnit){
-    return angleUnit.fromRadians((hOrientation + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    double wrappedRadians = ((hOrientation + Math.PI) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI) - Math.PI;
+    return angleUnit.fromRadians(wrappedRadians);
   }
 
   /**

@@ -15,7 +15,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -23,6 +22,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 //import static org.firstinspires.ftc.teamcode.Util.Constants.HardwareMappings.*;
 
 
@@ -135,23 +135,23 @@ public class MechanismTest extends LinearOpMode {
     double ShooterPower = 0;
     double ShooterFspeed = 0;
     double ShooterBspeed = 0;
-    double P = 0;
-    double I = 0;
-    double D = 0;
+    double P;
+    double I;
+    double D;
     boolean aLast = false;
     boolean bLast = false;
     boolean xLast = false;
-    boolean yLast = false;
     boolean upLast = false;
     boolean downLast = false;
 
     pinpoint.setOffsets(0, 0, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    //PIDFCoefficients Motorsettings = ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
-    P = Constants.PID_P;
-    I = Constants.PID_I;
-    D = Constants.PID_D;
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
+    P = ShooterPidTuning.velocityKp;
+    I = ShooterPidTuning.velocityKi;
+    D = ShooterPidTuning.velocityKd;
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -174,7 +174,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.dpad_up)
       {
         if (!upLast) {
-          ShooterTarget += 10;
+          ShooterTarget += 20;
         }
         upLast = true;
       } else {
@@ -184,7 +184,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.dpad_down)
       {
         if (!downLast) {
-          ShooterTarget -= 10;
+          ShooterTarget -= 20;
         }
         downLast = true;
       } else {
@@ -196,7 +196,13 @@ public class MechanismTest extends LinearOpMode {
       {
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
-        telemetry.addData("Active Motor: ","Shooter Front");
+        telemetry.addData("Active Motor: ","Shooters");
+      }
+      else if (gamepad1.right_bumper)
+      {
+        ShooterFront.setVelocity(ShooterTarget * -0.1);
+        ShooterBack.setVelocity(ShooterTarget * 1.2);
+        telemetry.addData("Active Motor: ","Shooters");
       }
       else
       {
@@ -207,7 +213,12 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.x)
       {
         if (!xLast) {
-          P = P + 0.1;
+          if (!gamepad1.right_stick_button) {
+            P = P + 0.1;
+          } else {
+            P -= 0.1;
+          }
+          ShooterPidTuning.velocityKp = P;
         }
         xLast = true;
       } else {
@@ -216,7 +227,12 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.a)
       {
         if (!aLast) {
-          I = I + 0.1;
+          if (!gamepad1.right_stick_button) {
+            I = I + 0.1;
+          } else {
+            I -= 0.1;
+          }
+          ShooterPidTuning.velocityKi = I;
         }
         aLast = true;
       } else {
@@ -225,17 +241,19 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.b)
       {
         if (!bLast) {
-          D = D + 0.1;
+          if (!gamepad1.right_stick_button) {
+            D = D + 0.1;
+          } else {
+            D -= 0.1;
+          }
+          ShooterPidTuning.velocityKd = D;
         }
         bLast = true;
       } else {
         bLast = false;
       }
-      if (gamepad1.y)
-      {
-        ShooterBack.setVelocityPIDFCoefficients(P, I, D, 0);
-        ShooterFront.setVelocityPIDFCoefficients(P, I, D, 0);
-      }
+      ShooterPidTuning.applyTo(ShooterFront);
+      ShooterPidTuning.applyTo(ShooterBack);
 
       telemetry.addData("PIDF Values Back", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
       telemetry.addData("PIDF Values Front", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
@@ -254,4 +272,3 @@ public class MechanismTest extends LinearOpMode {
     }
   }
 }
-

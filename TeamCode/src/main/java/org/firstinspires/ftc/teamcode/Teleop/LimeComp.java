@@ -27,6 +27,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
+import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import java.util.List;
 //Download Missing Files
 
@@ -54,11 +55,6 @@ public class LimeComp extends LinearOpMode {
 
   // Servos
   public CRServo SpindxerServo;
-
-
-  // Colour Sensors
-  public ColorRangeSensor SpindexerSensor1;
-  public ColorRangeSensor SpindexerSensor2;
   public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0);
 
   public Limelight3A limelight;
@@ -66,28 +62,6 @@ public class LimeComp extends LinearOpMode {
   public enum Distance {
     LOADED,
     EMPTY
-  }
-
-  private static final double OBJECT_DETECTION_RANGE_CM = 4.0;
-
-  public Distance getDetectedColor(Telemetry telemetry) {
-    double sensor1DistanceCm = SpindexerSensor1.getDistance(DistanceUnit.CM);
-    double sensor2DistanceCm = SpindexerSensor2.getDistance(DistanceUnit.CM);
-    double usableSensor1 = Double.isNaN(sensor1DistanceCm) ? Double.POSITIVE_INFINITY : sensor1DistanceCm;
-    double usableSensor2 = Double.isNaN(sensor2DistanceCm) ? Double.POSITIVE_INFINITY : sensor2DistanceCm;
-    double closestDistance = Math.min(usableSensor1, usableSensor2);
-
-    telemetry.addData("SpindexerDist1(cm)", sensor1DistanceCm);
-    telemetry.addData("SpindexerDist2(cm)", sensor2DistanceCm);
-    telemetry.addData("SpindexerClosest(cm)", closestDistance);
-
-    if (closestDistance <= OBJECT_DETECTION_RANGE_CM) {
-      telemetry.addData("ObjectDetected", true);
-      return Distance.LOADED;
-    }
-
-    telemetry.addData("ObjectDetected", false);
-    return Distance.EMPTY;
   }
 
   public void runOpMode() throws InterruptedException {
@@ -101,17 +75,15 @@ public class LimeComp extends LinearOpMode {
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    SpindexerSensor1 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(ColorRangeSensor.class, "spindexer_colour_2");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(7); // Switch to pipeline number 0
+    limelight.pipelineSwitch(0); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
-    ShooterBack.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
-    ShooterFront.setVelocityPIDFCoefficients(Constants.PID_P, Constants.PID_I, Constants.PID_D, 0);
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
 
     telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
@@ -167,11 +139,14 @@ public class LimeComp extends LinearOpMode {
     boolean fieldCentricMode = true;
     double fieldCentricTimer = 0;
     int cyclesAtSpeed = 0;
+    boolean resetLast = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
+    resetPinpointAndWaitForReady();
+
     telemetry.addData("Status", "Initialized");
     telemetry.update();
 
@@ -193,6 +168,8 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
+      ShooterPidTuning.applyTo(ShooterFront);
+      ShooterPidTuning.applyTo(ShooterBack);
 
       double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
       double rawStrafe = -gamepad1.left_stick_x;
@@ -214,17 +191,21 @@ public class LimeComp extends LinearOpMode {
 
      // FlapPos = gamepad2.left_stick_y;
 
-      if (gamepad1.x) {
+      if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
         Turn /= Constants.brake;
       }
 
       if (gamepad1.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
-        imu.resetYaw();
-        pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
-        pinpoint.update();
+        if (!resetLast) {
+          //imu.resetYaw();
+          resetPinpointAndWaitForReady(); //resets the position to 0 and recalibrates the IMU
+          resetLast = true;
+        }
+      } else
+      {
+        resetLast = false;
       }
 
       if (gamepad1.right_stick_button) {
@@ -233,8 +214,8 @@ public class LimeComp extends LinearOpMode {
           for (FiducialResult fiducial : fiducials) {
             int id = fiducial.getFiducialId(); // The ID number of the fiducial
             if ((id == 20) || (id == 24)) {
-              double targetOffset = fiducial.getTargetXDegrees();
-              Turn = targetOffset / 20.0;
+              double targetOffset = -fiducial.getTargetXDegrees();
+              Turn = targetOffset / 35.0;
               if (Turn < -1) {Turn = -1;}
               if (Turn > 1) {Turn = 1;}
               if (Math.abs(Turn) < 0.05) {Turn = 0;}
@@ -271,11 +252,6 @@ public class LimeComp extends LinearOpMode {
 
      // Flap.setPosition(FlapPos);
 
-      Distance detectedDistance = getDetectedColor(telemetry);
-
-      if (gamepad1.y) {
-        pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
-      }
 
       if (gamepad1.dpad_up)
       {
@@ -326,20 +302,12 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (gamepad2.dpad_down) {
-        spindexerPower = spindexerBWD;
+        SpindxerServo.setPower(-1);
+      } else if (gamepad2.dpad_up) {
+        SpindxerServo.setPower(1);
       } else {
-        spindexerPower = spindexerFWD;
+        SpindxerServo.setPower(0);
       }
-
-      if (gamepad2.dpad_up) {
-        if (!spinToggleLast) {
-          spindexerToggle = !spindexerToggle;
-          spinToggleLast = true;
-        }
-      } else {
-        spinToggleLast = false;
-      }
-
 
       if (gamepad2.right_trigger > 0) {
         if (!inToggleLast) {
@@ -348,12 +316,6 @@ public class LimeComp extends LinearOpMode {
         }
       } else {
         inToggleLast = false;
-      }
-
-      if (spindexerToggle) {
-        SpindxerServo.setPower(spindexerPower);
-      } else {
-        SpindxerServo.setPower(0);
       }
 
       if (intakeToggle) {
@@ -401,7 +363,13 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.y)
       {
-        if (!highOverrideLast) {
+        if (!highOverrideLast && !lowOveride) {
+          highOveride = !highOveride;
+        }
+
+        if (!highOverrideLast && lowOveride)
+        {
+          lowOveride = !lowOveride;
           highOveride = !highOveride;
         }
         highOverrideLast = true;
@@ -411,8 +379,14 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.a)
       {
-        if (!lowOverrideLast) {
+        if (!lowOverrideLast && !highOveride) {
           lowOveride = !lowOveride;
+        }
+
+        if (!lowOverrideLast && highOveride)
+        {
+          lowOveride = !lowOveride;
+          highOveride = !highOveride;
         }
         lowOverrideLast = true;
       } else {
@@ -420,11 +394,11 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = 1580;
+       ShooterTarget = 660;
       }
 
       if (lowOveride) {
-        ShooterTarget = 1420;
+        ShooterTarget = 600;
       }
 
       if (shootSequence)
@@ -433,7 +407,91 @@ public class LimeComp extends LinearOpMode {
         ShooterBack.setVelocity(ShooterTarget);
         if (shooterStage == 1)
         {
-
+          spindexerToggle = false;
+          if (
+              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+             )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 2;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 2)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+          spindexerToggle = false;
+          shooterStage = 3;
+          }
+        }
+        if (shooterStage == 3)
+        {
+          if (
+                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+             )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 4;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 4)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+            spindexerToggle = false;
+            shooterStage = 5;
+          }
+        }
+        if (shooterStage == 5)
+        {
+          if (
+                  (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+                          (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+          )
+          {
+            cyclesAtSpeed ++;
+          } else {
+            cyclesAtSpeed = 0;
+          }
+          if (cyclesAtSpeed > 6) {
+            shooterStage = 6;
+            lastRuntime = getRuntime();
+          }
+        }
+        if (shooterStage == 6)
+        {
+          spindexerToggle = true;
+          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          {
+            spindexerToggle = false;
+            shooterStage = 7;
+          }
+        }
+        if (shooterStage == 7)
+        {
+          ShooterFront.setVelocity(0);
+          ShooterBack.setVelocity(0);
+        }
+        if (spindexerToggle)
+        {
+          SpindxerServo.setPower(1);
+        } else
+        {
+          SpindxerServo.setPower(0);
         }
       } else if (manualShooterRequest)
       {
@@ -454,6 +512,24 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("lowOveride", lowOveride);
       telemetry.update();
     }
+  }
+
+  private void resetPinpointAndWaitForReady() {
+    pinpoint.setHeading(0, AngleUnit.DEGREES);
+    pinpoint.update();
+//    if (pinpoint == null) {
+//      return;
+//    }
+//    pinpoint.resetPosAndIMU();
+//    pinpoint.setHeading(0, AngleUnit.DEGREES);
+//    telemetry.addLine("Calibrating Pinpoint...");
+//    telemetry.update();
+//    while (!isStopRequested() && pinpoint.getDeviceStatus() != GoBildaPinpointDriver.DeviceStatus.READY) {
+//      pinpoint.update();
+//      telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+//      telemetry.update();
+//      sleep(10);
+//    }
   }
 }
 
