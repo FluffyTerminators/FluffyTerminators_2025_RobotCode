@@ -184,10 +184,12 @@ public class LimeComp extends LinearOpMode {
       } else {
         telemetry.addData("Drive Mode","Robot Centric");
       }
-      telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
       telemetry.addData("Status", "Running");
       result = limelight.getLatestResult();
       pinpoint.update();
+      if (result != null && result.isValid()) {
+        telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+      }
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
