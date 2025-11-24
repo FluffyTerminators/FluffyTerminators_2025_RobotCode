@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 
-@Autonomous(name = "Leave Red")
+@Autonomous(name = "Goal Leave Red")
 @Configurable // Panels
 public class LeaveRed extends OpMode {
 

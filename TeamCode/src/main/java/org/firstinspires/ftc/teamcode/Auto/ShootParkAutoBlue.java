@@ -27,7 +27,7 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import java.util.List;
 
-@Autonomous(name = "Shoot & Park Blue")
+@Autonomous(name = "FrontB Shoot & Park")
 @Configurable // Panels
 public class ShootParkAutoBlue extends OpMode
 {

@@ -197,7 +197,7 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad1.left_bumper) {
         if (!resetLast) {
-          imu.resetYaw();
+          //imu.resetYaw();
           resetPinpointAndWaitForReady(); //resets the position to 0 and recalibrates the IMU
           resetLast = true;
         }
@@ -361,7 +361,13 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.y)
       {
-        if (!highOverrideLast) {
+        if (!highOverrideLast && !lowOveride) {
+          highOveride = !highOveride;
+        }
+
+        if (!highOverrideLast && lowOveride)
+        {
+          lowOveride = !lowOveride;
           highOveride = !highOveride;
         }
         highOverrideLast = true;
@@ -371,8 +377,14 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.a)
       {
-        if (!lowOverrideLast) {
+        if (!lowOverrideLast && !highOveride) {
           lowOveride = !lowOveride;
+        }
+
+        if (!lowOverrideLast && highOveride)
+        {
+          lowOveride = !lowOveride;
+          highOveride = !highOveride;
         }
         lowOverrideLast = true;
       } else {
@@ -380,7 +392,7 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = 720;
+       ShooterTarget = 660;
       }
 
       if (lowOveride) {
