@@ -63,8 +63,6 @@ public class LimelightTest extends LinearOpMode {
 
 
   // Colour Sensors
-  public NormalizedColorSensor SpindexerSensor1;
-  public NormalizedColorSensor SpindexerSensor2;
   public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0);
 
   public Limelight3A limelight;
@@ -73,25 +71,6 @@ public class LimelightTest extends LinearOpMode {
     GREEN,
     PURPLE,
     UNKNOWN,
-  }
-
-  public DetectedColour getDetectedColor(Telemetry telemetry) {
-    NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
-    NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
-
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
-    normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors2.alpha;
-    normBlue2 = colors2.blue / colors2.alpha;
-    normGreen2 = colors2.green / colors2.alpha;
-
-    telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
-    telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
-    telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
-
-    return DetectedColour.UNKNOWN;
   }
 
   public void runOpMode() throws InterruptedException {
@@ -108,13 +87,11 @@ public class LimelightTest extends LinearOpMode {
     imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(7); // Switch to pipeline number 0
+    limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
     ShooterPidTuning.applyTo(ShooterFront);
@@ -141,7 +118,7 @@ public class LimelightTest extends LinearOpMode {
     double Heading = 0;
     boolean intakeToggle = false;
     boolean shooterToggle = false;
-    boolean spindexerToggle = true;
+    boolean spindexerToggle = false;
     double spindexerPower = spindexerFWD;
     boolean spinToggleLast = false;
     boolean inToggleLast = false;
@@ -235,9 +212,6 @@ public class LimelightTest extends LinearOpMode {
       telemetry.addData("BRDrive_Actual", bRDrive.getPower());
       telemetry.addData("BLDrive_Actual", bLDrive.getPower());
 
-
-      DetectedColour Colour = getDetectedColor(telemetry);
-
       if (gamepad1.b) {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
@@ -257,7 +231,7 @@ public class LimelightTest extends LinearOpMode {
         spindexerPower = spindexerFWD;
       }
 
-      if (gamepad2.x) {
+      if (gamepad1.left_bumper) {
         if (!spinToggleLast) {
           spindexerToggle = !spindexerToggle;
           spinToggleLast = true;

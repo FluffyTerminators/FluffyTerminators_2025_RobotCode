@@ -124,7 +124,7 @@ public class FrontPreloadBlueNew extends OpMode {
     lastRunTime = getRuntime();
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(7); // Switch to pipeline number 0
+    limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

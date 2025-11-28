@@ -15,10 +15,10 @@ import java.util.WeakHashMap;
 public final class ShooterPidTuning {
 
     /** Default values aligned with existing shooter PID settings; adjust live from Panels. */
-    public static double velocityKp = 35.0; // REV 2018-2019 PIDF Kp = 1.17
-    public static double velocityKi = 5.0;  // REV 2018-2019 PIDF Ki = 0.117
-    public static double velocityKd = 47.0; // REV 2018-2019 PIDF Kd = 0.0
-    public static double velocityKf = 0.0;  // REV 2018-2019 PIDF Kf = 11.7
+    public static double velocityKp = 20.0; // REV 2018-2019 PIDF Kp = 1.17
+    public static double velocityKi = 0.5;  // REV 2018-2019 PIDF Ki = 0.117
+    public static double velocityKd = 0.0; // REV 2018-2019 PIDF Kd = 0.0
+    public static double velocityKf = 16.0;  // REV 2018-2019 PIDF Kf = 11.7
 
     private static final Map<DcMotorEx, PIDFCoefficients> appliedCoefficients = new WeakHashMap<>();
     private static final double EPSILON = 1e-6;

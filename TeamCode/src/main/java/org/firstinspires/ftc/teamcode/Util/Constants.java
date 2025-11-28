@@ -89,6 +89,7 @@ public class Constants
     public static final double PID_P = 35.0;
     public static final double PID_I = 5.0;
     public static final double PID_D = 47.0;
+    public static final int LLPipeline = 7;
 
     public static class HardwareMappings {
         // Hubs
