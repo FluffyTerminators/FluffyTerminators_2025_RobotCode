@@ -31,6 +31,10 @@ import static org.firstinspires.ftc.teamcode.Util.Constants.ShooterCal.*;
 
 import java.util.Collections;
 import java.util.List;
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.graph.GraphEntry;
 
 
 //Download Missing Files
@@ -172,6 +176,7 @@ public class LimelightTest extends LinearOpMode {
       ShooterFspeed = ShooterFront.getVelocity();
       ShooterBspeed = ShooterBack.getVelocity();
 
+
       if (gamepad1.right_bumper) {
         Forward /= Constants.brake;
         Strafe /= Constants.brake;
@@ -179,7 +184,6 @@ public class LimelightTest extends LinearOpMode {
       }
 
       if (gamepad1.left_bumper) {
-        imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
         imu.resetYaw();
         pinpoint.resetPosAndIMU(); //resets the position to 0 and recalibrates the IMU
         pinpoint.setHeading(0, AngleUnit.DEGREES);
@@ -216,14 +220,14 @@ public class LimelightTest extends LinearOpMode {
         pinpoint.recalibrateIMU(); //recalibrates the IMU without resetting position
       }
 
-      if (gamepad2.left_bumper) {
+   /*   if (gamepad2.left_bumper) {
         if (shootSequence) {
           shootSequence = false;
         } else {
           shootSequence = true;
           shooterStage = 1; // 1 - spinning up/deploy , 2 - load artifact , 3 - fire , 4 - spin down/park
         }
-      }
+      } */
 
       if (gamepad2.b) {
         spindexerPower = spindexerBWD;
@@ -231,7 +235,7 @@ public class LimelightTest extends LinearOpMode {
         spindexerPower = spindexerFWD;
       }
 
-      if (gamepad1.left_bumper) {
+      if (gamepad2.left_bumper) {
         if (!spinToggleLast) {
           spindexerToggle = !spindexerToggle;
           spinToggleLast = true;
@@ -241,7 +245,7 @@ public class LimelightTest extends LinearOpMode {
       }
 
 
-      if (gamepad2.right_bumper) {
+       if (gamepad2.x) {
         if (!inToggleLast) {
           intakeToggle = !intakeToggle;
           inToggleLast = true;
@@ -264,11 +268,11 @@ public class LimelightTest extends LinearOpMode {
       } else {
         Shooter.setPower(0);
       } */
-      if (gamepad1.dpad_up) {
+      if (gamepad2.dpad_up) {
         ShooterTarget += 20;
       }
 
-      if (gamepad1.dpad_down) {
+      if (gamepad2.dpad_down) {
         ShooterTarget -= 20;
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
@@ -355,7 +359,7 @@ public class LimelightTest extends LinearOpMode {
         ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       } */
 
-      if (gamepad1.right_bumper) {
+      if (gamepad2.right_bumper) {
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
       } else
@@ -365,6 +369,8 @@ public class LimelightTest extends LinearOpMode {
       }
 
       telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("ShooterFront PID?", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("ShooterBack PID?", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
       telemetry.update();
     }
   }
