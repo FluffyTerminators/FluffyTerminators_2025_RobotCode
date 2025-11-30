@@ -37,6 +37,8 @@ public final class ShooterPidTuning {
         // Pull the live coefficients from the hub so we can recover if the hub resets mid‑match.
         PIDFCoefficients current = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         if (!coefficientsEqual(current, desired)) {
+            // Use both velocity-specific and general setters to catch SDK/hub quirks.
+            motor.setVelocityPIDFCoefficients(velocityKp, velocityKi, velocityKd, velocityKf);
             motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, desired);
         }
         current = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
