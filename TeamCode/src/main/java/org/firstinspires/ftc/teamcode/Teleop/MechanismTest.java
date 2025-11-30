@@ -81,6 +81,8 @@ public class MechanismTest extends LinearOpMode {
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+    TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
+
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
     double Forward = 0;
@@ -163,6 +165,8 @@ public class MechanismTest extends LinearOpMode {
         downLast = false;
       }
       telemetry.addData("ShooterTarget", ShooterTarget);
+      panels.addData("TargetSpeed",ShooterTarget);
+
 
       if (gamepad1.left_bumper)
       {
@@ -227,7 +231,7 @@ public class MechanismTest extends LinearOpMode {
 
       if (gamepad1.y)
       {
-        if (!bLast) {
+        if (!yLast) {
           if (!gamepad1.dpad_left) {
             F = F + 0.1;
           } else {
@@ -254,8 +258,11 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
       telemetry.addData("Flap Servo Set Position: ",flapPos);*/
       telemetry.addData("Shooter Front (ticks/sec): ",ShooterFspeed);
+      panels.addData("FrontSpeed",ShooterFspeed);
       telemetry.addData("Shooter Back (ticks/sec): ",ShooterBspeed);
+      panels.addData("BackSpeed",ShooterBspeed);
       telemetry.addData("ShooterPower", ShooterPower);
+      panels.update();
       telemetry.update();
     }
   }

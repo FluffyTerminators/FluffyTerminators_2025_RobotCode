@@ -76,8 +76,6 @@ public class LimeComp extends LinearOpMode {
     FrontSuccess = ShooterPidTuning.applyTo(ShooterFront);
     BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
 
-    telemetry.addData("FrontSuccess", FrontSuccess);
-    telemetry.addData("BackSuccess", BackSuccess);
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
@@ -522,8 +520,10 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("Shooter Stage", shooterStage);
       telemetry.addData("highOveride", highOveride);
       telemetry.addData("lowOveride", lowOveride);
-      telemetry.addData("Shooter Front PID", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
-      telemetry.addData("Shooter Back PID", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
+      telemetry.addData("Shooter Front PID", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("Shooter Back PID", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("FrontSuccess", FrontSuccess);
+      telemetry.addData("BackSuccess", BackSuccess);
       telemetry.update();
     }
   }
