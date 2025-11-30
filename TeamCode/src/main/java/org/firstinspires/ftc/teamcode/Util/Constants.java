@@ -83,12 +83,6 @@ public class Constants
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double brake = 2;
-    public static final double flapUp = 0.5175;
-    public static final double flapDeploy = 0.4665;
-    public static final double flapDown = 0.42;
-    public static final double PID_P = 35.0;
-    public static final double PID_I = 5.0;
-    public static final double PID_D = 47.0;
     public static final int LLPipeline = 7;
 
     public static class HardwareMappings {
@@ -123,8 +117,8 @@ public class Constants
 
     public static class ShooterCal
     {
-        private static final double[] distance     = {0.0, 0.55, 0.6, 1.0, 1.3, 1.7, 2.0, 2.7};
-        private static final double[] shooterTicks = {500, 500, 500, 500, 500, 580, 600, 700};
+        private static final double[] distance     = {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
+        private static final double[] shooterTicks = {540, 540, 560, 580, 600, 620, 640, 740, 760};
 
 
 

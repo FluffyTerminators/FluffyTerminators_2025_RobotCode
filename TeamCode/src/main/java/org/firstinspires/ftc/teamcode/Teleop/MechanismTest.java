@@ -107,9 +107,11 @@ public class MechanismTest extends LinearOpMode {
     double P;
     double I;
     double D;
+    double F;
     boolean aLast = false;
     boolean bLast = false;
     boolean xLast = false;
+    boolean yLast = false;
     boolean upLast = false;
     boolean downLast = false;
 
@@ -121,6 +123,7 @@ public class MechanismTest extends LinearOpMode {
     P = ShooterPidTuning.velocityKp;
     I = ShooterPidTuning.velocityKi;
     D = ShooterPidTuning.velocityKd;
+    F = ShooterPidTuning.velocityKf;
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -182,7 +185,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.x)
       {
         if (!xLast) {
-          if (!gamepad1.right_stick_button) {
+          if (!gamepad1.dpad_left) {
             P = P + 0.1;
           } else {
             P -= 0.1;
@@ -196,7 +199,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.a)
       {
         if (!aLast) {
-          if (!gamepad1.right_stick_button) {
+          if (!gamepad1.dpad_left) {
             I = I + 0.1;
           } else {
             I -= 0.1;
@@ -210,7 +213,7 @@ public class MechanismTest extends LinearOpMode {
       if (gamepad1.b)
       {
         if (!bLast) {
-          if (!gamepad1.right_stick_button) {
+          if (!gamepad1.dpad_left) {
             D = D + 0.1;
           } else {
             D -= 0.1;
@@ -221,6 +224,21 @@ public class MechanismTest extends LinearOpMode {
       } else {
         bLast = false;
       }
+
+      if (gamepad1.y)
+      {
+        if (!bLast) {
+          if (!gamepad1.dpad_left) {
+            F = F + 0.1;
+          } else {
+            F -= 0.1;
+          }
+          ShooterPidTuning.velocityKf = F;
+        }
+        yLast = true;
+      } else {
+        yLast = false;
+      }
       ShooterPidTuning.applyTo(ShooterFront);
       ShooterPidTuning.applyTo(ShooterBack);
 
@@ -229,6 +247,7 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("P", P);
       telemetry.addData("I", I);
       telemetry.addData("D", D);
+      telemetry.addData("F", F);
       /*telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
       telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());

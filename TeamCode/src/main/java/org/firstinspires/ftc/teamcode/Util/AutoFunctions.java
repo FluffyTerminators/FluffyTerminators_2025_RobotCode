@@ -116,7 +116,7 @@ public class AutoFunctions
     }
     if (shooterState == 2)
     {
-      flap.setPosition(Constants.flapDeploy);
+
       if (linearOpMode.getRuntime() == spinUpTime + 0.5)
       {
         shooterState = 3;
@@ -132,7 +132,6 @@ public class AutoFunctions
     }
     if (shooterState == 4)
     {
-      flap.setPosition(Constants.flapUp);
       if (shooterMotor.getVelocity() > shooterVel)
       {
         shooterState = -1;

@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 
@@ -76,14 +74,15 @@ public class LimeComp extends LinearOpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
     limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
-    ShooterPidTuning.applyTo(ShooterFront);
-    ShooterPidTuning.applyTo(ShooterBack);
+
 
     telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
@@ -249,7 +248,8 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("FLDrive_Actual", fLDrive.getPower());
       telemetry.addData("BRDrive_Actual", bRDrive.getPower());
       telemetry.addData("BLDrive_Actual", bLDrive.getPower());
-
+      ShooterPidTuning.applyTo(ShooterFront);
+      ShooterPidTuning.applyTo(ShooterBack);
      // Flap.setPosition(FlapPos);
 
 
@@ -403,8 +403,6 @@ public class LimeComp extends LinearOpMode {
 
       if (shootSequence)
       {
-        ShooterPidTuning.applyTo(ShooterFront);
-        ShooterPidTuning.applyTo(ShooterBack);
 
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
@@ -486,8 +484,6 @@ public class LimeComp extends LinearOpMode {
         }
         if (shooterStage == 7)
         {
-          ShooterPidTuning.applyTo(ShooterFront);
-          ShooterPidTuning.applyTo(ShooterBack);
           ShooterFront.setVelocity(0);
           ShooterBack.setVelocity(0);
         }
@@ -502,13 +498,10 @@ public class LimeComp extends LinearOpMode {
       {
         ShooterPidTuning.applyTo(ShooterFront);
         ShooterPidTuning.applyTo(ShooterBack);
-
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
       } else
       {
-        ShooterPidTuning.applyTo(ShooterFront);
-        ShooterPidTuning.applyTo(ShooterBack);
 
         ShooterFront.setVelocity(0);
         ShooterBack.setVelocity(0);
@@ -521,6 +514,8 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("Shooter Stage", shooterStage);
       telemetry.addData("highOveride", highOveride);
       telemetry.addData("lowOveride", lowOveride);
+      telemetry.addData("Shooter Front PID", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
+      telemetry.addData("Shooter Back PID", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
       telemetry.update();
     }
   }

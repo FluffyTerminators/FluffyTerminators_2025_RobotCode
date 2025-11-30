@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapDeploy;
-import static org.firstinspires.ftc.teamcode.Util.Constants.flapUp;
 import static org.firstinspires.ftc.teamcode.Util.Tuning.follower;
 
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
@@ -143,7 +141,6 @@ public class PinpointTest extends LinearOpMode {
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    Flap.setPosition(flapUp);
     follower = Constants.PEDROConstants.createFollower(hardwareMap);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
@@ -265,7 +262,6 @@ public class PinpointTest extends LinearOpMode {
       {
         if (shooterStage == 1)
         {
-          Flap.setPosition(flapDeploy);
           shooterToggle = true;
 
         if (Shooter.getPower() == 1) {
@@ -274,7 +270,7 @@ public class PinpointTest extends LinearOpMode {
         }
         if (shooterStage == 2)
         {
-          Flap.setPosition(flapUp);
+
           if (Shooter.getPower() < 1)
           {
             shooterStage = 3;
@@ -282,7 +278,7 @@ public class PinpointTest extends LinearOpMode {
         }
         if (shooterStage == 3)
         {
-          Flap.setPosition(flapUp);
+
           shooterStage = 4;
         }
         if (shooterStage == 4)
@@ -294,7 +290,6 @@ public class PinpointTest extends LinearOpMode {
       else
       {
         shooterToggle = false;
-        Flap.setPosition(flapUp);
       }
 
      /* if (spindexerToggle) {

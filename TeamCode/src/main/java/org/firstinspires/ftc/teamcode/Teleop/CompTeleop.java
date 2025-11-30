@@ -141,7 +141,6 @@ public class CompTeleop extends LinearOpMode {
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
     pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
     pinpoint.setEncoderDirections(GoBildaPinpointDriver.EncoderDirection.FORWARD, GoBildaPinpointDriver.EncoderDirection.FORWARD);
-    Flap.setPosition(flapUp);
     telemetry.addData("Status", "Initialized");
     telemetry.update();
     waitForStart();
@@ -254,14 +253,6 @@ public class CompTeleop extends LinearOpMode {
       } else
       {
         inToggleLast = false;
-      }
-
-      if (gamepad2.left_bumper)
-      {
-        Flap.setPosition(flapDeploy);
-      } else
-      {
-        Flap.setPosition(flapUp);
       }
 
 
