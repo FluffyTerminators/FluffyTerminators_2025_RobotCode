@@ -79,7 +79,7 @@ public class LimeComp extends LinearOpMode {
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
-    limelight.pipelineSwitch(0); // Switch to pipeline number 0
+    limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
 
     LLResult result = limelight.getLatestResult();
     ShooterPidTuning.applyTo(ShooterFront);
@@ -403,6 +403,9 @@ public class LimeComp extends LinearOpMode {
 
       if (shootSequence)
       {
+        ShooterPidTuning.applyTo(ShooterFront);
+        ShooterPidTuning.applyTo(ShooterBack);
+
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
         if (shooterStage == 1)
@@ -483,6 +486,8 @@ public class LimeComp extends LinearOpMode {
         }
         if (shooterStage == 7)
         {
+          ShooterPidTuning.applyTo(ShooterFront);
+          ShooterPidTuning.applyTo(ShooterBack);
           ShooterFront.setVelocity(0);
           ShooterBack.setVelocity(0);
         }
@@ -495,10 +500,16 @@ public class LimeComp extends LinearOpMode {
         }
       } else if (manualShooterRequest)
       {
+        ShooterPidTuning.applyTo(ShooterFront);
+        ShooterPidTuning.applyTo(ShooterBack);
+
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
       } else
       {
+        ShooterPidTuning.applyTo(ShooterFront);
+        ShooterPidTuning.applyTo(ShooterBack);
+
         ShooterFront.setVelocity(0);
         ShooterBack.setVelocity(0);
         shooterStage = 1;

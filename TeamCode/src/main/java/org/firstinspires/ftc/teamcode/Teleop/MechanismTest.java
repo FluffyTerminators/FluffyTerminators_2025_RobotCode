@@ -57,35 +57,6 @@ public class MechanismTest extends LinearOpMode {
   //public CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
   public CRServo SpindxerServo;
 
-  // Colour Sensors
-  public NormalizedColorSensor SpindexerSensor1;
-  public NormalizedColorSensor SpindexerSensor2;
-
-  public enum DetectedColour {
-    GREEN,
-    PURPLE,
-    UNKNOWN,
-  }
-
-  public DetectedColour getDetectedColor(Telemetry telemetry) {
-    NormalizedRGBA colors1 = SpindexerSensor1.getNormalizedColors(); // returns Red, Green, Blue, and Alpha
-    NormalizedRGBA colors2 = SpindexerSensor2.getNormalizedColors();
-
-    float normRed1, normBlue1, normGreen1, normRed2, normBlue2, normGreen2, AverageSpinRed, AverageSpinBlue, AverageSpinGreen;
-    normRed1 = colors1.red / colors1.alpha;
-    normGreen1 = colors1.blue / colors1.alpha;
-    normBlue1 = colors1.green / colors1.alpha;
-    normRed2 = colors2.red / colors2.alpha;
-    normBlue2 = colors2.blue / colors2.alpha;
-    normGreen2 = colors2.green / colors2.alpha;
-
-    telemetry.addData("AverageSpinRed", (normRed1 + normRed2) / 2);
-    telemetry.addData("AverageSpinBlue", (normBlue1 + normBlue2) / 2);
-    telemetry.addData("AverageSpinGreen", (normGreen1 + normGreen2) / 2);
-
-    return DetectedColour.UNKNOWN;
-  }
-
   public void runOpMode() throws InterruptedException {
     //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
     //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
@@ -99,8 +70,6 @@ public class MechanismTest extends LinearOpMode {
     imu = hardwareMap.get(IMU.class,  "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
-    SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
-    SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
