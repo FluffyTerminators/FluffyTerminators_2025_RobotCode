@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.Teleop;
 
-import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerBWD;
 import static org.firstinspires.ftc.teamcode.Util.Constants.spindexerFWD;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
@@ -10,15 +9,12 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
-import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -57,6 +53,9 @@ public class LimeComp extends LinearOpMode {
 
   public Limelight3A limelight;
 
+  private boolean FrontSuccess;
+  private boolean BackSuccess;
+
   public enum Distance {
     LOADED,
     EMPTY
@@ -74,8 +73,8 @@ public class LimeComp extends LinearOpMode {
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
     SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
     limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-    ShooterPidTuning.applyTo(ShooterFront);
-    ShooterPidTuning.applyTo(ShooterBack);
+    FrontSuccess = ShooterPidTuning.applyTo(ShooterFront);
+    BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
 
     limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
     limelight.start(); // This tells Limelight to start looking!
@@ -167,8 +166,12 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
       Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
       telemetry.addData("Heading", Math.toDegrees(Heading));
-      ShooterPidTuning.applyTo(ShooterFront);
-      ShooterPidTuning.applyTo(ShooterBack);
+      if (!FrontSuccess) {
+        FrontSuccess = ShooterPidTuning.applyTo(ShooterFront);
+      }
+      if (!BackSuccess) {
+        BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
+      }
 
       double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
       double rawStrafe = -gamepad1.left_stick_x;
@@ -248,9 +251,7 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("FLDrive_Actual", fLDrive.getPower());
       telemetry.addData("BRDrive_Actual", bRDrive.getPower());
       telemetry.addData("BLDrive_Actual", bLDrive.getPower());
-      ShooterPidTuning.applyTo(ShooterFront);
-      ShooterPidTuning.applyTo(ShooterBack);
-     // Flap.setPosition(FlapPos);
+      // Flap.setPosition(FlapPos);
 
 
       if (gamepad1.dpad_up)
@@ -496,8 +497,12 @@ public class LimeComp extends LinearOpMode {
         }
       } else if (manualShooterRequest)
       {
-        ShooterPidTuning.applyTo(ShooterFront);
-        ShooterPidTuning.applyTo(ShooterBack);
+        if (!FrontSuccess) {
+          FrontSuccess = ShooterPidTuning.applyTo(ShooterFront);
+        }
+        if (!BackSuccess) {
+          BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
+        }
         ShooterFront.setVelocity(ShooterTarget);
         ShooterBack.setVelocity(ShooterTarget);
       } else

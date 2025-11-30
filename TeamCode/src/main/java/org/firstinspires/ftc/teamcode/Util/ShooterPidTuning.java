@@ -28,9 +28,9 @@ public final class ShooterPidTuning {
     }
 
     /** Applies the currently configured PIDF values to the provided shooter motor. */
-    public static void applyTo(DcMotorEx motor) {
+    public static boolean applyTo(DcMotorEx motor) {
         if (motor == null) {
-            return;
+            return false;
         }
 
         PIDFCoefficients desired = new PIDFCoefficients(velocityKp, velocityKi, velocityKd, velocityKf, PIDF);
@@ -39,6 +39,8 @@ public final class ShooterPidTuning {
         if (!coefficientsEqual(current, desired)) {
             motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, desired);
         }
+        current = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
+        return coefficientsEqual(current,desired);
     }
 
     private static boolean coefficientsEqual(PIDFCoefficients a, PIDFCoefficients b) {
