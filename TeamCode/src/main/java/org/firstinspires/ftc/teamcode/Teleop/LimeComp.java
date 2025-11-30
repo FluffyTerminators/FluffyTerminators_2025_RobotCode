@@ -97,6 +97,9 @@ public class LimeComp extends LinearOpMode {
     ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    // Apply tuned PIDF once the mode is set so the hub will accept the values.
+    ShooterPidTuning.applyTo(ShooterFront);
+    ShooterPidTuning.applyTo(ShooterBack);
 
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
@@ -522,8 +525,8 @@ public class LimeComp extends LinearOpMode {
       telemetry.addData("Shooter Stage", shooterStage);
       telemetry.addData("highOveride", highOveride);
       telemetry.addData("lowOveride", lowOveride);
-      telemetry.addData("Shooter Front PID", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
-      telemetry.addData("Shooter Back PID", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION));
+      telemetry.addData("Shooter Front PID", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
+      telemetry.addData("Shooter Back PID", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
       telemetry.update();
     }
   }
