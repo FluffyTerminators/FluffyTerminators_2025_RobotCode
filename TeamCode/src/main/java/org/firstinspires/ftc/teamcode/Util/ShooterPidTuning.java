@@ -3,12 +3,10 @@ package org.firstinspires.ftc.teamcode.Util;
 import static com.qualcomm.robotcore.hardware.MotorControlAlgorithm.PIDF;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.MotorControlAlgorithm;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
-
-import java.util.Map;
-import java.util.WeakHashMap;
 
 /**
  * Centralizes the shooter PIDF coefficients so they can be tweaked live from Panels.
@@ -23,7 +21,6 @@ public final class ShooterPidTuning {
     public static double velocityKd = 0.0; // REV 2018-2019 PIDF Kd = 0.0
     public static double velocityKf = 16.0;  // REV 2018-2019 PIDF Kf = 11.7
 
-    private static final Map<DcMotorEx, PIDFCoefficients> appliedCoefficients = new WeakHashMap<>();
     private static final double EPSILON = 1e-6;
 
     private ShooterPidTuning() {
@@ -37,10 +34,10 @@ public final class ShooterPidTuning {
         }
 
         PIDFCoefficients desired = new PIDFCoefficients(velocityKp, velocityKi, velocityKd, velocityKf, PIDF);
-        PIDFCoefficients current = appliedCoefficients.get(motor);
+        // Pull the live coefficients from the hub so we can recover if the hub resets mid‑match.
+        PIDFCoefficients current = motor.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER);
         if (!coefficientsEqual(current, desired)) {
-            motor.setVelocityPIDFCoefficients(velocityKp, velocityKi, velocityKd, velocityKf);
-            appliedCoefficients.put(motor, desired);
+            motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, desired);
         }
     }
 
@@ -55,6 +52,7 @@ public final class ShooterPidTuning {
         return Math.abs(a.p - b.p) < EPSILON
                 && Math.abs(a.i - b.i) < EPSILON
                 && Math.abs(a.d - b.d) < EPSILON
-                && Math.abs(a.f - b.f) < EPSILON;
+                && Math.abs(a.f - b.f) < EPSILON
+                && a.algorithm == b.algorithm;
     }
 }
