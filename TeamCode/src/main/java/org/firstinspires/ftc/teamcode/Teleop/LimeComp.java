@@ -242,18 +242,18 @@ public class LimeComp extends LinearOpMode {
 
 
       fLDrive.setPower(frontLeftPower);
-      telemetry.addData("FLDrive", frontLeftPower);
+      //telemetry.addData("FLDrive", frontLeftPower);
       bLDrive.setPower(backLeftPower);
-      telemetry.addData("BLDrive", backLeftPower);
+      //telemetry.addData("BLDrive", backLeftPower);
       fRDrive.setPower(frontRightPower);
-      telemetry.addData("FRDrive", frontRightPower);
+      //telemetry.addData("FRDrive", frontRightPower);
       bRDrive.setPower(backRightPower);
-      telemetry.addData("BRDrive", backRightPower);
+      //telemetry.addData("BRDrive", backRightPower);
 
-      telemetry.addData("FRDrive_Actual", fRDrive.getPower());
-      telemetry.addData("FLDrive_Actual", fLDrive.getPower());
-      telemetry.addData("BRDrive_Actual", bRDrive.getPower());
-      telemetry.addData("BLDrive_Actual", bLDrive.getPower());
+      //telemetry.addData("FRDrive_Actual", fRDrive.getPower());
+      //telemetry.addData("FLDrive_Actual", fLDrive.getPower());
+      //telemetry.addData("BRDrive_Actual", bRDrive.getPower());
+      //telemetry.addData("BLDrive_Actual", bLDrive.getPower());
       // Flap.setPosition(FlapPos);
 
 
@@ -367,13 +367,9 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.y)
       {
-        if (!highOverrideLast && !lowOveride) {
-          highOveride = !highOveride;
-        }
-
-        if (!highOverrideLast && lowOveride)
+        if (!highOverrideLast)
         {
-          lowOveride = !lowOveride;
+          lowOveride = false;
           highOveride = !highOveride;
         }
         highOverrideLast = true;
@@ -383,14 +379,10 @@ public class LimeComp extends LinearOpMode {
 
       if (gamepad2.a)
       {
-        if (!lowOverrideLast && !highOveride) {
-          lowOveride = !lowOveride;
-        }
-
-        if (!lowOverrideLast && highOveride)
+        if (!lowOverrideLast)
         {
           lowOveride = !lowOveride;
-          highOveride = !highOveride;
+          highOveride = false;
         }
         lowOverrideLast = true;
       } else {
@@ -398,11 +390,11 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = 660;
+       ShooterTarget = Constants.ShooterCal.High_Overrride_Speed;
       }
 
       if (lowOveride) {
-        ShooterTarget = 600;
+        ShooterTarget = Constants.ShooterCal.Low_Override_Speed;
       }
 
       if (shootSequence)
@@ -464,8 +456,8 @@ public class LimeComp extends LinearOpMode {
         if (shooterStage == 5)
         {
           if (
-                  (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                          (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
+              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
+              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
           )
           {
             cyclesAtSpeed ++;
