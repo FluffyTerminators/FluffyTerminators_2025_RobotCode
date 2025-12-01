@@ -19,7 +19,7 @@ public final class ShooterPidTuning {
     //public static double velocityKp = 20.0; // REV 2018-2019 PIDF Kp = 1.17
     public static double velocityKp = 34.0; // REV 2018-2019 PIDF Kp = 1.17
     //public static double velocityKi = 0.0;  // REV 2018-2019 PIDF Ki = 0.117
-    public static double velocityKi = 0.0;  // REV 2018-2019 PIDF Ki = 0.117
+    public static double velocityKi = 0.2;  // REV 2018-2019 PIDF Ki = 0.117
     //public static double velocityKd = 0.0; // REV 2018-2019 PIDF Kd = 0.0
     public static double velocityKd = 0.2; // REV 2018-2019 PIDF Kd = 0.0
     //public static double velocityKf = 18.0;  // REV 2018-2019 PIDF Kf = 11.7

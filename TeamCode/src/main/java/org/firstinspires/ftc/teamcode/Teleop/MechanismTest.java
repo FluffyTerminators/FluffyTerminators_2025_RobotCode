@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.Teleop;
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.bylazar.graph.GraphManager;
+import com.bylazar.graph.GraphEntry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -82,6 +84,7 @@ public class MechanismTest extends LinearOpMode {
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
+    //GraphManager graph = new GraphManager();
 
     imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
@@ -261,6 +264,7 @@ public class MechanismTest extends LinearOpMode {
       panels.addData("FrontSpeed",ShooterFspeed);
       telemetry.addData("Shooter Back (ticks/sec): ",ShooterBspeed);
       panels.addData("BackSpeed",ShooterBspeed);
+
       telemetry.addData("ShooterPower", ShooterPower);
       panels.update();
       telemetry.update();
