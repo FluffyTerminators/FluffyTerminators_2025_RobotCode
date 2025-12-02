@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
@@ -126,8 +127,10 @@ public class LimeComp extends LinearOpMode {
     boolean Last2DL = false;
     boolean Last2DD = false;
     double ShooterTarget = 0;
-    double ShooterFspeed;
-    double ShooterBspeed;
+    double ShooterFspeed = 0;
+    double ShooterFTarget = 0;
+    double ShooterBspeed = 0;
+    double ShooterBTarget = 0;
     double FlapPos;
     boolean shooterLast = false;
     boolean lowOveride = false;
@@ -161,6 +164,18 @@ public class LimeComp extends LinearOpMode {
         telemetry.addData("Drive Mode","Robot Centric");
       }
       telemetry.addData("Status", "Running");
+      if (shootSequence) {
+        if (
+              (ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))&&(ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
+              &&(ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))&&(ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
+        ) {
+          telemetry.addData("Shooter Status","*** Ready ***");
+        } else {
+          telemetry.addData("Shooter Status","Spinning up...");
+        }
+      } else {
+        telemetry.addData("Shooter Staus"," Idle ");
+      }
       result = limelight.getLatestResult();
       pinpoint.update();
       if (result != null && result.isValid()) {
@@ -390,31 +405,32 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = Constants.ShooterCal.High_Overrride_Speed;
+       ShooterTarget = Constants.High_Overrride_Speed;
       }
 
       if (lowOveride) {
-        ShooterTarget = Constants.ShooterCal.Low_Override_Speed;
+        ShooterTarget = Constants.Low_Override_Speed;
       }
 
       if (shootSequence)
       {
-
-        ShooterFront.setVelocity(ShooterTarget);
-        ShooterBack.setVelocity(ShooterTarget);
+        ShooterFTarget = ShooterTarget * 0.9;
+        ShooterBTarget = ShooterTarget * 1.1;
+        ShooterFront.setVelocity(ShooterFTarget);
+        ShooterBack.setVelocity(ShooterBTarget);
+        if (
+            (ShooterFront.getVelocity() > ShooterFTarget - Constants.Shooter_Speed_Tolerance) && (ShooterFront.getVelocity() < ShooterFTarget + Constants.Shooter_Speed_Tolerance) &&
+            (ShooterBack.getVelocity() > ShooterBTarget - Constants.Shooter_Speed_Tolerance) && (ShooterBack.getVelocity() < ShooterBTarget + Constants.Shooter_Speed_Tolerance)
+        )
+        {
+          cyclesAtSpeed ++;
+        } else {
+          cyclesAtSpeed = 0;
+        }
         if (shooterStage == 1)
         {
           spindexerToggle = false;
-          if (
-              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-             )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
+          if (cyclesAtSpeed > 4) {
             shooterStage = 2;
             lastRuntime = getRuntime();
           }
@@ -422,7 +438,7 @@ public class LimeComp extends LinearOpMode {
         if (shooterStage == 2)
         {
           spindexerToggle = true;
-          if ((ShooterFront.getVelocity() < ShooterTarget - 100) && (ShooterBack.getVelocity() < ShooterTarget - 100))
+          if ((ShooterFront.getVelocity() < ShooterFTarget - 100) && (ShooterBack.getVelocity() < ShooterBTarget - 100))
           {
           spindexerToggle = false;
           shooterStage = 3;
@@ -430,16 +446,7 @@ public class LimeComp extends LinearOpMode {
         }
         if (shooterStage == 3)
         {
-          if (
-                (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-                (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-             )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
+          if (cyclesAtSpeed > 4) {
             shooterStage = 4;
             lastRuntime = getRuntime();
           }
@@ -455,16 +462,7 @@ public class LimeComp extends LinearOpMode {
         }
         if (shooterStage == 5)
         {
-          if (
-              (ShooterFront.getVelocity() > ShooterTarget - 40) && (ShooterFront.getVelocity() < ShooterTarget +40) &&
-              (ShooterBack.getVelocity() > ShooterTarget - 40) && (ShooterBack.getVelocity() < ShooterTarget +40)
-          )
-          {
-            cyclesAtSpeed ++;
-          } else {
-            cyclesAtSpeed = 0;
-          }
-          if (cyclesAtSpeed > 6) {
+          if (cyclesAtSpeed > 4) {
             shooterStage = 6;
             lastRuntime = getRuntime();
           }
@@ -498,8 +496,10 @@ public class LimeComp extends LinearOpMode {
         if (!BackSuccess) {
           BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
         }
-        ShooterFront.setVelocity(ShooterTarget);
-        ShooterBack.setVelocity(ShooterTarget);
+        ShooterFTarget = ShooterTarget * 0.9;
+        ShooterBTarget = ShooterTarget * 1.1;
+        ShooterFront.setVelocity(ShooterFTarget);
+        ShooterBack.setVelocity(ShooterBTarget);
       } else
       {
 
