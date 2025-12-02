@@ -141,7 +141,8 @@ public class LimelightTest extends LinearOpMode {
     boolean Last2DL = false;
     boolean Last2DD = false;
     double ShooterTarget = 0;
-
+    double ShooterFTarget = 0;
+    double ShooterBTarget = 0;
     double ShooterFspeed = 0;
     double ShooterBspeed = 0;
 
@@ -360,8 +361,10 @@ public class LimelightTest extends LinearOpMode {
       } */
 
       if (gamepad2.right_bumper) {
-        ShooterFront.setVelocity(ShooterTarget);
-        ShooterBack.setVelocity(ShooterTarget);
+        ShooterFTarget = ShooterTarget * 0.9;
+        ShooterBTarget = ShooterTarget * 1.1;
+        ShooterFront.setVelocity(ShooterFTarget);
+        ShooterBack.setVelocity(ShooterBTarget);
       } else
       {
         ShooterFront.setVelocity(0);
