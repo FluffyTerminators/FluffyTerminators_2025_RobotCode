@@ -4,6 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.PathChain;
@@ -208,17 +209,17 @@ public class ShootParkAutoBlue extends OpMode
       LaunchCorner = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(56.000, 8.000), new Pose(63, 20))
+                      new BezierLine(new Pose(56.000, 8.000), new Pose(60, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(115))
               .build();
 
-      ParkMiddle = follower
+      ParkMiddle= follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(63, 20), new Pose(63, 59.107))
+                      new BezierLine(new Pose(60.000, 20.000), new Pose(15.000, 8.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(120), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(115), Math.toRadians(180))
               .build();
     }
   }

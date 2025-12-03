@@ -372,6 +372,8 @@ public class LimelightTest extends LinearOpMode {
       }
 
       telemetry.addData("Target", ShooterTarget);
+      telemetry.addData("Front Target", ShooterFTarget);
+      telemetry.addData("Back Target" , ShooterBTarget);
       telemetry.addData("ShooterFront PID?", ShooterFront.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
       telemetry.addData("ShooterBack PID?", ShooterBack.getPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER));
       telemetry.update();

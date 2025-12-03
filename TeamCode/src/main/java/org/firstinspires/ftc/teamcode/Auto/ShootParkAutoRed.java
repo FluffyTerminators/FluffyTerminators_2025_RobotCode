@@ -202,7 +202,7 @@ public class ShootParkAutoRed extends OpMode {
       LaunchCorner = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(71.000, 8.000), new Pose(63, 20))
+                      new BezierLine(new Pose(90.000, 8.000), new Pose(85, 20))
               )
               .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(65))
               .build();
@@ -210,9 +210,9 @@ public class ShootParkAutoRed extends OpMode {
       ParkMiddle = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(64, 20), new Pose(63, 59.107))
+                      new BezierLine(new Pose(85, 20), new Pose(127, 8))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(60), Math.toRadians(90))
+              .setLinearHeadingInterpolation(Math.toRadians(65), Math.toRadians(0))
               .build();
     }
   }
