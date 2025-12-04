@@ -41,7 +41,6 @@ public class SixArtifactAutoRed extends OpMode {
   private DcMotorEx ShooterFront;
   private DcMotorEx ShooterBack;
   private DcMotor Intake;
-  private Servo Flap;
   private CRServo SpindxerServo;
   private boolean spindexToggle;
   private double ShooterTarget;
