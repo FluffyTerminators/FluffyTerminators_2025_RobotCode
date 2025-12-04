@@ -132,7 +132,7 @@ public class FrontPreloadRed extends OpMode {
     ShooterPidTuning.applyTo(ShooterBack);
 
     follower = PEDROConstants.createFollower(hardwareMap);
-    follower.setStartingPose(new Pose(132.70, 124.29, Math.toRadians(217)));
+    follower.setStartingPose(new Pose(120.500, 127.000, Math.toRadians(217)));
 
     paths = new Paths(follower); // Build paths
 
