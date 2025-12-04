@@ -118,11 +118,10 @@ public class Constants
         public static NormalizedColorSensor SpindexerSensor1 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_1");
         public static NormalizedColorSensor SpindexerSensor2 = hardwareMap.get(NormalizedColorSensor.class, "spindexer_colour_2");
     }
-
     public static class ShooterCal
     {
-        private static final double[] distance     = {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] shooterTicks = {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] distance     = {0.71, 1.30, 1.45, 1.85, 2.00, 2.86, 3.00}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
+        private static final double[] shooterTicks = {640,  660,  700,  740,  760,  900,  920};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
 
         /**
          * interpolate(x) uses the distance from the target to automatically return the required shooter speed in motor velocity
