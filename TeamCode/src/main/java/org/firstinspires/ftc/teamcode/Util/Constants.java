@@ -86,7 +86,7 @@ public class Constants
     public static final int LLPipeline = 7;
 
     public static final double High_Overrride_Speed = 900;
-    public static final double Low_Override_Speed = 800;
+    public static final double Low_Override_Speed = 740;
     public static final double Shooter_Speed_Tolerance = 40;
 
     public static class HardwareMappings {

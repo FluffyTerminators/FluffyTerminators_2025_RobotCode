@@ -144,6 +144,7 @@ public class LimeComp extends LinearOpMode {
     double fieldCentricTimer = 0;
     int cyclesAtSpeed = 0;
     boolean resetLast = false;
+    boolean manualShooterRequest = false;
 
 
     pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
@@ -164,7 +165,7 @@ public class LimeComp extends LinearOpMode {
         telemetry.addData("Drive Mode","Robot Centric");
       }
       telemetry.addData("Status", "Running");
-      if (shootSequence) {
+      if (shootSequence || manualShooterRequest) {
         if (
               (ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))&&(ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
               &&(ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))&&(ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
@@ -378,7 +379,7 @@ public class LimeComp extends LinearOpMode {
         ShooterTarget = Constants.ShooterCal.interpolate(0.2);
       }
 
-      boolean manualShooterRequest = gamepad2.left_bumper;
+      manualShooterRequest = gamepad2.left_bumper;
 
       if (gamepad2.y)
       {
