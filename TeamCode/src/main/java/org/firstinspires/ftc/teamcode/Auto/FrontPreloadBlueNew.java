@@ -205,7 +205,7 @@ public class FrontPreloadBlueNew extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 80))
+                      new BezierLine(new Pose(22.020, 124.588), new Pose(60.000, 90))
               )
               .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(132))
               .build();
@@ -213,7 +213,7 @@ public class FrontPreloadBlueNew extends OpMode {
       Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(60.000, 80), new Pose(62.000, 58.000))
+                      new BezierLine(new Pose(60.000, 90), new Pose(50.000, 137))
               )
               .setLinearHeadingInterpolation(Math.toRadians(132), Math.toRadians(90))
               .build();

@@ -55,9 +55,9 @@ public class LeaveBlue extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(22.020, 124.588), new Pose(16.000, 110.000))
+                      new BezierLine(new Pose(22.020, 124.588), new Pose(20.000, 110.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(180))
+              .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(270))
               .build();
     }
   }

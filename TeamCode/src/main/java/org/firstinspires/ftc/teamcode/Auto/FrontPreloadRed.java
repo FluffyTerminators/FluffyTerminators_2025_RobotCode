@@ -212,7 +212,7 @@ public class FrontPreloadRed extends OpMode {
       Path2 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(84.000, 80), new Pose(84.000, 58.000))
+                      new BezierLine(new Pose(84.000, 80), new Pose(90, 137))
               )
               .setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(90))
               .build();
