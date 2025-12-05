@@ -60,7 +60,7 @@ public class SixArtifactAutoRed extends OpMode {
     telemetry.addData("ShooterFront Target", ShooterTarget);
     telemetry.addData("Runtime", lastRunTime);
     telemetry.addData("ShooterFront State", shooterState);
-    telemetry.addData("Servo", Flap);
+
 
     switch (shooterState) {
       case -1:

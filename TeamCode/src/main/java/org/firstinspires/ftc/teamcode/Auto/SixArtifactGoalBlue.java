@@ -208,7 +208,7 @@ public class SixArtifactGoalBlue extends OpMode {
             StartLaunch = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(22.020, 124.588), new Pose(55.000, 90.000))
+                            new BezierLine(new Pose(22.020, 124.588), new Pose(55.000, 95.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(323), Math.toRadians(132))
                     .build();
@@ -216,7 +216,7 @@ public class SixArtifactGoalBlue extends OpMode {
             LaunchCollect = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(55.000, 90.000), new Pose(42.000, 84.000))
+                            new BezierLine(new Pose(55.000, 95.000), new Pose(52.000, 86.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(132), Math.toRadians(180))
                     .build();
@@ -224,7 +224,7 @@ public class SixArtifactGoalBlue extends OpMode {
             Collect = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(42.000, 84.000), new Pose(20.000, 84.000))
+                            new BezierLine(new Pose(52.000, 86.000), new Pose(30.000, 86.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180))
                     .build();
@@ -232,7 +232,7 @@ public class SixArtifactGoalBlue extends OpMode {
             CollectLaunch = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(20.000, 84.000), new Pose(55.000, 90.000))
+                            new BezierLine(new Pose(20.000, 86.000), new Pose(55.000, 90.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(132))
                     .build();
