@@ -210,21 +210,21 @@ public class SixArtifactGoalRed extends OpMode {
                     .addPath(
                             new BezierLine(new Pose(120.500, 127.000), new Pose(89.000, 90.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(48))
+                    .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(50))
                     .build();
 
             LaunchCollect = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(89.000, 90.000), new Pose(95.000, 83.000))
+                            new BezierLine(new Pose(89.000, 90.000), new Pose(102.000, 84.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(48), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(50), Math.toRadians(0))
                     .build();
 
             Collect = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(95.000, 83.000), new Pose(115.000, 83.000))
+                            new BezierLine(new Pose(102.000, 84.000), new Pose(125.000, 84.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                     .build();
@@ -232,9 +232,9 @@ public class SixArtifactGoalRed extends OpMode {
             CollectLaunch = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(115.000, 83.000), new Pose(89.000, 90.000))
+                            new BezierLine(new Pose(125.000, 84.000), new Pose(89.000, 90.000))
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(48))
+                    .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(50))
                     .build();
         }
     }

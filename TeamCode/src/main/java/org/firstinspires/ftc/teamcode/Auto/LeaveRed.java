@@ -57,9 +57,9 @@ public class LeaveRed extends OpMode {
       Path1 = follower
               .pathBuilder()
               .addPath(
-                      new BezierLine(new Pose(120.500, 127.000), new Pose(123.000, 110.000))
+                      new BezierLine(new Pose(120.500, 127.000), new Pose(128.000, 110.000))
               )
-              .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(270))
+              .setLinearHeadingInterpolation(Math.toRadians(217), Math.toRadians(0))
               .build();
     }
   }

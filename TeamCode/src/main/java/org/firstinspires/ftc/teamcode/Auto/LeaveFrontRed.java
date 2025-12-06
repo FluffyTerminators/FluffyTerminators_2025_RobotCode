@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.Auto;
 
 import com.bylazar.configurables.annotations.Configurable;
-
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
@@ -27,7 +26,7 @@ public class LeaveFrontRed extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(56, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
