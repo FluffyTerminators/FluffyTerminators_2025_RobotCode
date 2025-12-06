@@ -26,7 +26,7 @@ public class LeaveFrontRed extends OpMode {
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(72, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(88, 8, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -55,7 +55,7 @@ public class LeaveFrontRed extends OpMode {
             Path1 = follower
                     .pathBuilder()
                     .addPath(
-                            new BezierLine(new Pose(88.000, 8.000), new Pose(130.000, 8.000))
+                            new BezierLine(new Pose(88.000, 8.000), new Pose(110.000, 8.000))
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(0))
                     .build();

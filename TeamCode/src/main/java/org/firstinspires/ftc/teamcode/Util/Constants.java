@@ -83,10 +83,10 @@ public class Constants
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double brake = 2;
-    public static final int LLPipeline = 7;
+    public static final int LLPipeline = 0;
 
     public static final double High_Overrride_Speed = 900;
-    public static final double Low_Override_Speed = 740;
+    public static final double Low_Override_Speed = 800;
     public static final double Shooter_Speed_Tolerance = 40;
 
     public static class HardwareMappings {
@@ -121,7 +121,7 @@ public class Constants
     public static class ShooterCal
     {
         private static final double[] distance     = {0.71, 1.30, 1.45, 1.85, 2.00, 2.86, 3.00}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] shooterTicks = {640,  660,  700,  740,  760,  900,  920};  // < Single Wheel Values I Double Wheel Values > {540,  540,  560,  580,  600,  620,  640,  740,  760};
+        private static final double[] shooterTicks = {640,  660,  700,  740,  760,  880,  940};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
 
         /**
          * interpolate(x) uses the distance from the target to automatically return the required shooter speed in motor velocity
