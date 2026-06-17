@@ -82,10 +82,10 @@ public class Constants
     public static final double spindexerFWD = 1;
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
-    public static final double brake = 2;
+    public static final double brake = 0.5;
     public static final int LLPipeline = 0;
 
-    public static final double High_Overrride_Speed = 900;
+    public static final double High_Override_Speed = 900;
     public static final double Low_Override_Speed = 800;
     public static final double Shooter_Speed_Tolerance = 40;
 

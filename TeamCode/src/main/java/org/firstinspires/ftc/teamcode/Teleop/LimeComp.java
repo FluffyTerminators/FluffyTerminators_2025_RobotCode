@@ -406,7 +406,7 @@ public class LimeComp extends LinearOpMode {
       }
 
       if (highOveride) {
-       ShooterTarget = Constants.High_Overrride_Speed;
+       ShooterTarget = Constants.High_Override_Speed;
       }
 
       if (lowOveride) {

@@ -5,6 +5,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.bylazar.graph.GraphManager;
 import com.bylazar.graph.GraphEntry;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -22,6 +23,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
@@ -34,11 +36,6 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 @TeleOp(name = "MechanismTest")
 @Configurable // Panels
 public class MechanismTest extends LinearOpMode {
-
-  // Hubs
-  //public Blinker control_Hub;
-  //public Blinker expansion_Hub_2;
-
   // Drive Motors
   public DcMotor bLDrive;
   public DcMotor bRDrive;
@@ -50,28 +47,32 @@ public class MechanismTest extends LinearOpMode {
   public DcMotorEx ShooterFront;
   public DcMotorEx ShooterBack;
 
+  //servo
+  public CRServo PassThrough;
+
   // Internal Motion Units
   public IMU imu;
   public GoBildaPinpointDriver pinpoint;
+  public Pose2D RobotPosition = new Pose2D(DistanceUnit.CM, 0, 0, AngleUnit.DEGREES, 0);
 
-  // Servos
-  //public CRServo IntakeTransferServo1 = hardwareMap.get(CRServo.class, "ITServo_1");
-  //public CRServo IntakeTransferServo2 = hardwareMap.get(CRServo.class, "ITServo_2");
-  public CRServo SpindxerServo;
+  public Limelight3A limelight;
+  private boolean FrontSuccess;
+  private boolean BackSuccess;
 
-  public void runOpMode() throws InterruptedException {
-    //control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
-    //expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
+  public void runOpMode() throws InterruptedException
+  {
     bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
     bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
     fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
     fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
-    Intake  = hardwareMap.get(DcMotor.class, "Intake");
+    Intake = hardwareMap.get(DcMotor.class, "Intake");
+    PassThrough = hardwareMap.get(CRServo.class, "passthrough_servo");
     ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
     ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-    imu = hardwareMap.get(IMU.class,  "imu");
+
+    imu = hardwareMap.get(IMU.class, "imu");
     pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
-    SpindxerServo = hardwareMap.get(CRServo.class, "Spindexer_Servo");
+    limelight = hardwareMap.get(Limelight3A.class, "Limelight");
 
     fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
     bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -79,9 +80,10 @@ public class MechanismTest extends LinearOpMode {
     bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
+    ShooterFront.setDirection(DcMotorSimple.Direction.REVERSE);
     ShooterFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     ShooterBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    Intake.setDirection(DcMotorSimple.Direction.REVERSE);
 
     TelemetryManager panels = PanelsTelemetry.INSTANCE.getTelemetry();
     //GraphManager graph = new GraphManager();
@@ -147,7 +149,7 @@ public class MechanismTest extends LinearOpMode {
       ShooterBspeed = ShooterBack.getVelocity();
 
       Intake.setPower(gamepad1.left_trigger);
-      SpindxerServo.setPower(gamepad1.right_trigger);
+      PassThrough.setPower(gamepad1.right_trigger);
       if (gamepad1.dpad_up)
       {
         if (!upLast) {
@@ -255,11 +257,11 @@ public class MechanismTest extends LinearOpMode {
       telemetry.addData("I", I);
       telemetry.addData("D", D);
       telemetry.addData("F", F);
-      /*telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
+      telemetry.addData("Front Right Encoder: ",fRDrive.getCurrentPosition());
       telemetry.addData("Front Left Encoder: ",fLDrive.getCurrentPosition());
       telemetry.addData("Back Right Encoder: ",bRDrive.getCurrentPosition());
       telemetry.addData("Back Left Encoder: ",bLDrive.getCurrentPosition());
-      telemetry.addData("Flap Servo Set Position: ",flapPos);*/
+
       telemetry.addData("Shooter Front (ticks/sec): ",ShooterFspeed);
       panels.addData("FrontSpeed",ShooterFspeed);
       telemetry.addData("Shooter Back (ticks/sec): ",ShooterBspeed);
