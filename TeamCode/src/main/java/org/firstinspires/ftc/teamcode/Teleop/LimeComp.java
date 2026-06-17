@@ -420,8 +420,10 @@ public class LimeComp extends LinearOpMode {
         ShooterFront.setVelocity(ShooterFTarget);
         ShooterBack.setVelocity(ShooterBTarget);
         if (
-            (ShooterFront.getVelocity() > ShooterFTarget - Constants.Shooter_Speed_Tolerance) && (ShooterFront.getVelocity() < ShooterFTarget + Constants.Shooter_Speed_Tolerance) &&
-            (ShooterBack.getVelocity() > ShooterBTarget - Constants.Shooter_Speed_Tolerance) && (ShooterBack.getVelocity() < ShooterBTarget + Constants.Shooter_Speed_Tolerance)
+            (ShooterFront.getVelocity() > ShooterFTarget - Constants.Shooter_Speed_Tolerance)
+                    && (ShooterFront.getVelocity() < ShooterFTarget + Constants.Shooter_Speed_Tolerance)
+                    && (ShooterBack.getVelocity() > ShooterBTarget - Constants.Shooter_Speed_Tolerance)
+                    && (ShooterBack.getVelocity() < ShooterBTarget + Constants.Shooter_Speed_Tolerance)
         )
         {
           cyclesAtSpeed ++;

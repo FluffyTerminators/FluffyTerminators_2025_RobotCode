@@ -135,49 +135,43 @@ public class APOCComp extends LinearOpMode
         while (opModeIsActive()) {
             telemetry.addData("Status", "Running");
 
-            //Display Current Drive Mode
-            if (fieldCentricMode) {
-                telemetry.addData("Drive Mode:", "Field Centric");
-            } else {
-                telemetry.addData("Drive Mode", "Robot Centric");
-            }
-
-            //Display Shooter Status
-            ShooterFspeed = ShooterFront.getVelocity();
-            ShooterBspeed = ShooterBack.getVelocity();
-
-            if (shootSequence || manualShooterRequest) {
-                if (
-                        //Check if Shooter Speed is within target range
-                        (ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
-                                && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
-                                && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
-                                && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
-                ) {
-                    telemetry.addData("Shooter Status", "*** Ready ***");
-                } else {
-                    telemetry.addData("Shooter Status", "Spinning up...");
-                }
-            } else {
-                telemetry.addData("Shooter Staus", " Idle ");
-            }
-
-            //Display Localisation Sensor Status
-            result = limelight.getLatestResult();
-            pinpoint.update();
-            if (result != null && result.isValid()) {
-                telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
-            }
-            telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
-            telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
-            Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
-            telemetry.addData("Heading", Math.toDegrees(Heading));
-
-
             //Apply PID Tuning if application of settings failed before OpMode
             if (!FrontSuccess) { FrontSuccess = ShooterPidTuning.applyTo(ShooterFront); }
             if (!BackSuccess) { BackSuccess = ShooterPidTuning.applyTo(ShooterBack); }
 
+            //Update and/or reset Gyro Heading
+            if (gamepad1.left_bumper) {
+                if (!resetLast) {
+                    //imu.resetYaw();
+                    pinpoint.setHeading(0, AngleUnit.DEGREES);
+                    resetLast = true;
+                }
+            } else { resetLast = false; }
+            pinpoint.update();
+
+            //Calculate Heading
+            double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
+            Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
+
+            //Display Heading info
+            telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
+            telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
+            telemetry.addData("Heading", Math.toDegrees(Heading));
+
+
+            //Toggle Drive mode (button must be held)
+            if (gamepad1.b) {
+                if (fieldCentricTimer == 0) {
+                    fieldCentricTimer = getRuntime();
+                } else {
+                    if ((fieldCentricTimer > 0) && (getRuntime() - fieldCentricTimer > 0.5)) {
+                        fieldCentricMode = !fieldCentricMode;
+                        fieldCentricTimer = -1;
+                    }
+                }
+            } else {
+                fieldCentricTimer = 0;
+            }
 
             //Read joystick inputs
             double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
@@ -186,6 +180,8 @@ public class APOCComp extends LinearOpMode
 
             //Calculate base movement values
             if (fieldCentricMode) {
+                telemetry.addData("Drive Mode:", "Field Centric");
+
                 double sinHeading = Math.sin(-Heading); // Pinpoint heading is CW+, invert for standard CCW math
                 double cosHeading = Math.cos(-Heading);
 
@@ -193,6 +189,7 @@ public class APOCComp extends LinearOpMode
                 Forward = rawStrafe * sinHeading + rawForward * cosHeading;
                 Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
             } else {
+                telemetry.addData("Drive Mode", "Robot Centric");
                 Forward = rawForward;
                 Strafe = rawStrafe;
             }
@@ -202,18 +199,6 @@ public class APOCComp extends LinearOpMode
                 Forward *= Constants.brake;
                 Strafe *= Constants.brake;
                 Turn *= Constants.brake;
-            }
-
-            //Reset Gyro Heading
-            if (gamepad1.left_bumper) {
-                if (!resetLast) {
-                    //imu.resetYaw();
-                    pinpoint.setHeading(0, AngleUnit.DEGREES);
-                    pinpoint.update();
-                    resetLast = true;
-                }
-            } else {
-                resetLast = false;
             }
 
             //Auto Aim
@@ -251,48 +236,7 @@ public class APOCComp extends LinearOpMode
             fRDrive.setPower(frontRightPower);
             bRDrive.setPower(backRightPower);
 
-            //Change pipeline
-            if (gamepad1.dpad_up)
-            { if (!pipelineUpLast) {
-                    pipeline = pipeline + 1;
-                    limelight.pipelineSwitch(pipeline);
-                    pipelineUpLast = true;
-                }
-            } else
-            { pipelineUpLast = false; }
 
-            if (gamepad1.dpad_down)
-            { if (!pipelineDownLast) {
-                    pipeline = pipeline - 1;
-                    limelight.pipelineSwitch(pipeline);
-                    pipelineDownLast = true;
-                }
-            } else
-            { pipelineDownLast = false; }
-
-
-            //Swap to field-centric drive mode (button must be held)
-            if (gamepad1.b) {
-                if (fieldCentricTimer == 0) {
-                    fieldCentricTimer = getRuntime();
-                } else {
-                    if ((fieldCentricTimer > 0) && (getRuntime() - fieldCentricTimer > 0.5)) {
-                        fieldCentricMode = !fieldCentricMode;
-                        fieldCentricTimer = -1;
-                    }
-                }
-            } else {
-                fieldCentricTimer = 0;
-            }
-
-            //PassThrough Control
-            if (gamepad2.dpad_down) {
-                PassThrough.setPower(-1);
-            } else if (gamepad2.dpad_up) {
-                PassThrough.setPower(1);
-            } else {
-                PassThrough.setPower(0);
-            }
 
             //Intake Control
             if (gamepad2.right_trigger > 0) {
@@ -311,22 +255,53 @@ public class APOCComp extends LinearOpMode
                 Intake.setPower(0);
             }
 
-            //Localisation
-            if (result != null && result.isValid()) {
-                Pose3D botpose = result.getBotpose();
-                if (botpose != null) {
-                    double x = botpose.getPosition().x;
-                    double y = botpose.getPosition().y;
-                    telemetry.addData("MT1 Location", "(" + x + ", " + y + ")");
-                }
+            //PassThrough Control
+            if (gamepad2.dpad_down) {
+                PassThrough.setPower(-1);
+            } else if (gamepad2.dpad_up) {
+                PassThrough.setPower(1);
+            } else {
+                PassThrough.setPower(0);
             }
 
-            // First, tell Limelight which way your robot is facing
-            double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
-            limelight.updateRobotOrientation(robotYaw);
-            if (result != null && result.isValid()) {
-                Pose3D botPose_mt2 = result.getBotpose_MT2();
+            //Limelight calculations
 
+            //Change pipeline
+            if (gamepad1.dpad_up)
+            { if (!pipelineUpLast) {
+                pipeline = pipeline + 1;
+                limelight.pipelineSwitch(pipeline);
+                pipelineUpLast = true;
+            }
+            } else
+            { pipelineUpLast = false; }
+
+            if (gamepad1.dpad_down)
+            { if (!pipelineDownLast) {
+                pipeline = pipeline - 1;
+                limelight.pipelineSwitch(pipeline);
+                pipelineDownLast = true;
+            }
+            } else
+            { pipelineDownLast = false; }
+
+            //Tell Limelight which way the robot is facing
+            limelight.updateRobotOrientation(robotYaw);
+            result = limelight.getLatestResult();
+
+            if (result != null && result.isValid()) {
+                telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+
+                //Update Position
+                Pose3D botPose = result.getBotpose();
+                Pose3D botPose_mt2 = result.getBotpose_MT2();
+                if (botPose != null) {
+                    double x = botPose.getPosition().x;
+                    double z = botPose.getPosition().z;
+                    telemetry.addData("MT1 Location", "(" + x + ", " + z + ")");
+                }
+
+                //Get Distance from Target
                 List<FiducialResult> fiducials = result.getFiducialResults();
                 for (FiducialResult fiducial : fiducials) {
                     int id = fiducial.getFiducialId(); // The ID number of the fiducial
@@ -341,13 +316,10 @@ public class APOCComp extends LinearOpMode
                         ShooterTarget = Constants.ShooterCal.interpolate(distance);
                     }
                 }
-            }
-            else
-            {
-                ShooterTarget = Constants.ShooterCal.interpolate(0.2);
-            }
+            } else { ShooterTarget = Constants.ShooterCal.interpolate(0.2); }
 
-            //Activate Manual Shooter Mode
+
+            //Manually fire Shooter
             manualShooterRequest = gamepad2.left_bumper;
 
             //Check Shooter Range Overrides
@@ -373,6 +345,25 @@ public class APOCComp extends LinearOpMode
             //Apply Shooter Range Overrides
             if (highOveride) { ShooterTarget = Constants.High_Override_Speed; }
             if (lowOveride) { ShooterTarget = Constants.Low_Override_Speed; }
+
+            //Display Shooter Status
+            ShooterFspeed = ShooterFront.getVelocity();
+            ShooterBspeed = ShooterBack.getVelocity();
+            if (shootSequence || manualShooterRequest) {
+                if (
+                    //Check if Shooter Speed is within target range
+                        (ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
+                                && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
+                                && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
+                                && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
+                ) {
+                    telemetry.addData("Shooter Status", "*** Ready ***");
+                } else {
+                    telemetry.addData("Shooter Status", "Spinning up...");
+                }
+            } else {
+                telemetry.addData("Shooter Status", " Idle ");
+            }
 
 
             telemetry.addData("Shooter Target", ShooterTarget);
