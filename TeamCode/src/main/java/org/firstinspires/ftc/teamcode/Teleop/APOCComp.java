@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
+import org.firstinspires.ftc.teamcode.Util.Constants.Toggle;
 import java.util.List;
 //Download Missing Files
 
@@ -49,6 +50,12 @@ public class APOCComp extends LinearOpMode
     public Limelight3A limelight;
     private boolean FrontSuccess;
     private boolean BackSuccess;
+
+    private Toggle ShooterToggle = new Toggle();
+    private Toggle IntakeToggle = new Toggle();
+    private Toggle HighToggle = new Toggle();
+    private Toggle LowToggle = new Toggle();
+
 
     public void runOpMode() throws InterruptedException
     {
@@ -94,20 +101,26 @@ public class APOCComp extends LinearOpMode
 
         imu.initialize(new IMU.Parameters((ImuOrientationOnRobot) new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.DOWN, RevHubOrientationOnRobot.UsbFacingDirection.RIGHT)));
 
+
+
+
+
+
         double Forward = 0;
         double Strafe = 0;
         double Turn = 0;
         double Heading = 0;
-        boolean intakeToggle = false;
-        boolean inToggleLast = false;
-        boolean shootSequence = false;
+        boolean runIntake = false;
+        boolean shootRequest = false;
+        boolean revRequest = false;
         int shooterStage = 0;
         double ShooterTarget = 0;
         double ShooterFspeed = 0;
         double ShooterFTarget = 0;
         double ShooterBspeed = 0;
         double ShooterBTarget = 0;
-        boolean shooterLast = false;
+        boolean shooterIntake = false;
+        boolean shooterPassThrough = false;
         boolean lowOveride = false;
         boolean highOveride = false;
         boolean highOverrideLast = false;
@@ -119,7 +132,6 @@ public class APOCComp extends LinearOpMode
         double fieldCentricTimer = 0;
         int cyclesAtSpeed = 0;
         boolean resetLast = false;
-        boolean manualShooterRequest = false;
 
         pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -236,34 +248,6 @@ public class APOCComp extends LinearOpMode
             fRDrive.setPower(frontRightPower);
             bRDrive.setPower(backRightPower);
 
-
-
-            //Intake Control
-            if (gamepad2.right_trigger > 0) {
-                if (!inToggleLast) {
-                    intakeToggle = !intakeToggle;
-                    inToggleLast = true;
-                }
-            } else {
-                inToggleLast = false;
-            }
-
-            //Set Intake power
-            if (intakeToggle) {
-                Intake.setPower(0.5);
-            } else {
-                Intake.setPower(0);
-            }
-
-            //PassThrough Control
-            if (gamepad2.dpad_down) {
-                PassThrough.setPower(-1);
-            } else if (gamepad2.dpad_up) {
-                PassThrough.setPower(1);
-            } else {
-                PassThrough.setPower(0);
-            }
-
             //Limelight calculations
 
             //Change pipeline
@@ -313,14 +297,15 @@ public class APOCComp extends LinearOpMode
                         double distance = Math.sqrt((x * x) + (z * z)); // Use horizontal plane distance to the tag
                         telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-                        ShooterTarget = Constants.ShooterCal.interpolate(distance);
+                        ShooterTarget = distance;
                     }
                 }
-            } else { ShooterTarget = Constants.ShooterCal.interpolate(0.2); }
+            } else { ShooterTarget = 0.2; }
 
 
-            //Manually fire Shooter
-            manualShooterRequest = gamepad2.left_bumper;
+            //Shooter Controls
+            shootRequest = gamepad2.left_bumper;
+            revRequest = ShooterToggle.toggleInput((gamepad2.left_trigger > 0),revRequest);
 
             //Check Shooter Range Overrides
             if (gamepad2.y)
@@ -343,27 +328,83 @@ public class APOCComp extends LinearOpMode
                 lowOverrideLast = false; }
 
             //Apply Shooter Range Overrides
-            if (highOveride) { ShooterTarget = Constants.High_Override_Speed; }
-            if (lowOveride) { ShooterTarget = Constants.Low_Override_Speed; }
+            if (highOveride) { ShooterTarget = Constants.High_Override_Range; }
+            if (lowOveride) { ShooterTarget = Constants.Low_Override_Range; }
 
-            //Display Shooter Status
+
+            //Shooter process (for all uses of shooter)
+            //Set motor speeds to interpolated target speed
+            //if inside range, run passthrough and intake
+
+
+            //Read current shooter speeds
             ShooterFspeed = ShooterFront.getVelocity();
             ShooterBspeed = ShooterBack.getVelocity();
-            if (shootSequence || manualShooterRequest) {
-                if (
-                    //Check if Shooter Speed is within target range
-                        (ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
+
+            if (shootRequest || revRequest) {
+                //set target speeds
+                ShooterFTarget = -Constants.ShooterCal.interpolate(ShooterTarget, true);
+                ShooterBTarget = -Constants.ShooterCal.interpolate(ShooterTarget, false);
+                ShooterFront.setVelocity(ShooterFTarget);
+                ShooterBack.setVelocity(ShooterBTarget);
+
+                //Check if Shooter Speed is within target range
+                if ((ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
                                 && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
                                 && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
                                 && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
                 ) {
-                    telemetry.addData("Shooter Status", "*** Ready ***");
+                    telemetry.addData("Shooter Status", "***  Ready  ***");
+
+                    if (shootRequest){
+                        shooterIntake = true;
+                        shooterPassThrough = true;
+                        telemetry.addData("Shooter Status", "*** Firing! ***");
+                        Intake.setPower(-0.75);
+                        PassThrough.setPower(1);
+                    } else{
+                        shooterIntake = false;
+                        shooterPassThrough = false;
+                    }
+
                 } else {
+                    shooterIntake = false;
+                    shooterPassThrough = false;
                     telemetry.addData("Shooter Status", "Spinning up...");
                 }
             } else {
+                shooterIntake = false;
+                shooterPassThrough = false;
+                ShooterFront.setVelocity(0);
+                ShooterBack.setVelocity(0);
                 telemetry.addData("Shooter Status", " Idle ");
             }
+
+            //Intake Control
+            runIntake = IntakeToggle.toggleInput((gamepad2.right_trigger > 0),runIntake);
+
+            //Set Intake power
+            if (runIntake) {
+                Intake.setPower(-0.75);
+                if (!shooterPassThrough){
+                    PassThrough.setPower(-1);
+                }
+            } else if (!shooterIntake) {
+                Intake.setPower(0);
+            }
+
+            //PassThrough Control
+            if (gamepad2.dpad_down) {
+                PassThrough.setPower(-1);
+            } else if (gamepad2.dpad_up) {
+                PassThrough.setPower(1);
+            } else {
+                if (!runIntake && !shooterPassThrough) {
+                    PassThrough.setPower(0);
+                }
+            }
+
+
 
 
             telemetry.addData("Shooter Target", ShooterTarget);
@@ -377,6 +418,20 @@ public class APOCComp extends LinearOpMode
             telemetry.addData("FrontSuccess", FrontSuccess);
             telemetry.addData("BackSuccess", BackSuccess);
             telemetry.update();
+
+            //Shooter process (for all uses of shooter)
+            //Set motor speeds to interpolated target speed
+            //if inside range, run passthrough and intake
+
+            //if needed, use timer to require motor speeds to be inside target range for a set duration before indexing
+
+            //for now, end on button release (happens automatically when variable is unset)
+            //when shootSequence is implemented, use timer code to track when shooter reaches speed
+            //end after set duration past this point
+
+
+
+
         }
     }
 }

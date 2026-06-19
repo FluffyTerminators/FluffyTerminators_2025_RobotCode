@@ -86,7 +86,9 @@ public class Constants
     public static final int LLPipeline = 0;
 
     public static final double High_Override_Speed = 900;
+    public static final double High_Override_Range = 2.9;
     public static final double Low_Override_Speed = 800;
+    public static final double Low_Override_Range = 2.5;
     public static final double Shooter_Speed_Tolerance = 40;
 
     public static class HardwareMappings {
@@ -121,7 +123,42 @@ public class Constants
     public static class ShooterCal
     {
         private static final double[] distance     = {0.71, 1.30, 1.45, 1.85, 2.00, 2.86, 3.00}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] shooterTicks = {640,  660,  700,  740,  760,  880,  940};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] oldShooterTicks = {640,  660,  700,  740,  760,  880,  940};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] fShooterTicks = {576,  594, 630,  666,  684,  792,  846};
+        private static final double[] bShooterTicks = {704,  726,  770,  814,  836,  968,  1034};
+
+        /**
+         * interpolate(x, isFront) uses the distance from the target to automatically return the required shooter speed in motor velocity
+         * @param x = distance in METERS
+         * */
+        public static double interpolate(double x, boolean isFront)
+        {
+            double[] shooterTicks;
+
+            if (isFront){
+                shooterTicks = fShooterTicks;
+            } else{
+                shooterTicks = bShooterTicks;
+            }
+
+            //Find the bracketing points
+            int i = 0;
+            while (i < distance.length - 1 && distance[i + 1] < x)
+            {
+                i++;
+            }
+
+            //edge case handling
+            if (x < distance[0]) {return shooterTicks[0];}
+            if (x > distance[distance.length - 1]) {return shooterTicks[distance.length - 1];}
+
+            double x1 = distance[i];
+            double y1 = shooterTicks[i];
+            double x2 = distance[i + 1];
+            double y2 = shooterTicks[i + 1];
+
+            return y1 + (x - x1) * (y2 - y1) / (x2 - x1);
+        }
 
         /**
          * interpolate(x) uses the distance from the target to automatically return the required shooter speed in motor velocity
@@ -137,15 +174,29 @@ public class Constants
            }
 
            //edge case handling
-            if (x < distance[0]) {return shooterTicks[0];}
-            if (x > distance[distance.length - 1]) {return shooterTicks[distance.length - 1];}
+            if (x < distance[0]) {return oldShooterTicks[0];}
+            if (x > distance[distance.length - 1]) {return oldShooterTicks[distance.length - 1];}
 
             double x1 = distance[i];
-            double y1 = shooterTicks[i];
+            double y1 = oldShooterTicks[i];
             double x2 = distance[i + 1];
-            double y2 = shooterTicks[i + 1];
+            double y2 = oldShooterTicks[i + 1];
 
             return y1 + (x - x1) * (y2 - y1) / (x2 - x1);
+        }
+    }
+    public static class Toggle{
+        private boolean inputHeld = false;
+        public boolean toggleInput(boolean input, boolean currentState){
+
+            if (input)
+            {
+                if (!inputHeld) {
+                    currentState = !currentState;
+                    inputHeld = true;
+                }
+            } else {inputHeld = false;}
+            return currentState;
         }
     }
 }

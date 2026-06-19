@@ -430,6 +430,7 @@ public class LimeComp extends LinearOpMode {
         } else {
           cyclesAtSpeed = 0;
         }
+
         if (shooterStage == 1)
         {
           spindexerToggle = false;
