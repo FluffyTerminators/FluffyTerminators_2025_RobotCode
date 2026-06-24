@@ -71,8 +71,8 @@ public class APOCComp extends LinearOpMode
         imu = hardwareMap.get(IMU.class, "imu");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         limelight = hardwareMap.get(Limelight3A.class, "Limelight");
-        FrontSuccess = ShooterPidTuning.applyTo(ShooterFront);
-        BackSuccess = ShooterPidTuning.applyTo(ShooterBack);
+        FrontSuccess = ShooterPidTuning.applyTo(ShooterFront, 2);
+        BackSuccess = ShooterPidTuning.applyTo(ShooterBack, 3);
 
         telemetry.addData("FrontSuccess", FrontSuccess);
         telemetry.addData("BackSuccess", BackSuccess);
@@ -87,6 +87,7 @@ public class APOCComp extends LinearOpMode
         telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
         fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
 
         fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -358,23 +359,19 @@ public class APOCComp extends LinearOpMode
 
                     if (shootRequest){
                         shooterIntake = true;
-                        shooterPassThrough = true;
                         telemetry.addData("Shooter Status", "*** Firing! ***");
                         Intake.setPower(-0.75);
                         PassThrough.setPower(1);
                     } else{
                         shooterIntake = false;
-                        shooterPassThrough = false;
                     }
 
                 } else {
                     shooterIntake = false;
-                    shooterPassThrough = false;
                     telemetry.addData("Shooter Status", "Spinning up...");
                 }
             } else {
                 shooterIntake = false;
-                shooterPassThrough = false;
                 ShooterFront.setVelocity(0);
                 ShooterBack.setVelocity(0);
                 telemetry.addData("Shooter Status", " Idle ");
@@ -385,10 +382,9 @@ public class APOCComp extends LinearOpMode
 
             //Set Intake power
             if (runIntake) {
-                Intake.setPower(-0.75);
-                if (!shooterPassThrough){
-                    PassThrough.setPower(-1);
-                }
+                if (gamepad2.right_bumper)
+                    { Intake.setPower(0.7); }
+                    else { Intake.setPower(-0.7); }
             } else if (!shooterIntake) {
                 Intake.setPower(0);
             }

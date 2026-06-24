@@ -86,10 +86,10 @@ public class Constants
     public static final int LLPipeline = 0;
 
     public static final double High_Override_Speed = 900;
-    public static final double High_Override_Range = 2.9;
+    public static final double High_Override_Range = 2.86;
     public static final double Low_Override_Speed = 800;
-    public static final double Low_Override_Range = 2.5;
-    public static final double Shooter_Speed_Tolerance = 40;
+    public static final double Low_Override_Range = 0.2;
+    public static final double Shooter_Speed_Tolerance = 41;
 
     public static class HardwareMappings {
         // Hubs
@@ -122,10 +122,10 @@ public class Constants
     }
     public static class ShooterCal
     {
-        private static final double[] distance     = {0.71, 1.30, 1.45, 1.85, 2.00, 2.86, 3.00}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] oldShooterTicks = {640,  660,  700,  740,  760,  880,  940};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
-        private static final double[] fShooterTicks = {576,  594, 630,  666,  684,  792,  846};
-        private static final double[] bShooterTicks = {704,  726,  770,  814,  836,  968,  1034};
+        private static final double[] distance     = {0.2, 2.86}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
+        private static final double[] oldShooterTicks = {300, 880};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] fShooterTicks = {300, 540};
+        private static final double[] bShooterTicks = {300, 540};
 
         /**
          * interpolate(x, isFront) uses the distance from the target to automatically return the required shooter speed in motor velocity
