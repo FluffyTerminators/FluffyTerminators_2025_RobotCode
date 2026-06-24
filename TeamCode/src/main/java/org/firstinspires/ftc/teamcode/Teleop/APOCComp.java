@@ -36,6 +36,7 @@ public class APOCComp extends LinearOpMode
 
     // Mechanism Motors
     public DcMotor Intake;
+    public DcMotorEx IntakeEx;
     public DcMotorEx ShooterFront;
     public DcMotorEx ShooterBack;
 
@@ -64,6 +65,7 @@ public class APOCComp extends LinearOpMode
         fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
         fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
         Intake = hardwareMap.get(DcMotor.class, "Intake");
+        IntakeEx = (DcMotorEx) Intake;
         PassThrough = hardwareMap.get(CRServo.class, "passthrough_servo");
         ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
         ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
@@ -112,6 +114,7 @@ public class APOCComp extends LinearOpMode
         double Turn = 0;
         double Heading = 0;
         boolean runIntake = false;
+        double intakeSpeed = 0;
         boolean shootRequest = false;
         boolean revRequest = false;
         int shooterStage = 0;
@@ -126,13 +129,16 @@ public class APOCComp extends LinearOpMode
         boolean highOveride = false;
         boolean highOverrideLast = false;
         boolean lowOverrideLast = false;
-        int pipeline = 0;
+        int pipeline = Constants.LLPipeline;
         boolean pipelineUpLast = false;
         boolean pipelineDownLast = false;
         boolean fieldCentricMode = true;
         double fieldCentricTimer = 0;
+        double shooterTimer = 0;
         int cyclesAtSpeed = 0;
         boolean resetLast = false;
+        int shotCount = 0;
+        int prevShotCount = 0;
 
         pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -274,34 +280,42 @@ public class APOCComp extends LinearOpMode
             limelight.updateRobotOrientation(robotYaw);
             result = limelight.getLatestResult();
 
-            if (result != null && result.isValid()) {
+            if (result != null) {
                 telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+                if (result.isValid()){
 
-                //Update Position
-                Pose3D botPose = result.getBotpose();
-                Pose3D botPose_mt2 = result.getBotpose_MT2();
-                if (botPose != null) {
-                    double x = botPose.getPosition().x;
-                    double z = botPose.getPosition().z;
-                    telemetry.addData("MT1 Location", "(" + x + ", " + z + ")");
-                }
-
-                //Get Distance from Target
-                List<FiducialResult> fiducials = result.getFiducialResults();
-                for (FiducialResult fiducial : fiducials) {
-                    int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                    if ((id == 20) || (id == 24)) {
-                        double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Horizontal offset (meters)
-                        double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Vertical offset (meters)
-                        double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
-                        double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
-                        double distance = Math.sqrt((x * x) + (z * z)); // Use horizontal plane distance to the tag
-                        telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
-
-                        ShooterTarget = distance;
+                    //Update Position
+                    Pose3D botPose = result.getBotpose();
+                    Pose3D botPose_mt2 = result.getBotpose_MT2();
+                    if (botPose != null) {
+                        double x = botPose.getPosition().x;
+                        double z = botPose.getPosition().z;
+                        telemetry.addData("MT1 Location", "(" + x + ", " + z + ")");
+                    } else{
+                        telemetry.addData("MT1 Location", "Not Found");
                     }
+
+                    //Get Distance from Target
+                    List<FiducialResult> fiducials = result.getFiducialResults();
+                    for (FiducialResult fiducial : fiducials) {
+                        int id = fiducial.getFiducialId(); // The ID number of the fiducial
+                        if ((id == 20) || (id == 24)) {
+                            double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Horizontal offset (meters)
+                            double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Vertical offset (meters)
+                            double z = fiducial.getRobotPoseTargetSpace().getPosition().z; // Forward distance (meters)
+                            double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
+                            double distance = Math.sqrt((x * x) + (z * z)); // Use horizontal plane distance to the tag
+                            telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
+
+                            ShooterTarget = distance;
+                        }
+                    }
+                } else {
+                    ShooterTarget = 3.75;
+                    telemetry.addData("MT1 Location", "Not Found");
+                    telemetry.addData("Fiducial", "Not Found");
                 }
-            } else { ShooterTarget = 0.2; }
+            }
 
 
             //Shooter Controls
@@ -342,7 +356,13 @@ public class APOCComp extends LinearOpMode
             ShooterFspeed = ShooterFront.getVelocity();
             ShooterBspeed = ShooterBack.getVelocity();
 
-            if (shootRequest || revRequest) {
+            if (ShooterTarget < 1.06){
+                shooterIntake = false;
+                shooterPassThrough = false;
+                ShooterFront.setVelocity(0);
+                ShooterBack.setVelocity(0);
+                telemetry.addData("Shooter Status", "*  Too Close!  *");
+            } else if (shootRequest || revRequest) {
                 //set target speeds
                 ShooterFTarget = -Constants.ShooterCal.interpolate(ShooterTarget, true);
                 ShooterBTarget = -Constants.ShooterCal.interpolate(ShooterTarget, false);
@@ -354,37 +374,61 @@ public class APOCComp extends LinearOpMode
                                 && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
                                 && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
                                 && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
+                        || (getRuntime() - shooterTimer > Constants.shooterMinTimeAtSpeed)
+                        && (getRuntime() - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
                 ) {
-                    telemetry.addData("Shooter Status", "***  Ready  ***");
-
-                    if (shootRequest){
-                        shooterIntake = true;
-                        telemetry.addData("Shooter Status", "*** Firing! ***");
-                        Intake.setPower(-0.75);
-                        PassThrough.setPower(1);
+                    if (shooterTimer == 0) {
+                        shooterTimer = getRuntime();
+                        prevShotCount = shotCount;
+                    }
+                    if (getRuntime() - shooterTimer > Constants.shooterMinTimeAtSpeed){
+                        if (shootRequest){
+                            shooterIntake = true;
+                            shooterPassThrough = true;
+                            telemetry.addData("Shooter Status", "*** Firing! ***");
+                            Intake.setPower(Constants.Intake_Shoot_Speed);
+                            PassThrough.setPower(1);
+                            shotCount = prevShotCount + 1;
+                        } else{
+                            shooterIntake = false;
+                            shooterPassThrough = false;
+                            telemetry.addData("Shooter Status", "***  Ready  ***");
+                        }
                     } else{
                         shooterIntake = false;
+                        shooterPassThrough = false;
+                        telemetry.addData("Shooter Status", "Fluctuating");
                     }
-
                 } else {
                     shooterIntake = false;
+                    shooterPassThrough = false;
+                    shooterTimer = 0;
                     telemetry.addData("Shooter Status", "Spinning up...");
                 }
             } else {
                 shooterIntake = false;
+                shooterPassThrough = false;
                 ShooterFront.setVelocity(0);
                 ShooterBack.setVelocity(0);
-                telemetry.addData("Shooter Status", " Idle ");
+                telemetry.addData("Shooter Status", "***   Idle   ***");
             }
 
             //Intake Control
             runIntake = IntakeToggle.toggleInput((gamepad2.right_trigger > 0),runIntake);
 
+            intakeSpeed = IntakeEx.getVelocity() / 2380;
+
             //Set Intake power
             if (runIntake) {
                 if (gamepad2.right_bumper)
-                    { Intake.setPower(0.7); }
-                    else { Intake.setPower(-0.7); }
+                    { Intake.setPower(Constants.Intake_Eject_Speed);} //Eject Balls
+                    else {
+                        if (intakeSpeed > 0.15) {
+                            Intake.setPower(0.2);
+                        } else{
+                            Intake.setPower(Constants.Intake_In_Speed);
+                        }
+                    } //Intake Balls
             } else if (!shooterIntake) {
                 Intake.setPower(0);
             }
@@ -395,15 +439,25 @@ public class APOCComp extends LinearOpMode
             } else if (gamepad2.dpad_up) {
                 PassThrough.setPower(1);
             } else {
-                if (!runIntake && !shooterPassThrough) {
-                    PassThrough.setPower(0);
+                if (!shooterPassThrough) {
+                    if (runIntake)
+                    {
+                        if (intakeSpeed < (Constants.Intake_In_Speed * 0.7)) {
+                            PassThrough.setPower(-0.3);
+                        } else {
+                            PassThrough.setPower(-0.1);
+                        }
+                    }
+                    else
+                    {PassThrough.setPower(0);}
                 }
             }
 
 
 
-
-            telemetry.addData("Shooter Target", ShooterTarget);
+            telemetry.addData("Shot Count", shotCount);
+            telemetry.addData("Shooter Target Distance", ShooterTarget);
+            telemetry.addData("Shooter Target Velocity", ShooterFTarget);
             telemetry.addData("Shooter Front Vel", ShooterFront.getVelocity());
             telemetry.addData("Shooter Back Vel", ShooterBack.getVelocity());
             telemetry.addData("Shooter Stage", shooterStage);

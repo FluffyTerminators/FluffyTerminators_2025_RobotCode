@@ -82,14 +82,20 @@ public class Constants
     public static final double spindexerFWD = 1;
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
+    public static final double shooterMinTimeAtSpeed = 0.2;
+    public static final double shooterMinRunTime = 0.2;
     public static final double brake = 0.5;
-    public static final int LLPipeline = 0;
+    public static final int LLPipeline = 3;
 
     public static final double High_Override_Speed = 900;
-    public static final double High_Override_Range = 2.86;
+    public static final double High_Override_Range = 3.2;
     public static final double Low_Override_Speed = 800;
-    public static final double Low_Override_Range = 0.2;
-    public static final double Shooter_Speed_Tolerance = 41;
+    public static final double Low_Override_Range = 2.15;
+    public static final double Shooter_Speed_Tolerance = 41; //29;
+
+    public static final double Intake_In_Speed = -0.75;
+    public static final double Intake_Shoot_Speed = -0.75;
+    public static final double Intake_Eject_Speed = 0.75;
 
     public static class HardwareMappings {
         // Hubs
@@ -122,10 +128,10 @@ public class Constants
     }
     public static class ShooterCal
     {
-        private static final double[] distance     = {0.2, 2.86}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] oldShooterTicks = {300, 880};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
-        private static final double[] fShooterTicks = {300, 540};
-        private static final double[] bShooterTicks = {300, 540};
+        private static final double[] distance     = {1.06, 1.4, 1.8, 2.15, 3.2, 3.75}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
+        private static final double[] oldShooterTicks = {360, 380, 440, 460, 540, 600};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] fShooterTicks = {360, 380, 440, 460, 540, 600};
+        private static final double[] bShooterTicks = {360, 380, 440, 460, 540, 600};
 
         /**
          * interpolate(x, isFront) uses the distance from the target to automatically return the required shooter speed in motor velocity

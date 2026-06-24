@@ -27,13 +27,13 @@ public final class ShooterPidTuning {
 
     public static double FrVelocityKp = 60;
     public static double FrVelocityKi = 0;
-    public static double FrVelocityKd = 0;
-    public static double FrVelocityKf = 20;
+    public static double FrVelocityKd = 1;
+    public static double FrVelocityKf = 20.4;
 
     public static double BVelocityKp = 60;
     public static double BVelocityKi = 0;
-    public static double BVelocityKd = 5;
-    public static double BVelocityKf = 15.2;
+    public static double BVelocityKd = 1;
+    public static double BVelocityKf = 15.4;
 
     private static final double EPSILON = 1e-6;
 
