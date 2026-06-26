@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 
-@Autonomous(name = "DoubleCycleAuto")
+@Autonomous(name = "Z_old_DoubleCycleAuto")
 @Configurable // Panels
 public class DoubleCycleAuto extends OpMode {
 

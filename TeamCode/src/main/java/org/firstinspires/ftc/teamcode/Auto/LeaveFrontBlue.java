@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.Constants.PEDROConstants;
 
-@Autonomous(name = "FrontB Leave")
+@Autonomous(name = "Z_old_FrontB Leave")
 @Configurable // Panels
 public class LeaveFrontBlue extends OpMode {
 

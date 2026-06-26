@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "Goal Preload Blue")
+@Autonomous(name = "Z_Old_Goal Preload Blue")
 @Configurable // Panels
 public class FrontPreloadBlueNew extends OpMode {
 

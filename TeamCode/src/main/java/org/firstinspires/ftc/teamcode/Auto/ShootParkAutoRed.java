@@ -29,7 +29,7 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "FrontR Shoot & Park")
+@Autonomous(name = "Z_old_FrontR Shoot & Park")
 @Configurable // Panels
 public class ShootParkAutoRed extends OpMode {
 

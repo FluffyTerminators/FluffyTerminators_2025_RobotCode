@@ -28,7 +28,7 @@ import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 
 import java.util.List;
 
-@Autonomous(name = "FrontR 6 Artifact")
+@Autonomous(name = "Z_old_FrontR 6 Artifact")
 @Configurable // Panels
 public class SixArtifactAutoRed extends OpMode {
 
