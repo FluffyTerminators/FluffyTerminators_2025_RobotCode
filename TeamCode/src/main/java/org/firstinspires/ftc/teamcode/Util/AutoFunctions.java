@@ -19,6 +19,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
@@ -32,6 +33,7 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
+
 import org.firstinspires.ftc.teamcode.Util.Constants.*;
 
 import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
@@ -85,57 +87,88 @@ public class AutoFunctions
     return  DetectedColour.UNKNOWN;
   }
 
-  public static void runShooter(DcMotorEx shooterMotor,
-                                Boolean spindexToggle,
-                                double shooterVel,
-                                double spinUpTime,
-                                double shooterState,
-                                NormalizedColorSensor colourSensorA,
-                                NormalizedColorSensor colourSensorB,
-                                Servo flap)
+  public static double runShooter(DcMotorEx shooterFMotor,
+                                DcMotorEx shooterBMotor,
+                                DcMotorEx intake,
+                                boolean passthroughToggle,
+                                boolean intakeToggle,
+                                double shooterTarget,
+                                double runtime,
+                                CRServo Passthrough)
   {
-    shooterMotor.setVelocity(shooterVel);
-    telemetry.addData("Shooter Motor", shooterMotor);
-    telemetry.addData("Spindexer?", spindexToggle);
-    telemetry.addData("Shooter Target", shooterVel);
-    telemetry.addData("Runtime", spinUpTime);
-    telemetry.addData("Shooter State", shooterState);
-    telemetry.addData("First Colour", colourSensorA);
-    telemetry.addData("Second Colour", colourSensorB);
-    telemetry.addData("Servo", flap);
-    spinUpTime = linearOpMode.getRuntime();
-    shooterState = 1;
-    if (shooterState == 1)
-    {
-      spindexToggle = true;
-      if (getDetectedColor(telemetry, colourSensorA, colourSensorB) ==  DetectedColour.GREEN || getDetectedColor(telemetry, colourSensorA, colourSensorB) ==  DetectedColour.PURPLE)
-      {
-        spinUpTime = linearOpMode.getRuntime();
-        shooterState = 2;
-      }
-    }
-    if (shooterState == 2)
-    {
+    double ShooterFTarget;
+    double ShooterBTarget;
+    double shooterTimer =0;
+    double prevShotCount =0;
+    double shotCount =0;
+    double ShooterFspeed =0;
+    double ShooterBspeed =0;
+    boolean shootRequest = false;
 
-      if (linearOpMode.getRuntime() == spinUpTime + 0.5)
-      {
-        shooterState = 3;
+    if (shooterTarget < 1.06){
+      intakeToggle = false;
+      passthroughToggle = false;
+      shootRequest = false;
+      shooterFMotor.setVelocity(0);
+      shooterBMotor.setVelocity(0);
+      telemetry.addData("Shooter Status", "*  Too Close!  *");
+    } else if (shootRequest) {
+      //set target speeds
+      ShooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
+      ShooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
+      shooterFMotor.setVelocity(ShooterFTarget);
+      shooterBMotor.setVelocity(ShooterBTarget);
+      ShooterFspeed = shooterFMotor.getVelocity();
+
+      //Check if Shooter Speed is within target range
+      if ((ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
+              && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
+              && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
+              && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
+              || (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed)
+              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
+      ) {
+        if (shooterTimer == 0) {
+          shooterTimer = runtime;
+          prevShotCount = shotCount;
+        }
+        if (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed){
+          if (shootRequest){
+            intakeToggle = true;
+            passthroughToggle = true;
+            telemetry.addData("Shooter Status", "*** Firing! ***");
+            intake.setPower(Constants.Intake_Shoot_Speed);
+            Passthrough.setPower(1);
+            shotCount = prevShotCount + 1;
+          } else{
+            intakeToggle = false;
+            passthroughToggle = false;
+            shootRequest = true;
+            telemetry.addData("Shooter Status", "***  Ready  ***");
+          }
+        } else{
+          intakeToggle = false;
+          passthroughToggle = false;
+          shootRequest = false;
+          telemetry.addData("Shooter Status", "Fluctuating");
+        }
+      } else {
+        intakeToggle = false;
+        passthroughToggle = false;
+        shooterTimer = 0;
+        telemetry.addData("Shooter Status", "Spinning up...");
       }
+    } else {
+      intakeToggle = false;
+      passthroughToggle = false;
+      shooterFMotor.setVelocity(0);
+      shooterBMotor.setVelocity(0);
+      telemetry.addData("Shooter Status", "***   Idle   ***");
     }
-    if (shooterState == 3)
+    if (shotCount == 5)
     {
-      spindexToggle = false;
-      if (shooterMotor.getVelocity() < shooterVel)
-      {
-        shooterState = 4;
-      }
+      shotCount = 0;
     }
-    if (shooterState == 4)
-    {
-      if (shooterMotor.getVelocity() > shooterVel)
-      {
-        shooterState = -1;
-      }
-    }
+    return shotCount;
   }
 }
