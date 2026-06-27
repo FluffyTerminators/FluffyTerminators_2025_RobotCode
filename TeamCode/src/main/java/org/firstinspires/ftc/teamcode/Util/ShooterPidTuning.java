@@ -25,12 +25,12 @@ public final class ShooterPidTuning {
     //public static double velocityKf = 18.0;  // REV 2018-2019 PIDF Kf = 11.7
     public static double velocityKf = 17.8;  // REV 2018-2019 PIDF Kf = 11.7
 
-    public static double FrVelocityKp = 60;
+    public static double FrVelocityKp = 55;
     public static double FrVelocityKi = 0;
     public static double FrVelocityKd = 1;
     public static double FrVelocityKf = 20.4;
 
-    public static double BVelocityKp = 60;
+    public static double BVelocityKp = 55;
     public static double BVelocityKi = 0;
     public static double BVelocityKd = 1;
     public static double BVelocityKf = 15.4;

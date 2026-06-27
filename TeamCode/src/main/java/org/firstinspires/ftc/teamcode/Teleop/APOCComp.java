@@ -13,11 +13,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 
-import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.teamcode.Util.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
@@ -119,12 +119,7 @@ public class APOCComp extends LinearOpMode
         boolean revRequest = false;
         int shooterStage = 0;
         double ShooterTarget = 0;
-        double ShooterFspeed = 0;
-        double ShooterFTarget = 0;
-        double ShooterBspeed = 0;
-        double ShooterBTarget = 0;
-        boolean shooterIntake = false;
-        boolean shooterPassThrough = false;
+        boolean shooterFiring = false;
         boolean lowOveride = false;
         boolean highOveride = false;
         boolean highOverrideLast = false;
@@ -137,8 +132,6 @@ public class APOCComp extends LinearOpMode
         double shooterTimer = 0;
         int cyclesAtSpeed = 0;
         boolean resetLast = false;
-        int shotCount = 0;
-        int prevShotCount = 0;
 
         pinpoint.setOffsets(100, -25, DistanceUnit.MM); //these are tuned for 3110-0002-0001 Product Insight #1
         pinpoint.setEncoderResolution(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -347,70 +340,50 @@ public class APOCComp extends LinearOpMode
             if (lowOveride) { ShooterTarget = Constants.Low_Override_Range; }
 
 
-            //Shooter process (for all uses of shooter)
-            //Set motor speeds to interpolated target speed
-            //if inside range, run passthrough and intake
 
 
-            //Read current shooter speeds
-            ShooterFspeed = ShooterFront.getVelocity();
-            ShooterBspeed = ShooterBack.getVelocity();
+            AutoFunctions.runShooter(ShooterFront,
+                    ShooterBack,
+                    IntakeEx,
+                    ShooterTarget,
+                    getRuntime(),
+                    PassThrough,
+                    shootRequest,
+                    revRequest);
 
-            if (ShooterTarget < 1.06){
-                shooterIntake = false;
-                shooterPassThrough = false;
-                ShooterFront.setVelocity(0);
-                ShooterBack.setVelocity(0);
-                telemetry.addData("Shooter Status", "*  Too Close!  *");
-            } else if (shootRequest || revRequest) {
-                //set target speeds
-                ShooterFTarget = -Constants.ShooterCal.interpolate(ShooterTarget, true);
-                ShooterBTarget = -Constants.ShooterCal.interpolate(ShooterTarget, false);
-                ShooterFront.setVelocity(ShooterFTarget);
-                ShooterBack.setVelocity(ShooterBTarget);
+            telemetry.addData("Shooter State", AutoFunctions.shooterState);
 
-                //Check if Shooter Speed is within target range
-                if ((ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
-                                && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
-                                && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
-                                && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
-                        || (getRuntime() - shooterTimer > Constants.shooterMinTimeAtSpeed)
-                        && (getRuntime() - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
-                ) {
-                    if (shooterTimer == 0) {
-                        shooterTimer = getRuntime();
-                        prevShotCount = shotCount;
-                    }
-                    if (getRuntime() - shooterTimer > Constants.shooterMinTimeAtSpeed){
-                        if (shootRequest){
-                            shooterIntake = true;
-                            shooterPassThrough = true;
-                            telemetry.addData("Shooter Status", "*** Firing! ***");
-                            Intake.setPower(Constants.Intake_Shoot_Speed);
-                            PassThrough.setPower(1);
-                            shotCount = prevShotCount + 1;
-                        } else{
-                            shooterIntake = false;
-                            shooterPassThrough = false;
-                            telemetry.addData("Shooter Status", "***  Ready  ***");
-                        }
-                    } else{
-                        shooterIntake = false;
-                        shooterPassThrough = false;
-                        telemetry.addData("Shooter Status", "Fluctuating");
-                    }
-                } else {
-                    shooterIntake = false;
-                    shooterPassThrough = false;
-                    shooterTimer = 0;
-                    telemetry.addData("Shooter Status", "Spinning up...");
+            switch (AutoFunctions.shooterState){
+                case 0: {
+                    telemetry.addData("Shooter Status", "*  Too Close!  *");
+                    shooterFiring = false;
+                    break;
                 }
-            } else {
-                shooterIntake = false;
-                shooterPassThrough = false;
-                ShooterFront.setVelocity(0);
-                ShooterBack.setVelocity(0);
-                telemetry.addData("Shooter Status", "***   Idle   ***");
+                case 1: {
+                    telemetry.addData("Shooter Status", "*** Firing! ***");
+                    shooterFiring = true;
+                    break;
+                }
+                case 2: {
+                    telemetry.addData("Shooter Status", "***  Ready  ***");
+                    shooterFiring = false;
+                    break;
+                }
+                case 3: {
+                    telemetry.addData("Shooter Status", "Waiting");
+                    shooterFiring = false;
+                    break;
+                }
+                case 4: {
+                    telemetry.addData("Shooter Status", "Spinning up...");
+                    shooterFiring = false;
+                    break;
+                }
+                case 5: {
+                    telemetry.addData("Shooter Status", "***   Idle   ***");
+                    shooterFiring = false;
+                    break;
+                }
             }
 
             //Intake Control
@@ -429,7 +402,7 @@ public class APOCComp extends LinearOpMode
                             Intake.setPower(Constants.Intake_In_Speed);
                         }
                     } //Intake Balls
-            } else if (!shooterIntake) {
+            } else if (!shooterFiring) {
                 Intake.setPower(0);
             }
 
@@ -439,7 +412,7 @@ public class APOCComp extends LinearOpMode
             } else if (gamepad2.dpad_up) {
                 PassThrough.setPower(1);
             } else {
-                if (!shooterPassThrough) {
+                if (!shooterFiring) {
                     if (runIntake)
                     {
                         if (intakeSpeed < (Constants.Intake_In_Speed * 0.7)) {
@@ -455,9 +428,9 @@ public class APOCComp extends LinearOpMode
 
 
 
-            telemetry.addData("Shot Count", shotCount);
+            telemetry.addData("Shot Count", AutoFunctions.shotCount);
             telemetry.addData("Shooter Target Distance", ShooterTarget);
-            telemetry.addData("Shooter Target Velocity", ShooterFTarget);
+            telemetry.addData("Shooter Target Velocity", AutoFunctions.shooterFTarget);
             telemetry.addData("Shooter Front Vel", ShooterFront.getVelocity());
             telemetry.addData("Shooter Back Vel", ShooterBack.getVelocity());
             telemetry.addData("Shooter Stage", shooterStage);

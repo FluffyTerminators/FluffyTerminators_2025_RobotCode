@@ -50,6 +50,9 @@ public class AutoFunctions
   public static int shotCount;
   private static int prevShotCount;
 
+  public static double shooterFTarget;
+  public static double shooterBTarget;
+
 
   public enum DetectedColour{
     GREEN,
@@ -95,11 +98,27 @@ public class AutoFunctions
     return  DetectedColour.UNKNOWN;
   }
 
-  public static double runShooter(DcMotorEx shooterFMotor,
+  public static void resetShotCount(){
+    shotCount = 0;
+  }
+
+
+  /**
+   * Shooter process (for all uses of shooter)
+   * Set motor speeds to interpolated target speed
+   * if inside range, run passthrough and intake
+   * @param shooterFMotor Front Motor
+   * @param shooterBMotor Back Motor
+   * @param intake Intake Motor
+   * @param shooterTarget Target Range
+   * @param runtime Current Runtime
+   * @param Passthrough Passthrough Motor
+   * @param shootRequest Try to Shoot?
+   * @param revRequest Try to Rev?
+   */
+  public static void runShooter(DcMotorEx shooterFMotor,
                                 DcMotorEx shooterBMotor,
                                 DcMotorEx intake,
-                                boolean passthroughToggle,
-                                boolean intakeToggle,
                                 double shooterTarget,
                                 double runtime,
                                 CRServo Passthrough,
@@ -107,27 +126,24 @@ public class AutoFunctions
                                 boolean revRequest
                                 )
   {
-
     //Read current shooter speeds
     double ShooterFspeed = shooterFMotor.getVelocity();
     double ShooterBspeed = shooterBMotor.getVelocity();
 
     if (shooterTarget < 1.06){
-      shooterFMotor.setVelocity(0);
-      shooterBMotor.setVelocity(0);
+      shooterFTarget = 0;
+      shooterBTarget = 0;
       shooterState = 0;
     } else if (shootRequest || revRequest) {
       //set target speeds
-      double ShooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
-      double ShooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
-      shooterFMotor.setVelocity(ShooterFTarget);
-      shooterBMotor.setVelocity(ShooterBTarget);
+      shooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
+      shooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
 
       //Check if Shooter Speed is within target range
-      if ((ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
-              && (ShooterFspeed < (ShooterFTarget + Constants.Shooter_Speed_Tolerance))
-              && (ShooterBspeed > (ShooterBTarget - Constants.Shooter_Speed_Tolerance))
-              && (ShooterBspeed < (ShooterBTarget + Constants.Shooter_Speed_Tolerance))
+      if ((ShooterFspeed > (shooterFTarget - Constants.Shooter_Speed_Tolerance))
+              && (ShooterFspeed < (shooterFTarget + Constants.Shooter_Speed_Tolerance))
+              && (ShooterBspeed > (shooterBTarget - Constants.Shooter_Speed_Tolerance))
+              && (ShooterBspeed < (shooterBTarget + Constants.Shooter_Speed_Tolerance))
               || (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed)
               && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
       ) {
@@ -152,15 +168,12 @@ public class AutoFunctions
         shooterState = 4;
       }
     } else {
-      shooterFMotor.setVelocity(0);
-      shooterBMotor.setVelocity(0);
+      shooterFTarget = 0;
+      shooterBTarget = 0;
       shooterState = 5;
     }
 
-    if (shotCount == 5)
-    {
-      shotCount = 0;
-    }
-    return shotCount;
+    shooterFMotor.setVelocity(shooterFTarget);
+    shooterBMotor.setVelocity(shooterBTarget);
   }
 }

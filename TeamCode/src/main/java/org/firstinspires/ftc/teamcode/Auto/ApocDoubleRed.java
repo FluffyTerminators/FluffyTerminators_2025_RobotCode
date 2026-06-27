@@ -218,41 +218,41 @@ public class ApocDoubleRed extends OpMode {
                 follower.followPath(paths.Start);
                 pathState = 1;
             case 1:
-                double ret_value = AutoFunctions.runShooter(ShooterFront,
+                AutoFunctions.runShooter(ShooterFront,
                         ShooterBack,
                         IntakeEx,
-                        passthroughToggle,
-                        intakeToggle,
                         ShooterTarget,
                         getRuntime(),
-                        Passthrough);
-                if ( ret_value == 4) {pathState = 2;}
+                        Passthrough,
+                        true,
+                        true);
+                if (AutoFunctions.shotCount == 4) {pathState = 2;}
             case 2:
               follower.followPath(paths.CollectA);
               pathState = 3;
             case 3:
-                ret_value = AutoFunctions.runShooter(ShooterFront,
+                AutoFunctions.runShooter(ShooterFront,
                         ShooterBack,
                         IntakeEx,
-                        passthroughToggle,
-                        intakeToggle,
                         ShooterTarget,
                         getRuntime(),
-                        Passthrough);
-                if ( ret_value == 4) {pathState = 4;}
+                        Passthrough,
+                        true,
+                        true);
+                if (AutoFunctions.shotCount == 4) {pathState = 4;}
             case 4:
                 follower.followPath(paths.CollectB);
                 pathState = 5;
             case 5:
-                 ret_value = AutoFunctions.runShooter(ShooterFront,
-                             ShooterBack,
-                             IntakeEx,
-                             passthroughToggle,
-                             intakeToggle,
-                             ShooterTarget,
-                             getRuntime(),
-                             Passthrough);
-                if ( ret_value == 4) {pathState = 6;}
+                 AutoFunctions.runShooter(ShooterFront,
+                         ShooterBack,
+                         IntakeEx,
+                         ShooterTarget,
+                         getRuntime(),
+                         Passthrough,
+                        true,
+                        true);
+                if (AutoFunctions.shotCount == 4) {pathState = 6;}
             case 6:
                 follower.followPath(paths.Finish);
                 pathState = -1;

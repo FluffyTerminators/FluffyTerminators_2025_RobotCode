@@ -130,11 +130,6 @@ public class ApocPreloadRed extends OpMode {
         panelsTelemetry.debug("Heading", follower.getPose().getHeading());
         panelsTelemetry.update(telemetry);
 
-        if (passthroughToggle) {
-            Passthrough.setPower(1);
-        } else {
-            Passthrough.setPower(0);
-        }
     }
 
     public static class Paths {
@@ -153,7 +148,7 @@ public class ApocPreloadRed extends OpMode {
             FinishChain = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(73.000, 17.000),
+                                    new Pose(73.000, 27.000),
                                     new Pose(129.000, 8.000)
                             )
                     )
@@ -163,28 +158,46 @@ public class ApocPreloadRed extends OpMode {
     }
 
     public int autonomousPathUpdate() {
+
+        telemetry.addData("ShotCount",AutoFunctions.shotCount);
+        telemetry.addData("ShooterTimer",AutoFunctions.shooterTimer);
+
         // Add your state machine Here
         switch (pathState) {
             case 0:
                 follower.followPath(paths.StartChain);
-                pathState = -1;
+                AutoFunctions.resetShotCount();
+                pathState = 1;
+                break;
             case 1:
+                AutoFunctions.runShooter(ShooterFront,
+                        ShooterBack,
+                        IntakeEx,
+                        ShooterTarget,
+                        getRuntime(),
+                        Passthrough,
+                        !follower.isBusy(),
+                        true);
+
                 if (!follower.isBusy()) {
-                    double ret_value = AutoFunctions.runShooter(ShooterFront,
-                            ShooterBack,
-                            IntakeEx,
-                            passthroughToggle,
-                            intakeToggle,
-                            ShooterTarget,
-                            getRuntime(),
-                            Passthrough);
-                    if (ret_value == 4) {
+                    if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
+
                     }
                 }
-            /*case 2:
+                break;
+            case 2:
+                AutoFunctions.runShooter(ShooterFront,
+                        ShooterBack,
+                        IntakeEx,
+                        ShooterTarget,
+                        getRuntime(),
+                        Passthrough,
+                        false,
+                        false);
                 follower.followPath(paths.FinishChain);
-                pathState = -1;*/
+                pathState = -1;
+                break;
         }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine

@@ -199,15 +199,15 @@ public class ApocCollectRed extends OpMode {
                 follower.followPath(paths.Start);
                 pathState = 1;
             case 1:
-                double ret_value = AutoFunctions.runShooter(ShooterFront,
+                AutoFunctions.runShooter(ShooterFront,
                         ShooterBack,
                         IntakeEx,
-                        passthroughToggle,
-                        intakeToggle,
                         ShooterTarget,
                         getRuntime(),
-                        Passthrough);
-                if ( ret_value == 4) {pathState = 2;}
+                        Passthrough,
+                        true,
+                        true);
+                if (AutoFunctions.shotCount == 4) {pathState = 2;}
             case 2:
               follower.followPath(paths.Preload);
               pathState = 3;
@@ -215,15 +215,15 @@ public class ApocCollectRed extends OpMode {
                 follower.followPath(paths.Collect);
                 pathState = 4;
             case 4:
-                 ret_value = AutoFunctions.runShooter(ShooterFront,
+                 AutoFunctions.runShooter(ShooterFront,
                              ShooterBack,
                              IntakeEx,
-                             passthroughToggle,
-                             intakeToggle,
                              ShooterTarget,
                              getRuntime(),
-                             Passthrough);
-                if ( ret_value == 4) {pathState = 5;}
+                             Passthrough,
+                            true,
+                            true);
+                if ( AutoFunctions.shotCount == 4) {pathState = 5;}
             case 5:
                 follower.followPath(paths.Finish);
                 pathState = -1;

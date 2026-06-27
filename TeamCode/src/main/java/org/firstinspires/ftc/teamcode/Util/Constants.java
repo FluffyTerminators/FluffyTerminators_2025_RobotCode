@@ -85,7 +85,7 @@ public class Constants
     public static final double shooterMinTimeAtSpeed = 0.2;
     public static final double shooterMinRunTime = 0.2;
     public static final double brake = 0.5;
-    public static final int LLPipeline = 3;
+    public static final int LLPipeline = 5;
 
     public static final double High_Override_Speed = 900;
     public static final double High_Override_Range = 3.2;
