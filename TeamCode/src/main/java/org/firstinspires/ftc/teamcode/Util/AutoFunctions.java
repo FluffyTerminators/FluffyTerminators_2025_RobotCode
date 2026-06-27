@@ -111,7 +111,6 @@ public class AutoFunctions
       shootRequest = false;
       shooterFMotor.setVelocity(0);
       shooterBMotor.setVelocity(0);
-      telemetry.addData("Shooter Status", "*  Too Close!  *");
     } else if (shootRequest) {
       //set target speeds
       ShooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
@@ -136,7 +135,6 @@ public class AutoFunctions
           if (shootRequest){
             intakeToggle = true;
             passthroughToggle = true;
-            telemetry.addData("Shooter Status", "*** Firing! ***");
             intake.setPower(Constants.Intake_Shoot_Speed);
             Passthrough.setPower(1);
             shotCount = prevShotCount + 1;
@@ -144,26 +142,22 @@ public class AutoFunctions
             intakeToggle = false;
             passthroughToggle = false;
             shootRequest = true;
-            telemetry.addData("Shooter Status", "***  Ready  ***");
           }
         } else{
           intakeToggle = false;
           passthroughToggle = false;
           shootRequest = false;
-          telemetry.addData("Shooter Status", "Fluctuating");
         }
       } else {
         intakeToggle = false;
         passthroughToggle = false;
         shooterTimer = 0;
-        telemetry.addData("Shooter Status", "Spinning up...");
       }
     } else {
       intakeToggle = false;
       passthroughToggle = false;
       shooterFMotor.setVelocity(0);
       shooterBMotor.setVelocity(0);
-      telemetry.addData("Shooter Status", "***   Idle   ***");
     }
     if (shotCount == 5)
     {

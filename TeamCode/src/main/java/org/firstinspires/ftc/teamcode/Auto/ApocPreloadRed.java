@@ -35,7 +35,7 @@ import java.util.List;
 public class ApocPreloadRed extends OpMode {
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
-    private int pathState; // Current autonomous path state (state machine)
+    private int pathState=0; // Current autonomous path state (state machine)
     private ApocPreloadRed.Paths paths; // Paths defined in the Paths class
     private Limelight3A limelight;
     private GoBildaPinpointDriver pinpoint;
@@ -169,15 +169,19 @@ public class ApocPreloadRed extends OpMode {
                 follower.followPath(paths.StartChain);
                 pathState = 1;
             case 1:
-                double ret_value = AutoFunctions.runShooter(ShooterFront,
-                                        ShooterBack,
-                                        IntakeEx,
-                                        passthroughToggle,
-                                        intakeToggle,
-                                        ShooterTarget,
-                                        getRuntime(),
-                                        Passthrough);
-                if ( ret_value == 4) {pathState = 2;}
+                if (!follower.isBusy()) {
+                    double ret_value = AutoFunctions.runShooter(ShooterFront,
+                            ShooterBack,
+                            IntakeEx,
+                            passthroughToggle,
+                            intakeToggle,
+                            ShooterTarget,
+                            getRuntime(),
+                            Passthrough);
+                    if (ret_value == 4) {
+                        pathState = 2;
+                    }
+                }
             case 2:
                 follower.followPath(paths.FinishChain);
                 pathState = -1;
