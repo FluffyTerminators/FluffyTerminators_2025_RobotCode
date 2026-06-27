@@ -69,9 +69,10 @@ public class ApocGoalLeaveBlue extends OpMode {
             case 0:
                 follower.followPath(paths.MainChain);
                 pathState = -1;
+                break;
         }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
-        return 0;
+        return pathState;
     }
 }
