@@ -43,6 +43,10 @@ public class ApocPreloadRed extends OpMode {
     private DcMotorEx ShooterBack;
     private DcMotor Intake;
     public DcMotorEx IntakeEx;
+    public DcMotor bLDrive;
+    public DcMotor bRDrive;
+    public DcMotor fLDrive;
+    public DcMotor fRDrive;
     private boolean intakeToggle;
     private CRServo Passthrough;
     private boolean passthroughToggle;
@@ -57,7 +61,10 @@ public class ApocPreloadRed extends OpMode {
         Passthrough = hardwareMap.get(CRServo.class, "passthrough_servo");
         ShooterFront = hardwareMap.get(DcMotorEx.class, "ShooterFront");
         ShooterBack = hardwareMap.get(DcMotorEx.class, "ShooterBack");
-
+        bLDrive = hardwareMap.get(DcMotor.class, "BLDrive");
+        bRDrive = hardwareMap.get(DcMotor.class, "BRDrive");
+        fLDrive = hardwareMap.get(DcMotor.class, "FLDrive");
+        fRDrive = hardwareMap.get(DcMotor.class, "FRDrive");
         pinpoint = hardwareMap.get(GoBildaPinpointDriver.class, "pinpoint");
         limelight = hardwareMap.get(Limelight3A.class, "Limelight");
         runtime = getRuntime();
@@ -180,6 +187,23 @@ public class ApocPreloadRed extends OpMode {
                         true);
 
                 if (!follower.isBusy()) {
+                    if ((result != null) && (result.isValid())) {
+                        List<FiducialResult> fiducials = result.getFiducialResults();
+                        for (FiducialResult fiducial : fiducials) {
+                            int id = fiducial.getFiducialId(); // The ID number of the fiducial
+                            if ((id == 20) || (id == 24)) {
+                                double targetOffset = -fiducial.getTargetXDegrees();
+                                Turn = targetOffset / 35.0;
+                                if (Turn < -1) {Turn = -1;}
+                                if (Turn > 1) {Turn = 1;}
+                                if (Math.abs(Turn) < 0.05) {Turn = 0;}
+                            }
+                        }
+                    }
+                    fLDrive.setPower(Turn);
+                    bLDrive.setPower(Turn);
+                    fRDrive.setPower(-Turn);
+                    bRDrive.setPower(-Turn);
                     if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
 
