@@ -53,6 +53,8 @@ public class AutoFunctions
   public static double shooterFTarget;
   public static double shooterBTarget;
 
+  public static boolean isAuto;
+
 
   public enum DetectedColour{
     GREEN,
@@ -175,5 +177,11 @@ public class AutoFunctions
 
     shooterFMotor.setVelocity(shooterFTarget);
     shooterBMotor.setVelocity(shooterBTarget);
+
+    if (isAuto && shooterState != 1){
+      intake.setPower(0);
+      Passthrough.setPower(0);
+    }
+
   }
 }
