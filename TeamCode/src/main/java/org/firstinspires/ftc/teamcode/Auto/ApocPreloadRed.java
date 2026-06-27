@@ -145,10 +145,10 @@ public class ApocPreloadRed extends OpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(87.000, 8.000),
-                                    new Pose(73.000, 17.000)
+                                    new Pose(73.000, 27.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(220))
+                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(240))
                     .build();
             FinishChain = follower.pathBuilder()
                     .addPath(
@@ -167,7 +167,7 @@ public class ApocPreloadRed extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(paths.StartChain);
-                pathState = 1;
+                pathState = -1;
             case 1:
                 if (!follower.isBusy()) {
                     double ret_value = AutoFunctions.runShooter(ShooterFront,
@@ -182,12 +182,12 @@ public class ApocPreloadRed extends OpMode {
                         pathState = 2;
                     }
                 }
-            case 2:
+            /*case 2:
                 follower.followPath(paths.FinishChain);
-                pathState = -1;
+                pathState = -1;*/
         }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
-        return 0;
+        return pathState;
     }
 }
