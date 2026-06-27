@@ -149,7 +149,7 @@ public class ApocPreloadRed extends OpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(73.000, 27.000),
-                                    new Pose(129.000, 8.000)
+                                    new Pose(115.000, 15.000)
                             )
                     )
                     .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(0))
@@ -161,6 +161,7 @@ public class ApocPreloadRed extends OpMode {
 
         telemetry.addData("ShotCount",AutoFunctions.shotCount);
         telemetry.addData("ShooterTimer",AutoFunctions.shooterTimer);
+        AutoFunctions.isAuto = true;
 
         // Add your state machine Here
         switch (pathState) {
@@ -182,19 +183,14 @@ public class ApocPreloadRed extends OpMode {
                 if (!follower.isBusy()) {
                     if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
-
                     }
                 }
                 break;
             case 2:
-                AutoFunctions.runShooter(ShooterFront,
-                        ShooterBack,
-                        IntakeEx,
-                        ShooterTarget,
-                        getRuntime(),
-                        Passthrough,
-                        false,
-                        false);
+                ShooterFront.setVelocity(0);
+                ShooterBack.setVelocity(0);
+                IntakeEx.setPower(0);
+                Passthrough.setPower(0);
                 follower.followPath(paths.FinishChain);
                 pathState = -1;
                 break;

@@ -146,6 +146,7 @@ public class APOCComp extends LinearOpMode
 
         while (opModeIsActive()) {
             telemetry.addData("Status", "Running");
+            AutoFunctions.isAuto = false;
 
             //Apply PID Tuning if application of settings failed before OpMode
             if (!FrontSuccess) { FrontSuccess = ShooterPidTuning.applyTo(ShooterFront); }
