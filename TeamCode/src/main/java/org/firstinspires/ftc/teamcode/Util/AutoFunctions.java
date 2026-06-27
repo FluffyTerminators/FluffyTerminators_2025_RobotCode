@@ -34,6 +34,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
 
+import static java.sql.Types.NULL;
+
 import org.firstinspires.ftc.teamcode.Util.Constants.*;
 
 import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
@@ -42,6 +44,12 @@ import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.*
 
 public class AutoFunctions
 {
+
+  public static double shooterTimer;
+  public static int shooterState;
+  public static int shotCount;
+  private static int prevShotCount;
+
 
   public enum DetectedColour{
     GREEN,
@@ -94,30 +102,26 @@ public class AutoFunctions
                                 boolean intakeToggle,
                                 double shooterTarget,
                                 double runtime,
-                                CRServo Passthrough)
+                                CRServo Passthrough,
+                                boolean shootRequest,
+                                boolean revRequest
+                                )
   {
-    double ShooterFTarget;
-    double ShooterBTarget;
-    double shooterTimer =0;
-    double prevShotCount =0;
-    double shotCount =0;
-    double ShooterFspeed =0;
-    double ShooterBspeed =0;
-    boolean shootRequest = false;
+
+    //Read current shooter speeds
+    double ShooterFspeed = shooterFMotor.getVelocity();
+    double ShooterBspeed = shooterBMotor.getVelocity();
 
     if (shooterTarget < 1.06){
-      intakeToggle = false;
-      passthroughToggle = false;
-      shootRequest = false;
       shooterFMotor.setVelocity(0);
       shooterBMotor.setVelocity(0);
-    } else if (shootRequest) {
+      shooterState = 0;
+    } else if (shootRequest || revRequest) {
       //set target speeds
-      ShooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
-      ShooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
+      double ShooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
+      double ShooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
       shooterFMotor.setVelocity(ShooterFTarget);
       shooterBMotor.setVelocity(ShooterBTarget);
-      ShooterFspeed = shooterFMotor.getVelocity();
 
       //Check if Shooter Speed is within target range
       if ((ShooterFspeed > (ShooterFTarget - Constants.Shooter_Speed_Tolerance))
@@ -133,32 +137,26 @@ public class AutoFunctions
         }
         if (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed){
           if (shootRequest){
-            intakeToggle = true;
-            passthroughToggle = true;
+            shooterState = 1;
             intake.setPower(Constants.Intake_Shoot_Speed);
             Passthrough.setPower(1);
             shotCount = prevShotCount + 1;
           } else{
-            intakeToggle = false;
-            passthroughToggle = false;
-            shootRequest = true;
+            shooterState = 2;
           }
         } else{
-          intakeToggle = false;
-          passthroughToggle = false;
-          shootRequest = false;
+          shooterState = 3;
         }
       } else {
-        intakeToggle = false;
-        passthroughToggle = false;
         shooterTimer = 0;
+        shooterState = 4;
       }
     } else {
-      intakeToggle = false;
-      passthroughToggle = false;
       shooterFMotor.setVelocity(0);
       shooterBMotor.setVelocity(0);
+      shooterState = 5;
     }
+
     if (shotCount == 5)
     {
       shotCount = 0;

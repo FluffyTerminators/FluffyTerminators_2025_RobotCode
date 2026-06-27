@@ -145,10 +145,10 @@ public class ApocPreloadRed extends OpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(87.000, 8.000),
-                                    new Pose(73.000, 17.000)
+                                    new Pose(73.000, 27.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(220))
+                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(240))
                     .build();
             FinishChain = follower.pathBuilder()
                     .addPath(
