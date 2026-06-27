@@ -167,7 +167,8 @@ public class ApocPreloadRed extends OpMode {
         switch (pathState) {
             case 0:
                 follower.followPath(paths.StartChain);
-                pathState = -1;
+                pathState = 1;
+                break;
             case 1:
                 if (!follower.isBusy()) {
                     double ret_value = AutoFunctions.runShooter(ShooterFront,
@@ -182,9 +183,11 @@ public class ApocPreloadRed extends OpMode {
                         pathState = 2;
                     }
                 }
-            /*case 2:
+                break;
+            case 2:
                 follower.followPath(paths.FinishChain);
-                pathState = -1;*/
+                pathState = -1;
+                break;
         }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine

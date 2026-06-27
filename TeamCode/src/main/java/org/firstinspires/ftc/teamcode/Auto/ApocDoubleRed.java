@@ -217,48 +217,67 @@ public class ApocDoubleRed extends OpMode {
             case 0:
                 follower.followPath(paths.Start);
                 pathState = 1;
+                break;
             case 1:
-                double ret_value = AutoFunctions.runShooter(ShooterFront,
-                        ShooterBack,
-                        IntakeEx,
-                        passthroughToggle,
-                        intakeToggle,
-                        ShooterTarget,
-                        getRuntime(),
-                        Passthrough);
-                if ( ret_value == 4) {pathState = 2;}
+                if (!follower.isBusy()) {
+                    double ret_value = AutoFunctions.runShooter(ShooterFront,
+                            ShooterBack,
+                            IntakeEx,
+                            passthroughToggle,
+                            intakeToggle,
+                            ShooterTarget,
+                            getRuntime(),
+                            Passthrough);
+                    if (ret_value == 4) {pathState = 2;}
+                }
+                break;
             case 2:
-              follower.followPath(paths.CollectA);
-              pathState = 3;
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.CollectA);
+                    pathState = 3;
+                }
+                break;
             case 3:
-                ret_value = AutoFunctions.runShooter(ShooterFront,
-                        ShooterBack,
-                        IntakeEx,
-                        passthroughToggle,
-                        intakeToggle,
-                        ShooterTarget,
-                        getRuntime(),
-                        Passthrough);
-                if ( ret_value == 4) {pathState = 4;}
+                if (!follower.isBusy()) {
+                    double ret_value = AutoFunctions.runShooter(ShooterFront,
+                            ShooterBack,
+                            IntakeEx,
+                            passthroughToggle,
+                            intakeToggle,
+                            ShooterTarget,
+                            getRuntime(),
+                            Passthrough);
+                    if (ret_value == 4) {pathState = 4;}
+                }
+                break;
             case 4:
-                follower.followPath(paths.CollectB);
-                pathState = 5;
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.CollectB);
+                    pathState = 5;
+                }
+                break;
             case 5:
-                 ret_value = AutoFunctions.runShooter(ShooterFront,
-                             ShooterBack,
-                             IntakeEx,
-                             passthroughToggle,
-                             intakeToggle,
-                             ShooterTarget,
-                             getRuntime(),
-                             Passthrough);
-                if ( ret_value == 4) {pathState = 6;}
+                if (!follower.isBusy()) {
+                    double ret_value = AutoFunctions.runShooter(ShooterFront,
+                            ShooterBack,
+                            IntakeEx,
+                            passthroughToggle,
+                            intakeToggle,
+                            ShooterTarget,
+                            getRuntime(),
+                            Passthrough);
+                    if (ret_value == 4) {pathState = 6;}
+                }
+                break;
             case 6:
-                follower.followPath(paths.Finish);
-                pathState = -1;
+                if (!follower.isBusy()) {
+                    follower.followPath(paths.Finish);
+                    pathState = -1;
+                }
+                break;
         }
         // Access paths with paths.pathName
         // Refer to the Pedro Pathing Docs (Auto Example) for an example state machine
-        return 0;
+        return pathState;
     }
 }
