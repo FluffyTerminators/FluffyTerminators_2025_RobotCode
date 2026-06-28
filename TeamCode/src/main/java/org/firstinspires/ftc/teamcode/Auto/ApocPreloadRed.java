@@ -54,6 +54,8 @@ public class ApocPreloadRed extends OpMode {
     private double shotsToTake;
     private double runtime;
 
+    private static double Turn;
+
     @Override
     public void init() {
         Intake = hardwareMap.get(DcMotor.class, "Intake");
@@ -87,6 +89,16 @@ public class ApocPreloadRed extends OpMode {
 
         panelsTelemetry.debug("Status", "Initialized");
         panelsTelemetry.update(telemetry);
+
+        fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        bLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        fRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     @Override
@@ -105,11 +117,12 @@ public class ApocPreloadRed extends OpMode {
         // First, tell Limelight which way your robot is facing
         double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
         limelight.updateRobotOrientation(robotYaw);
+        Turn = 0;
         if (result != null && result.isValid()) {
             Pose3D botPose_mt2 = result.getBotpose_MT2();
 
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
-            if (fiducials != null && !fiducials.isEmpty()) {
+            //if (fiducials != null && !fiducials.isEmpty()) {
                 for (LLResultTypes.FiducialResult fiducial : fiducials) {
                     int id = fiducial.getFiducialId(); // The ID number of the fiducial
                     double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
@@ -119,9 +132,23 @@ public class ApocPreloadRed extends OpMode {
                     double distance = Math.sqrt((x * x) + (z * z));
                     telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
-                    ShooterTarget = distance;
+                    if ((id == 20) || (id == 24)) {
+                        ShooterTarget = distance;
+
+                        double targetOffset = -fiducial.getTargetXDegrees();
+                        Turn = targetOffset / 35.0;
+                        if (Turn < -1) {
+                            Turn = -1;
+                        }
+                        if (Turn > 1) {
+                            Turn = 1;
+                        }
+                        if (Math.abs(Turn) < 0.05) {
+                            Turn = 0;
+                        }
+                    }
                 }
-            }
+            //}
         }
         else
         {
@@ -188,23 +215,11 @@ public class ApocPreloadRed extends OpMode {
                         true);
 
                 if (!follower.isBusy()) {
-                    if ((result != null) && (result.isValid())) {
-                        List<FiducialResult> fiducials = result.getFiducialResults();
-                        for (FiducialResult fiducial : fiducials) {
-                            int id = fiducial.getFiducialId(); // The ID number of the fiducial
-                            if ((id == 20) || (id == 24)) {
-                                double targetOffset = -fiducial.getTargetXDegrees();
-                                Turn = targetOffset / 35.0;
-                                if (Turn < -1) {Turn = -1;}
-                                if (Turn > 1) {Turn = 1;}
-                                if (Math.abs(Turn) < 0.05) {Turn = 0;}
-                            }
-                        }
-                    }
-                    fLDrive.setPower(Turn);
-                    bLDrive.setPower(Turn);
-                    fRDrive.setPower(-Turn);
-                    bRDrive.setPower(-Turn);
+
+                    fLDrive.setPower(-Turn);
+                    bLDrive.setPower(-Turn);
+                    fRDrive.setPower(Turn);
+                    bRDrive.setPower(Turn);
                     if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
                     }
