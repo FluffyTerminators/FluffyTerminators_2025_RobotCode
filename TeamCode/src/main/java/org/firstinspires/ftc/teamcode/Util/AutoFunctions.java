@@ -1,46 +1,14 @@
 package org.firstinspires.ftc.teamcode.Util;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.linearOpMode;
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
-import com.pedropathing.follower.Follower;
-import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.ftc.FollowerBuilder;
-import com.pedropathing.ftc.drivetrains.MecanumConstants;
-import com.pedropathing.ftc.localization.constants.PinpointConstants;
-import com.pedropathing.paths.PathConstraints;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IMU;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.Blinker;
+
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
 import com.qualcomm.robotcore.hardware.NormalizedRGBA;
-import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-
-import static java.sql.Types.NULL;
-
-import org.firstinspires.ftc.teamcode.Util.Constants.*;
-
-import org.firstinspires.ftc.teamcode.Teleop.LimeComp;
-import org.firstinspires.ftc.teamcode.Util.Constants;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.*;
 
 public class AutoFunctions
 {
@@ -147,7 +115,7 @@ public class AutoFunctions
               && (ShooterBspeed > (shooterBTarget - Constants.Shooter_Speed_Tolerance))
               && (ShooterBspeed < (shooterBTarget + Constants.Shooter_Speed_Tolerance))
               || (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed)
-              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
+              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMaxRunTime))
       ) {
         if (shooterTimer == 0) {
           shooterTimer = runtime;

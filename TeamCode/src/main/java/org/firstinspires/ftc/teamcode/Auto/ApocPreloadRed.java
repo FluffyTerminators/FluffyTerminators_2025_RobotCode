@@ -136,7 +136,7 @@ public class ApocPreloadRed extends OpMode {
                         ShooterTarget = distance;
 
                         double targetOffset = -fiducial.getTargetXDegrees();
-                        Turn = targetOffset / 35.0;
+                        Turn = targetOffset / Constants.autoAim_Gain;
                         if (Turn < -1) {
                             Turn = -1;
                         }

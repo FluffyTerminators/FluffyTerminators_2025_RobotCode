@@ -11,25 +11,15 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
-import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.NormalizedColorSensor;
-import com.qualcomm.robotcore.hardware.NormalizedRGBA;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods;
-import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
-import org.firstinspires.ftc.robotcore.external.navigation.UnnormalizedAngleUnit;
+
 import static com.qualcomm.robotcore.util.TypeConversion.byteArrayToInt;
-import org.firstinspires.ftc.teamcode.Util.Constants;
-import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.*;
 
 
 public class Constants
@@ -83,9 +73,9 @@ public class Constants
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double shooterMinTimeAtSpeed = 0.2;
-    public static final double shooterMinRunTime = 0.2;
+    public static final double shooterMaxRunTime = 0.5;
     public static final double brake = 0.5;
-    public static final int LLPipeline = 5;
+    public static final int LLPipeline = 0;
 
     public static final double High_Override_Speed = 900;
     public static final double High_Override_Range = 3.2;
@@ -96,6 +86,8 @@ public class Constants
     public static final double Intake_In_Speed = -0.75;
     public static final double Intake_Shoot_Speed = -0.75;
     public static final double Intake_Eject_Speed = 0.75;
+
+    public static final double autoAim_Gain = 35;
 
     public static class HardwareMappings {
         // Hubs

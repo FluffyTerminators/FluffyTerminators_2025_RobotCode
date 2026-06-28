@@ -222,7 +222,7 @@ public class APOCComp extends LinearOpMode
                         int id = fiducial.getFiducialId(); // The ID number of the fiducial
                         if ((id == 20) || (id == 24)) {
                             double targetOffset = -fiducial.getTargetXDegrees();
-                            Turn = targetOffset / 35.0;
+                            Turn = targetOffset / Constants.autoAim_Gain;
                             if (Turn < -1) {Turn = -1;}
                             if (Turn > 1) {Turn = 1;}
                             if (Math.abs(Turn) < 0.05) {Turn = 0;}
