@@ -237,7 +237,7 @@ public class ApocCollectRed extends OpMode {
                         true);
 
                 if (!follower.isBusy()) {
-                    follower.pausePathFollowing();
+                    //follower.pausePathFollowing();
                     fLDrive.setPower(-Turn);
                     bLDrive.setPower(-Turn);
                     fRDrive.setPower(Turn);
@@ -246,7 +246,7 @@ public class ApocCollectRed extends OpMode {
                     if (AutoFunctions.shotCount >= 3) {
                         Passthrough.setPower(0);
                         pathState = 2;
-                        follower.resumePathFollowing();
+                        //follower.resumePathFollowing();
                     }
                 }
                 break;
