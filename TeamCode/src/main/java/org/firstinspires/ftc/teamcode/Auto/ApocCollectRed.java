@@ -133,14 +133,14 @@ public class ApocCollectRed extends OpMode {
                     ShooterTarget = distance;
 
                     double targetOffset = -fiducial.getTargetXDegrees();
-                    Turn = targetOffset;/* / Constants.autoAim_Gain;
+                    Turn = targetOffset / Constants.autoAim_Gain;
                     if (Turn < -1) {
                         Turn = -1;
                     }
                     if (Turn > 1) {
                         Turn = 1;
-                    }*/
-                    if (Math.abs(Turn) < 2 /*0.05*/) {
+                    }
+                    if (Math.abs(Turn) < 0.05) {
                         Turn = 0;
                     }
                 }
@@ -237,15 +237,11 @@ public class ApocCollectRed extends OpMode {
                         true);
 
                 if (!follower.isBusy()) {
-
-                    if (!(Turn==0))
-                    {
-                        follower.turnDegrees(Math.abs(Turn),(Turn < 0));
-                    }
-                    /*fLDrive.setPower(-Turn);
+                    follower.pausePathFollowing();
+                    fLDrive.setPower(-Turn);
                     bLDrive.setPower(-Turn);
                     fRDrive.setPower(Turn);
-                    bRDrive.setPower(Turn);*/
+                    bRDrive.setPower(Turn);
                     telemetry.addData("shotCount", AutoFunctions.shotCount);
                     if (AutoFunctions.shotCount >= 3) {
                         Passthrough.setPower(0);
