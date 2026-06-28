@@ -246,6 +246,7 @@ public class ApocCollectRed extends OpMode {
                     if (AutoFunctions.shotCount >= 3) {
                         Passthrough.setPower(0);
                         pathState = 2;
+                        follower.resumePathFollowing();
                     }
                 }
                 break;
