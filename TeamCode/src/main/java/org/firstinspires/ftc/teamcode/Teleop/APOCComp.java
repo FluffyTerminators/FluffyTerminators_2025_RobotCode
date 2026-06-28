@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.ImuOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.LED;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -51,6 +52,7 @@ public class APOCComp extends LinearOpMode
     public Limelight3A limelight;
     private boolean FrontSuccess;
     private boolean BackSuccess;
+    public LED tegLED;
 
     private Toggle ShooterToggle = new Toggle();
     private Toggle IntakeToggle = new Toggle();
