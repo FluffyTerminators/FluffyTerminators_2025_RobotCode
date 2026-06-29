@@ -23,7 +23,9 @@ import org.firstinspires.ftc.teamcode.Util.Constants;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import org.firstinspires.ftc.teamcode.Util.Constants.Toggle;
+import org.firstinspires.ftc.teamcode.Util.VisionFunctions;
 import java.util.List;
+
 //Download Missing Files
 
 @TeleOp(name = "APOC Comp")
@@ -81,14 +83,16 @@ public class APOCComp extends LinearOpMode
         telemetry.addData("FrontSuccess", FrontSuccess);
         telemetry.addData("BackSuccess", BackSuccess);
 
-        limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        /*limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
         limelight.start(); // This tells Limelight to start looking!
         limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
+*/
+        VisionFunctions.init(limelight, this::getRuntime);
 
-        LLResult result = limelight.getLatestResult();
+        //LLResult result = limelight.getLatestResult();
 
 
-        telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+        //telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
 
         fLDrive.setDirection(DcMotorSimple.Direction.REVERSE);
         fRDrive.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -167,6 +171,7 @@ public class APOCComp extends LinearOpMode
             //Calculate Heading
             double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
             Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
+            VisionFunctions.update(robotYaw);
 
             //Display Heading info
             telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
@@ -218,7 +223,7 @@ public class APOCComp extends LinearOpMode
 
             //Auto Aim
             if (gamepad1.right_stick_button) {
-                if ((result != null) && (result.isValid())) {
+                /*if ((result != null) && (result.isValid())) {
                     List<FiducialResult> fiducials = result.getFiducialResults();
                     for (FiducialResult fiducial : fiducials) {
                         int id = fiducial.getFiducialId(); // The ID number of the fiducial
@@ -230,6 +235,14 @@ public class APOCComp extends LinearOpMode
                             if (Math.abs(Turn) < 0.05) {Turn = 0;}
                         }
                     }
+                }*/
+                if (VisionFunctions.goodTag())
+                {
+                    double targetOffset = VisionFunctions.getAngle();
+                    Turn = targetOffset / Constants.autoAim_Gain;
+                    if (Turn < -1) {Turn = -1;}
+                    if (Turn > 1) {Turn = 1;}
+                    if (Math.abs(Turn) < 0.05) {Turn = 0;}
                 }
             }
 
@@ -273,11 +286,11 @@ public class APOCComp extends LinearOpMode
             { pipelineDownLast = false; }
 
             //Tell Limelight which way the robot is facing
-            limelight.updateRobotOrientation(robotYaw);
-            result = limelight.getLatestResult();
+            //limelight.updateRobotOrientation(robotYaw);
+            //result = limelight.getLatestResult();
 
-            if (result != null) {
-                telemetry.addData("Current Pipeline = ", result.getPipelineIndex());
+            telemetry.addData("Current Pipeline = ", pipeline);
+            /*if (result != null) {
                 if (result.isValid()){
 
                     //Update Position
@@ -311,8 +324,13 @@ public class APOCComp extends LinearOpMode
                     telemetry.addData("MT1 Location", "Not Found");
                     telemetry.addData("Fiducial", "Not Found");
                 }
+            }*/
+            if (VisionFunctions.goodTag())
+            {
+                ShooterTarget = VisionFunctions.getDistance();
+            } else {
+                ShooterTarget = 3.75;
             }
-
 
             //Shooter Controls
             shootRequest = gamepad2.left_bumper;
