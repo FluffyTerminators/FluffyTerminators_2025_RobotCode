@@ -236,9 +236,9 @@ public class APOCComp extends LinearOpMode
                         }
                     }
                 }*/
-                if (VisionFunctions.goodTag())
+                if (VisionFunctions.goodTagNow())
                 {
-                    double targetOffset = VisionFunctions.getAngle();
+                    double targetOffset = -VisionFunctions.getAngleImmediate();
                     Turn = targetOffset / Constants.autoAim_Gain;
                     if (Turn < -1) {Turn = -1;}
                     if (Turn > 1) {Turn = 1;}

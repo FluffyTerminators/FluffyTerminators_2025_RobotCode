@@ -52,6 +52,11 @@ public class VisionFunctions {
         return (runTime.getAsDouble() - LastGoodTime) < Constants.tagLife;
     }
 
+    public static boolean goodTagNow()
+    {
+        return (runTime.getAsDouble() - LastGoodTime) < Constants.immediateTagLife;
+    }
+
     public static double getDistance()
     {
         if (goodTag()){
@@ -68,6 +73,16 @@ public class VisionFunctions {
     public static double getAngle()
     {
         if (goodTag())
+        {
+            return LastGoodTag.getTargetXDegrees();
+        } else {
+            return 0;
+        }
+    }
+
+    public static double getAngleImmediate()
+    {
+        if (goodTagNow())
         {
             return LastGoodTag.getTargetXDegrees();
         } else {
