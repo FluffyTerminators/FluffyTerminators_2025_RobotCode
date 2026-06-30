@@ -78,6 +78,7 @@ public class Constants
     public static final int LLPipeline = 0;
     public static final double tagLife = 1.0;
     public static final double immediateTagLife = 0.05;
+    public static final double headingOffsetDeadZone = 2.0;
 
     public static final double High_Override_Speed = 900;
     public static final double High_Override_Range = 3.2;

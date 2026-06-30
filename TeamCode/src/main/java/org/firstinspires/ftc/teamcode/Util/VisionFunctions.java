@@ -5,6 +5,7 @@ import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes.FiducialResult;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
+import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
 import org.firstinspires.ftc.teamcode.Util.Constants;
 
 import java.util.List;
@@ -70,23 +71,18 @@ public class VisionFunctions {
         }
     }
 
-    public static double getAngle()
+    public static double getAngle(boolean immediate)
     {
-        if (goodTag())
+        if ((goodTagNow() && immediate) || (goodTag() && !immediate))
         {
-            return LastGoodTag.getTargetXDegrees();
+            double offset = LastGoodTag.getTargetXDegrees();
+            if (offset > Constants.headingOffsetDeadZone)
+                { return offset; }
+            else
+                { return 0; }
         } else {
             return 0;
         }
     }
 
-    public static double getAngleImmediate()
-    {
-        if (goodTagNow())
-        {
-            return LastGoodTag.getTargetXDegrees();
-        } else {
-            return 0;
-        }
-    }
 }

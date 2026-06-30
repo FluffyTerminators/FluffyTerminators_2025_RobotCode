@@ -27,6 +27,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.Util.AutoFunctions;
 import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
+import org.firstinspires.ftc.teamcode.Util.VisionFunctions;
 
 import java.util.List;
 
@@ -82,6 +83,8 @@ public class ApocPreloadRed extends OpMode {
 
         panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
 
+        VisionFunctions.init(limelight,this::getRuntime);
+
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
         follower.setStartingPose(new Pose(87, 8, Math.toRadians(90)));
 
@@ -103,22 +106,23 @@ public class ApocPreloadRed extends OpMode {
 
     @Override
     public void loop() {
-        LLResult result = limelight.getLatestResult();
+        //LLResult result = limelight.getLatestResult();
 
-        if (result != null && result.isValid()) {
+        /*if (result != null && result.isValid()) {
             Pose3D botpose = result.getBotpose();
             if (botpose != null) {
                 double x = botpose.getPosition().x;
                 double y = botpose.getPosition().y;
                 telemetry.addData("MT1 Location", "(" + x + ", " + y + ")");
             }
-        }
+        }*/
 
         // First, tell Limelight which way your robot is facing
         double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
-        limelight.updateRobotOrientation(robotYaw);
+        //limelight.updateRobotOrientation(robotYaw);
+        VisionFunctions.update(robotYaw);
         Turn = 0;
-        if (result != null && result.isValid()) {
+        /*if (result != null && result.isValid()) {
             Pose3D botPose_mt2 = result.getBotpose_MT2();
 
             List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
@@ -149,6 +153,10 @@ public class ApocPreloadRed extends OpMode {
                     }
                 }
             //}
+        }*/
+        if (VisionFunctions.goodTag())
+        {
+            ShooterTarget = VisionFunctions.getDistance();
         }
         else
         {
@@ -215,11 +223,18 @@ public class ApocPreloadRed extends OpMode {
                         true);
 
                 if (!follower.isBusy()) {
-
-                    fLDrive.setPower(-Turn);
+                    if (VisionFunctions.goodTagNow())
+                    {
+                        double headingOffset = VisionFunctions.getAngle(true);
+                        if (headingOffset != 0)
+                        {
+                            follower.turnDegrees(Math.abs(headingOffset),(headingOffset > 0));
+                        }
+                    }
+                    /*fLDrive.setPower(-Turn);
                     bLDrive.setPower(-Turn);
                     fRDrive.setPower(Turn);
-                    bRDrive.setPower(Turn);
+                    bRDrive.setPower(Turn);*/
                     if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
                     }

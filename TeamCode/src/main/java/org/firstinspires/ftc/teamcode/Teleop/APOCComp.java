@@ -238,7 +238,7 @@ public class APOCComp extends LinearOpMode
                 }*/
                 if (VisionFunctions.goodTagNow())
                 {
-                    double targetOffset = -VisionFunctions.getAngleImmediate();
+                    double targetOffset = -VisionFunctions.getAngle(true);
                     Turn = targetOffset / Constants.autoAim_Gain;
                     if (Turn < -1) {Turn = -1;}
                     if (Turn > 1) {Turn = 1;}
@@ -267,23 +267,25 @@ public class APOCComp extends LinearOpMode
             //Limelight calculations
 
             //Change pipeline
-            if (gamepad1.dpad_up)
-            { if (!pipelineUpLast) {
-                pipeline = pipeline + 1;
-                limelight.pipelineSwitch(pipeline);
-                pipelineUpLast = true;
+            if (gamepad1.dpad_up) {
+                if (!pipelineUpLast) {
+                    pipeline = pipeline + 1;
+                    limelight.pipelineSwitch(pipeline);
+                    pipelineUpLast = true;
+                }
+            } else {
+                pipelineUpLast = false;
             }
-            } else
-            { pipelineUpLast = false; }
 
-            if (gamepad1.dpad_down)
-            { if (!pipelineDownLast) {
-                pipeline = pipeline - 1;
-                limelight.pipelineSwitch(pipeline);
-                pipelineDownLast = true;
+            if (gamepad1.dpad_down) {
+                if (!pipelineDownLast) {
+                    pipeline = pipeline - 1;
+                    limelight.pipelineSwitch(pipeline);
+                    pipelineDownLast = true;
+                }
+            } else {
+                pipelineDownLast = false;
             }
-            } else
-            { pipelineDownLast = false; }
 
             //Tell Limelight which way the robot is facing
             //limelight.updateRobotOrientation(robotYaw);
