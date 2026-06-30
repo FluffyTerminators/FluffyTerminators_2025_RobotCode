@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.Util;
 
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+
+import com.pedropathing.control.PIDFCoefficients;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
 import com.pedropathing.ftc.FollowerBuilder;
@@ -36,7 +38,8 @@ public class Constants
             .rightFrontMotorDirection(DcMotorSimple.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorSimple.Direction.REVERSE)
             .xVelocity(63.73446439007135)
-            .yVelocity(44.05091197096457);
+            .yVelocity(44.05091197096457)
+            ;
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
@@ -52,7 +55,9 @@ public class Constants
     {
         public static FollowerConstants followerConstants = new FollowerConstants()
                 .forwardZeroPowerAcceleration(-56.74606841690353)
-                .lateralZeroPowerAcceleration(-71.60063639632544);
+                .lateralZeroPowerAcceleration(-71.60063639632544)
+                .headingPIDFCoefficients(new PIDFCoefficients(1,0,0,0.1))
+                .automaticHoldEnd(false);
 
         public static PathConstraints pathConstraints = new PathConstraints(0.99, 100, 1, 1);
 
@@ -73,12 +78,15 @@ public class Constants
     public static final double spindexerBWD = -1;
     public static final double shooterPower = 1;
     public static final double shooterMinTimeAtSpeed = 0.2;
-    public static final double shooterMaxRunTime = 0.5;
+    public static final double shooterMinRunTime = 0.15;
     public static final double brake = 0.5;
-    public static final int LLPipeline = 0;
+    public static final int LLPipeline = 5;
     public static final double tagLife = 1.0;
     public static final double immediateTagLife = 0.05;
-    public static final double headingOffsetDeadZone = 2.0;
+    public static final double headingOffsetDeadZone = 0.5; //2.0;
+
+    public static final double autoAim_Gain = 0.03;
+    public static final double minAutoTurnSpeed = 0.01;
 
     public static final double High_Override_Speed = 900;
     public static final double High_Override_Range = 3.2;
@@ -90,7 +98,9 @@ public class Constants
     public static final double Intake_Shoot_Speed = -0.75;
     public static final double Intake_Eject_Speed = 0.75;
 
-    public static final double autoAim_Gain = 35;
+
+
+
 
     public static class HardwareMappings {
         // Hubs
@@ -123,10 +133,10 @@ public class Constants
     }
     public static class ShooterCal
     {
-        private static final double[] distance     = {1.06, 1.4, 1.8, 2.15, 3.2, 3.75}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
-        private static final double[] oldShooterTicks = {360, 380, 440, 460, 540, 600};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
-        private static final double[] fShooterTicks = {360, 380, 440, 460, 540, 600};
-        private static final double[] bShooterTicks = {360, 380, 440, 460, 540, 600};
+        private static final double[] distance     = {1.06, 1.4, 1.8, 2.15, 2.93, 3.5, 3.75, 4.3}; // < Single Wheel Values I Double Wheel Values > {0.64, 0.82, 1.20, 1.36, 1.58, 1.85, 2.00, 2.86, 3.00};
+        private static final double[] oldShooterTicks = {360, 380, 440, 460, 500, 540, 540, 600};  // < Single Wheel Values I Double Wheel Values > {540, 540, 560, 580, 600, 620, 640, 740, 760};
+        private static final double[] fShooterTicks = {360, 380, 440, 460, 500, 540, 540, 600};
+        private static final double[] bShooterTicks = {360, 380, 440, 460, 500, 540, 540, 600};
 
         /**
          * interpolate(x, isFront) uses the distance from the target to automatically return the required shooter speed in motor velocity

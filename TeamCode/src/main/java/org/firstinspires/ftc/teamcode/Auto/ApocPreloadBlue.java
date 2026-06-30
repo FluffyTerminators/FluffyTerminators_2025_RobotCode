@@ -31,13 +31,13 @@ import org.firstinspires.ftc.teamcode.Util.VisionFunctions;
 
 import java.util.List;
 
-@Autonomous(name = "Red-Back-Preload")
+@Autonomous(name = "Blue-Back-Preload")
 @Configurable // Panels
-public class ApocPreloadRed extends OpMode {
+public class ApocPreloadBlue extends OpMode {
     private TelemetryManager panelsTelemetry; // Panels Telemetry instance
     public Follower follower; // Pedro Pathing follower instance
     private int pathState=0; // Current autonomous path state (state machine)
-    private ApocPreloadRed.Paths paths; // Paths defined in the Paths class
+    private ApocPreloadBlue.Paths paths; // Paths defined in the Paths class
     private Limelight3A limelight;
     private GoBildaPinpointDriver pinpoint;
     private DcMotorEx ShooterFront;
@@ -54,8 +54,6 @@ public class ApocPreloadRed extends OpMode {
     private double ShooterTarget;
     private double shotsToTake;
     private double runtime;
-
-    private double targetOffset;
 
     private static double Turn;
 
@@ -88,7 +86,7 @@ public class ApocPreloadRed extends OpMode {
         VisionFunctions.init(limelight,this::getRuntime);
 
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(87, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(54.5, 8, Math.toRadians(90)));
 
         paths = new Paths(follower); // Build paths
 
@@ -103,8 +101,6 @@ public class ApocPreloadRed extends OpMode {
         bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        targetOffset = 0;
 
     }
 
@@ -125,64 +121,80 @@ public class ApocPreloadRed extends OpMode {
         double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
         //limelight.updateRobotOrientation(robotYaw);
         VisionFunctions.update(robotYaw);
+        Turn = 0;
+        /*if (result != null && result.isValid()) {
+            Pose3D botPose_mt2 = result.getBotpose_MT2();
 
-        if(VisionFunctions.goodTagNow()){
-            Turn = targetOffset * Constants.autoAim_Gain;
-            if (Turn < -1) {Turn = -1;}
-            if (Turn > 1) {Turn = 1;}
-            if (Math.abs(Turn) < Constants.minAutoTurnSpeed) {Turn = 0;}
-        } else{
-            Turn = 0;
-        }
+            List<LLResultTypes.FiducialResult> fiducials = result.getFiducialResults();
+            //if (fiducials != null && !fiducials.isEmpty()) {
+                for (LLResultTypes.FiducialResult fiducial : fiducials) {
+                    int id = fiducial.getFiducialId(); // The ID number of the fiducial
+                    double x = fiducial.getRobotPoseTargetSpace().getPosition().x; // Where it is (left-right)
+                    double y = fiducial.getRobotPoseTargetSpace().getPosition().y; // Where it is (up-down)
+                    double z = fiducial.getRobotPoseTargetSpace().getPosition().z;
+                    double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getPosition().y;
+                    double distance = Math.sqrt((x * x) + (z * z));
+                    telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
 
+                    if ((id == 20) || (id == 24)) {
+                        ShooterTarget = distance;
+
+                        double targetOffset = -fiducial.getTargetXDegrees();
+                        Turn = targetOffset / Constants.autoAim_Gain;
+                        if (Turn < -1) {
+                            Turn = -1;
+                        }
+                        if (Turn > 1) {
+                            Turn = 1;
+                        }
+                        if (Math.abs(Turn) < 0.05) {
+                            Turn = 0;
+                        }
+                    }
+                }
+            //}
+        }*/
         if (VisionFunctions.goodTag())
         {
             ShooterTarget = VisionFunctions.getDistance();
         }
         else
         {
-            ShooterTarget = 0;
+            ShooterTarget = 3.75;
         }
         follower.update(); // Update Pedro Pathing
         pathState = autonomousPathUpdate(); // Update autonomous state machine
-
-
 
         // Log values to Panels and Driver Station
         panelsTelemetry.debug("Path State", pathState);
         panelsTelemetry.debug("X", follower.getPose().getX());
         panelsTelemetry.debug("Y", follower.getPose().getY());
-        panelsTelemetry.debug("Heading", Math.toDegrees(follower.getPose().getHeading()));
-        panelsTelemetry.debug("offset", targetOffset);
-        panelsTelemetry.debug("GoodTagNow", VisionFunctions.goodTagNow());
-
+        panelsTelemetry.debug("Heading", follower.getPose().getHeading());
         panelsTelemetry.update(telemetry);
-
-
 
     }
 
     public static class Paths {
-        public PathChain StartChain,FinishChain;
+        public PathChain StartChain, FinishChain;
 
         public Paths(Follower follower) {
             StartChain = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(87.000, 8.000),
-                                    new Pose(80.000, 25.000)
+                                    new Pose(54.500, 8.000),
+                                    new Pose(68.500, 17.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(240))
-                    .build();
+                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(320)).build();
+
             FinishChain = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(80.000, 25.000),
-                                    new Pose(115.000, 15.000)
+                                    new Pose(68.500, 17.000),
+                                    new Pose(12.500, 8.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(320), Math.toRadians(180))
                     .build();
         }
     }
@@ -196,7 +208,7 @@ public class ApocPreloadRed extends OpMode {
         // Add your state machine Here
         switch (pathState) {
             case 0:
-                follower.followPath(paths.StartChain, false);
+                follower.followPath(paths.StartChain);
                 AutoFunctions.resetShotCount();
                 pathState = 1;
                 break;
@@ -208,24 +220,21 @@ public class ApocPreloadRed extends OpMode {
                         getRuntime(),
                         Passthrough,
                         !follower.isBusy(),
-                        !follower.isBusy());
-
-                if (VisionFunctions.goodTagNow()) {
-                    targetOffset = -VisionFunctions.getAngle(true);
-                }
+                        true);
 
                 if (!follower.isBusy()) {
-                    /*
-                    if (headingOffset != 0)
+                    if (VisionFunctions.goodTagNow())
+                    {
+                        double headingOffset = VisionFunctions.getAngle(true);
+                        if (headingOffset != 0)
                         {
-                            turnTime = getRuntime();
-                            follower.turnDegrees(Math.abs(headingOffset),(headingOffset < 0));
+                            follower.turnDegrees(Math.abs(headingOffset),(headingOffset > 0));
                         }
-                        */
-                     fLDrive.setPower(-Turn);
+                    }
+                    /*fLDrive.setPower(-Turn);
                     bLDrive.setPower(-Turn);
                     fRDrive.setPower(Turn);
-                    bRDrive.setPower(Turn);
+                    bRDrive.setPower(Turn);*/
                     if (AutoFunctions.shotCount >= 4) {
                         pathState = 2;
                     }
@@ -236,7 +245,7 @@ public class ApocPreloadRed extends OpMode {
                 ShooterBack.setVelocity(0);
                 IntakeEx.setPower(0);
                 Passthrough.setPower(0);
-                follower.followPath(paths.FinishChain, true);
+                follower.followPath(paths.FinishChain);
                 pathState = -1;
                 break;
         }

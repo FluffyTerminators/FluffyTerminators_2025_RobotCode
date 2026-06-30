@@ -115,7 +115,7 @@ public class AutoFunctions
               && (ShooterBspeed > (shooterBTarget - Constants.Shooter_Speed_Tolerance))
               && (ShooterBspeed < (shooterBTarget + Constants.Shooter_Speed_Tolerance))
               || (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed)
-              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMaxRunTime))
+              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
       ) {
         if (shooterTimer == 0) {
           shooterTimer = runtime;

@@ -177,6 +177,7 @@ public class APOCComp extends LinearOpMode
             telemetry.addData("PinPoint Status", pinpoint.getDeviceStatus());
             telemetry.addData("Heading Scalar", pinpoint.getYawScalar());
             telemetry.addData("Heading", Math.toDegrees(Heading));
+            telemetry.addData("GoodTagNow", VisionFunctions.goodTagNow());
 
 
             //Toggle Drive mode (button must be held)
@@ -239,10 +240,10 @@ public class APOCComp extends LinearOpMode
                 if (VisionFunctions.goodTagNow())
                 {
                     double targetOffset = -VisionFunctions.getAngle(true);
-                    Turn = targetOffset / Constants.autoAim_Gain;
+                    Turn = targetOffset * Constants.autoAim_Gain;
                     if (Turn < -1) {Turn = -1;}
                     if (Turn > 1) {Turn = 1;}
-                    if (Math.abs(Turn) < 0.05) {Turn = 0;}
+                    if (Math.abs(Turn) < Constants.minAutoTurnSpeed) {Turn = 0;}
                 }
             }
 
@@ -331,7 +332,7 @@ public class APOCComp extends LinearOpMode
             {
                 ShooterTarget = VisionFunctions.getDistance();
             } else {
-                ShooterTarget = 3.75;
+                ShooterTarget = 0;
             }
 
             //Shooter Controls
