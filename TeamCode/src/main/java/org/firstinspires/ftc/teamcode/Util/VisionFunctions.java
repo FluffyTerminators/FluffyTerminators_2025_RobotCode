@@ -76,7 +76,7 @@ public class VisionFunctions {
         if ((goodTagNow() && immediate) || (goodTag() && !immediate))
         {
             double offset = LastGoodTag.getTargetXDegrees();
-            if (offset > Constants.headingOffsetDeadZone)
+            if (Math.abs(offset) > Constants.headingOffsetDeadZone)
                 { return offset; }
             else
                 { return 0; }
