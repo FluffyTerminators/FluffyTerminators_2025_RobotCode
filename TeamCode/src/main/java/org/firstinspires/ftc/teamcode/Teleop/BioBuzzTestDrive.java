@@ -66,7 +66,7 @@ public class BioBuzzTestDrive extends LinearOpMode {
             } else { resetLast = false; }
             pinpoint.update();
 
-            double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
+            //double robotYaw = pinpoint.getHeading(AngleUnit.DEGREES);
             Heading = Math.toRadians(pinpoint.getPosition().getHeading(AngleUnit.DEGREES) + Constants.HeadingOffset);
 
 
@@ -83,7 +83,7 @@ public class BioBuzzTestDrive extends LinearOpMode {
                 fieldCentricTimer = 0;
             }
 
-            double rawForward = gamepad1.left_stick_y; // FTC joystick forward is negative
+            double rawForward = -gamepad1.left_stick_y; // FTC joystick forward is negative
             double rawStrafe = gamepad1.left_stick_x;
             Turn = gamepad1.right_stick_x;
 
@@ -95,11 +95,11 @@ public class BioBuzzTestDrive extends LinearOpMode {
                 double cosHeading = Math.cos(Heading);
 
                 // Rotate the driver input vector so it is field-centric
-                Forward = rawStrafe * sinHeading + -rawForward * cosHeading;
-                Strafe = rawStrafe * cosHeading - -rawForward * sinHeading;
+                Forward = rawStrafe * sinHeading + rawForward * cosHeading;
+                Strafe = rawStrafe * cosHeading - rawForward * sinHeading;
             } else {
                 telemetry.addData("Drive Mode", "Robot Centric");
-                Forward = -rawForward;
+                Forward = rawForward;
                 Strafe = rawStrafe;
             }
 
@@ -155,6 +155,7 @@ public class BioBuzzTestDrive extends LinearOpMode {
                 ShFront.setPower(0);
             }
             telemetry.addData("Heading", Heading);
+            telemetry.update();
 
         }
     }
