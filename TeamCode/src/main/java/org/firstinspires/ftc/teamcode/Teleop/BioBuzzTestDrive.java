@@ -142,7 +142,7 @@ public class BioBuzzTestDrive extends LinearOpMode {
 
             AutoFunctions.runShooterBio(ShFront,
                     intake,
-                    1500,
+                    2000,
                     getRuntime(),
                     shootReq,
                     revReq);
