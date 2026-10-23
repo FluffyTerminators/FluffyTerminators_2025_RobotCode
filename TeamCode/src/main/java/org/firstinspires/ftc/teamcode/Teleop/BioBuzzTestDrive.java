@@ -149,7 +149,7 @@ public class BioBuzzTestDrive extends LinearOpMode {
 
             if (gamepad2.left_bumper)
             {
-                ShFront.setPower(-0.57);
+                ShFront.setPower(-0.6);
             } else
             {
                 ShFront.setPower(0);
