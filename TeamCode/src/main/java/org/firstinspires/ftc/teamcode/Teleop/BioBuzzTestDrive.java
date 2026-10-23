@@ -137,16 +137,23 @@ public class BioBuzzTestDrive extends LinearOpMode {
                 intake.setPower(0);
             }
 
-            shootReq = gamepad2.left_bumper;
-            revReq = gamepad2.right_bumper;
+         //   shootReq = gamepad2.left_bumper;
+          //  revReq = gamepad2.right_bumper;
 
-            AutoFunctions.runShooterBio(ShFront,
+         /*   AutoFunctions.runShooterBio(ShFront,
                     intake,
                     2000,
                     getRuntime(),
                     shootReq,
-                    revReq);
+                    revReq); */
 
+            if (gamepad2.left_bumper)
+            {
+                ShFront.setPower(-0.57);
+            } else
+            {
+                ShFront.setPower(0);
+            }
             telemetry.addData("Heading", Heading);
 
         }
