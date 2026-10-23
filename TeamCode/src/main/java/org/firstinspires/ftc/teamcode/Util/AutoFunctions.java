@@ -146,9 +146,68 @@ public class AutoFunctions
     shooterFMotor.setVelocity(shooterFTarget);
     shooterBMotor.setVelocity(shooterBTarget);
 
-    if (isAuto && shooterState != 1){
+    if (isAuto && shooterState != 1 && shooterState != 5){
       intake.setPower(0);
       Passthrough.setPower(0);
+    }
+
+  }
+
+  public static void runShooterBio(DcMotorEx shooterFMotor,
+                                  DcMotorEx intake,
+                                  double shooterTarget,
+                                  double runtime,
+                                  boolean shootRequest,
+                                  boolean revRequest
+                                  )
+  {
+    //Read current shooter speeds
+    double ShooterFspeed = shooterFMotor.getVelocity();
+
+    if (shooterTarget < 1.06){
+      shooterFTarget = 0;
+      shooterBTarget = 0;
+      shooterState = 0;
+    } else if (shootRequest || revRequest) {
+      //set target speeds
+      shooterFTarget = -Constants.ShooterCal.interpolate(shooterTarget, true);
+      shooterBTarget = -Constants.ShooterCal.interpolate(shooterTarget, false);
+
+      //Check if Shooter Speed is within target range
+      if ((ShooterFspeed > (shooterFTarget - Constants.Shooter_Speed_Tolerance))
+              && (ShooterFspeed < (shooterFTarget + Constants.Shooter_Speed_Tolerance))
+              || (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed)
+              && (runtime - shooterTimer < (Constants.shooterMinTimeAtSpeed + Constants.shooterMinRunTime))
+      ) {
+        if (shooterTimer == 0) {
+          shooterTimer = runtime;
+          prevShotCount = shotCount;
+        }
+        if (runtime - shooterTimer > Constants.shooterMinTimeAtSpeed){
+          if (shootRequest){
+            shooterState = 1;
+            intake.setPower(-1);
+            shotCount = prevShotCount + 1;
+          } else{
+            shooterState = 2;
+          }
+        } else{
+          shooterState = 3;
+        }
+      } else {
+        shooterTimer = 0;
+        shooterState = 4;
+      }
+    } else {
+      shooterFTarget = 0;
+      shooterBTarget = 0;
+      shooterState = 5;
+    }
+
+    shooterFMotor.setVelocity(shooterFTarget);
+
+    if (isAuto && shooterState != 1 && shooterState != 5){
+      intake.setPower(0);
     }
 
   }

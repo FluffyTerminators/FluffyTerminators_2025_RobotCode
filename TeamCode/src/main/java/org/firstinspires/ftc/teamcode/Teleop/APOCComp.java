@@ -24,6 +24,8 @@ import org.firstinspires.ftc.teamcode.Util.GoBildaPinpointDriver;
 import org.firstinspires.ftc.teamcode.Util.ShooterPidTuning;
 import org.firstinspires.ftc.teamcode.Util.Constants.Toggle;
 import org.firstinspires.ftc.teamcode.Util.VisionFunctions;
+
+import java.util.Arrays;
 import java.util.List;
 
 //Download Missing Files
@@ -83,7 +85,7 @@ public class APOCComp extends LinearOpMode
         telemetry.addData("FrontSuccess", FrontSuccess);
         telemetry.addData("BackSuccess", BackSuccess);
 
-        /*limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
+        /* limelight.setPollRateHz(100); // This sets how often we ask Limelight for data (100 times per second)
         limelight.start(); // This tells Limelight to start looking!
         limelight.pipelineSwitch(Constants.LLPipeline); // Switch to pipeline number 0
 */
@@ -102,6 +104,8 @@ public class APOCComp extends LinearOpMode
         bRDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         fLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         bLDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        Intake.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         ShooterBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
@@ -136,6 +140,7 @@ public class APOCComp extends LinearOpMode
         boolean fieldCentricMode = true;
         double fieldCentricTimer = 0;
         double shooterTimer = 0;
+        double intakeStallTimer = 0;
         int cyclesAtSpeed = 0;
         boolean resetLast = false;
 
@@ -251,6 +256,7 @@ public class APOCComp extends LinearOpMode
             telemetry.addData("Forward", Forward);
             telemetry.addData("Strafe", Strafe);
             telemetry.addData("Turn", Turn);
+            telemetry.addData("TargetOffset", -VisionFunctions.getAngle(true));
 
             //Convert Movement values into motor power
             double denominator = Math.max(Math.abs(Forward) + Math.abs(Strafe) + Math.abs(Turn), 1);
@@ -286,6 +292,12 @@ public class APOCComp extends LinearOpMode
                 }
             } else {
                 pipelineDownLast = false;
+            }
+
+            if (pipeline > 7) {
+                pipeline = 0;
+            } else if (pipeline < 0) {
+                pipeline = 0;
             }
 
             //Tell Limelight which way the robot is facing
@@ -417,17 +429,32 @@ public class APOCComp extends LinearOpMode
 
             //Set Intake power
             if (runIntake) {
-                if (gamepad2.right_bumper)
-                    { Intake.setPower(Constants.Intake_Eject_Speed);} //Eject Balls
-                    else {
-                        if (intakeSpeed > 0.15) {
-                            Intake.setPower(0.2);
-                        } else{
+                    if (intakeStallTimer == 0) {
+                        intakeStallTimer = getRuntime();
+                    } else {
+                        if ((intakeStallTimer > 0) && (getRuntime() - intakeStallTimer > Constants.IntakeStallThreshold) && intakeSpeed > -0.15) {
+                            if (intakeSpeed > -0.05){
+                                Intake.setPower(0);
+                                intakeStallTimer = 0;
+                            } else {
+                                Intake.setPower(-0.25);
+                            }
+                        } else {
                             Intake.setPower(Constants.Intake_In_Speed);
+                            if (intakeStallTimer < 0){
+                                intakeStallTimer = 0;
+                            }
                         }
                     } //Intake Balls
-            } else if (!shooterFiring) {
+                }else if (!shooterFiring ) {
                 Intake.setPower(0);
+                intakeStallTimer = -1;
+            } else {
+                intakeStallTimer = -1;
+            }
+
+            if (gamepad2.right_bumper) {
+                Intake.setPower(Constants.Intake_Eject_Speed);
             }
 
             //PassThrough Control
@@ -437,16 +464,7 @@ public class APOCComp extends LinearOpMode
                 PassThrough.setPower(1);
             } else {
                 if (!shooterFiring) {
-                    if (runIntake)
-                    {
-                        if (intakeSpeed < (Constants.Intake_In_Speed * 0.7)) {
-                            PassThrough.setPower(-0.3);
-                        } else {
-                            PassThrough.setPower(-0.1);
-                        }
-                    }
-                    else
-                    {PassThrough.setPower(0);}
+                        PassThrough.setPower(0);
                 }
             }
 

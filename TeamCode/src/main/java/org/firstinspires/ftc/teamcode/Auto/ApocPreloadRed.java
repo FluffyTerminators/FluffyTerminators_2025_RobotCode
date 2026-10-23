@@ -88,7 +88,7 @@ public class ApocPreloadRed extends OpMode {
         VisionFunctions.init(limelight,this::getRuntime);
 
         follower = Constants.PEDROConstants.createFollower(hardwareMap);
-        follower.setStartingPose(new Pose(87, 8, Math.toRadians(90)));
+        follower.setStartingPose(new Pose(87, 8, Math.toRadians(270)));
 
         paths = new Paths(follower); // Build paths
 
@@ -170,19 +170,19 @@ public class ApocPreloadRed extends OpMode {
                     .addPath(
                             new BezierLine(
                                     new Pose(87.000, 8.000),
-                                    new Pose(80.000, 25.000)
+                                    new Pose(85.000, 14.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(90), Math.toRadians(240))
+                    .setLinearHeadingInterpolation(Math.toRadians(270), Math.toRadians(250))
                     .build();
             FinishChain = follower.pathBuilder()
                     .addPath(
                             new BezierLine(
-                                    new Pose(80.000, 25.000),
+                                    new Pose(85.000, 14.000),
                                     new Pose(115.000, 15.000)
                             )
                     )
-                    .setLinearHeadingInterpolation(Math.toRadians(220), Math.toRadians(0))
+                    .setLinearHeadingInterpolation(Math.toRadians(250), Math.toRadians(0))
                     .build();
         }
     }
@@ -211,7 +211,7 @@ public class ApocPreloadRed extends OpMode {
                         !follower.isBusy());
 
                 if (VisionFunctions.goodTagNow()) {
-                    targetOffset = -VisionFunctions.getAngle(true);
+                    targetOffset = -(VisionFunctions.getAngle(true));
                 }
 
                 if (!follower.isBusy()) {
